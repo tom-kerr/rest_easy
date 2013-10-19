@@ -28,7 +28,7 @@ def dlese():
 @print_function_name
 def dpla():
     dpla = RestEasy.getSourceAPIs('dpla').v2
-    dpla.apiKey('45c8abc4a364304df1f9db9f9fcfb659')
+    dpla.apiKey('xxxx')
     dpla.Items.searchIn.title('Dead Souls')
     dpla.Items.searchIn.spatial.city('Boston')
     dpla.Items.facets.spatial.coordinates('-10:70')
@@ -41,7 +41,7 @@ def dpla():
 @print_function_name
 def europeana():
     europeana = RestEasy.getSourceAPIs('europeana')
-    europeana('v2').apiKey('uXNs3VXpw')
+    europeana('v2').apiKey('xxxx')
     europeana('v2').Search.query('Mark Twain')
     print (europeana('v2').Search.get_query_string())
 
@@ -60,7 +60,7 @@ def googlebooks():
 @print_function_name
 def washpost():
     washpost = RestEasy.getSourceAPIs('washpost').trove('v1')
-    washpost.apiKey('0145AE80-A169-49A9-867E-6C8C7197A397')
+    washpost.apiKey('xxxxx')
     washpost.Resources.variant('Mark Twain')
     washpost.Resources.includeVariants(1)
     print (washpost.Resources.get_query_string())
@@ -75,7 +75,7 @@ def loc():
 @print_function_name
 def nytimes():
     nytimes = RestEasy.getSourceAPIs('nytimes').articles('v2')
-    nytimes.apiKey('82daca7459ce1733455950cf5274916a:4:67833183')
+    nytimes.apiKey('xxxx')
     nytimes.responseFormat('.json')
     nytimes.filteredQuery('Terror')
     nytimes.filteredQuery.body('blah')
@@ -85,7 +85,7 @@ def nytimes():
 @print_function_name
 def bhl():
     bhl = RestEasy.getSourceAPIs('bhl').v2
-    bhl.apiKey('7326f034-aebe-4366-99e3-900d45e52b7e')
+    bhl.apiKey('xxxx')
     bhl.bookSearch.title('Japanese Journal of Infectious Diseases')
     print (bhl.get_query_string())
     #results = bhl('v2').Query.GET(pretty_print=True)
@@ -109,7 +109,7 @@ def openlibrary():
 @print_function_name
 def librarything():
     librarything = RestEasy.getSourceAPIs('librarything').webservices('v1.1')
-    librarything.apiKey('6e4330ec9b2e71f40efe16c773a0bbee')
+    librarything.apiKey('xxxx')
     librarything.getAuthor.name('Mark Twain')
     print (librarything.get_query_string())
 
