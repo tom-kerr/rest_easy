@@ -10,6 +10,7 @@ A python module that dynamically creates wrappers for RESTful APIs from YAML mar
 Note: Documentation is in progress and some functionality may suddenly change.
 
 License: GPLv3
+
 Requires python 2.7 or greater.
 
 
@@ -18,6 +19,7 @@ How to query
 ------------
 
 First, we import the module and create an instance:
+
     from rest_easy.core.main import RestEasy
 
     RestEasy = RestEasy()
@@ -26,23 +28,23 @@ There are three ways to make queries -- with setters, strings, or dicts.
 
 Each of these queries are equivalent:
 
-        #setters
-        dpla = RestEasy.getSourceAPIs('dpla')
-	dpla('v2').apiKey('xxxx')
-	dpla('v2').Items.searchIn.title('Tom Sawyer')
-	results = dpla('v2').Items.GET()
+       #setters
+       dpla = RestEasy.getSourceAPIs('dpla')
+       dpla('v2').apiKey('xxxx')
+       dpla('v2').Items.searchIn.title('Tom Sawyer')
+       results = dpla('v2').Items.GET()
 
-        #strings
-        results = RestEasy.GET('dpla', 'v2', 'apiKey->xxxx:Items->searchIn->title->Tom Sawyer')
+       #strings
+       results = RestEasy.GET('dpla', 'v2', 'apiKey->xxxx:Items->searchIn->title->Tom Sawyer')
 
-        #dicts
-        results = RestEasy.GET('dpla', 'v2', {'apiKey': 'xxxx',
-                                                'Items': {
-                                                  'searchIn': {
-                                                      'title': 'Tom Sawyer'
-                                                      }
-                                                    }  
-                                                })
+       #dicts
+       results = RestEasy.GET('dpla', 'v2', {'apiKey': 'xxxx',
+                                             'Items': {
+                                               'searchIn': {
+                                                   'title': 'Tom Sawyer'
+                                                   }
+                                                 }  
+                                             })
 
 <h3>Setters</h3>
 To query using setters, one must first retrieve the Source object:
@@ -85,6 +87,18 @@ How to write a wrapper
 <h3>Source</h3>
 The most fundamental component in rest_easy is the **Source**. A Source is an online entity that exposes RESTful APIs, like The New York Times or the Digital Public Library of America, represented by one or more .yaml files that contain information about what its APIs expect. 
 
+
+Each Source file contains data which is encapsulated in objects called APIs, Methods, and Properties.
+
+<h3>API</h3>
+
+
+<h3>Method</h3>
+
+
+<h3>Property</h3>
+
+
 rest_easy comes bundled with these Sources:
 
 - dpla           (<a href='http://dp.la'>Digital Public Library of America</a>)
@@ -98,40 +112,6 @@ rest_easy comes bundled with these Sources:
 - dlese          (<a href='http://www.dlese.org'>Digital Library for Earth System Education</a>)
 - nytimes        (<a href='http://developer.nytimes.com/'>The New York Times</a>)
 - washpost       (<a href='https://developer.washingtonpost.com/'>The Washington Post</a>)
-
-
-Each Source file contains data which is encapsulated in objects called APIs, Methods, and Properties.
-
-     Source:
-	  API_1:
-	    Method1:
-		  Property:
-		          Property
-            Method2:
-		  Property:
-                           Property1
-		           Property2
-            Method3
-
-	  API_2:
-               child_API:
-                        Method1:
-                               Property
-                        Method2:
-			       Property:
-                                        Property:
-                                               Property
-
-
-<h3>API</h3>
-
-
-<h3>Method</h3>
-
-
-
-<h3>Property</h3>
-
 
 
 Help
