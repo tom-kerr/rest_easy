@@ -1,0 +1,127 @@
+import librarything.def
+
++doc: | 
+    Library Thing
+    
+    LibraryThing is an online service to help people catalog their books easily. 
+    You can access your catalog from anywhere—even on your mobile phone. Because 
+    everyone catalogs together, LibraryThing also connects people with the same 
+    books, comes up with suggestions for what to read next, and so forth. 
+
+    
+    Documentation:
+      http://www.librarything.com/services/webservices.php
+
+baseurl:
+  'http://www.librarything.com/services'
+    
++parameters:
+  webservices:
+    v1.1:
+      essential: 
+        apiKey:
+          +mode: K+V
+          +this: *apikey
+
+      #Rest:
+      http_method: GET
+      path: '/rest/1.1/?{0}'
+      input:
+        format: key_value
+        +parameters: 
+          getWork: 
+            +mode: S+K+V
+            +scope: 
+              method: 'librarything.ck.getwork'
+            +requirements:
+              at_least_one: [id, isbn, lccn, oclc, name]
+            +parameters:
+              id: *id
+              isbn: *isbn
+              lccn: *lccn
+              oclc: *oclc
+              name: *name
+          getAuthor:
+            +mode: S+K+V
+            +scope: 
+              method: 'librarything.ck.getauthor'
+            +requirements:
+              at_least_one: [id, authorCode, name]
+            +parameters:
+              id: *id
+              authorCode: *authorcode
+              name: *name
+
+          getVenue:
+            +mode: S+K+V
+            +scope: 
+              method: 'librarything.local.getvenue'
+            +requirements:
+              mandatory: [id]
+            +parameters:
+              id: *id
+
+          getVenuesNear:
+            +mode: S+K+V
+            +scope: 
+              method: 'librarything.local.getvenuesnear'
+            +requirements: 
+              atleast_one: [latlon, lat, lon, id , place]
+            +parameters:
+              latlon: *latlon
+              lat: *lat
+              lon: *lon
+              id: *id
+              place: *place
+              distance: *distance
+              measure: *measure
+              venueType: *venuetype
+
+          searchVenues:
+            +mode: S+K+V
+            +scope: 
+              method: 'librarything.local.searchvenues'
+            +requirements:
+              mandatory: [q]
+            +parameters:
+              q: *q
+              latlon: *latlon
+              lat: *lat
+              lon: *lon
+              centeronq: *centeronq
+              measure: *measure
+          getEventsNear:
+            +mode: S+K+V
+            +scope: 
+              method: 'librarything.local.geteventsnear'
+            requirements:
+              mandatory: [timestamp]
+              at_least_one: [latlon, lat, lon, venue, place, 
+              distance, measure, days, limit]
+            +parameters:
+              timestamp: *timestamp
+              latlon: *latlon
+              lat: *lat
+              lon: *lon
+              venue: *venue
+              place: *place
+              distance: *distance
+              measure: *measure
+              days: *days
+              limit: *limit
+              
+          searchEvents:
+            +mode: S+K+V
+            +scope: 
+              method: 'librarything.local.searchevents'
+            +requirements:
+              mandatory: [q]
+            +parameters:
+              q: *q
+              latlon: *latlon
+              lat: *lat
+              lon: *lon
+              centeronq: *centeronq
+              measure: *measure      
+      output:
+        format: xml

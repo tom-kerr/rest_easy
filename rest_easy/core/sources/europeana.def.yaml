@@ -1,0 +1,52 @@
+import stddef
+
+ws+key: &wskey
+  +key: 'wskey'
+  +expected_value: str
+
+profile: &profile
+  +key: 'profile'
+  +expected_value: |
+    '^(minimal|standard|facets|breadcrumbs|portal)$'
+
+qf: &qf
+  +key: ''
+  +expected_value: str
+  syntax:
+    args: Null
+
+type: &type
+  +key: 'TYPE'
+  +expected_value: '^(IMAGE|TEXT|SOUND|VIDEO|3D)$'
+
+language: &language
+  <<: *std-language
+  +key: 'LANGUAGE'
+
+year: &year
+  <<: *std-year
+  +key: 'YEAR'
+
+country: &country
+  <<: *std-country
+  +key: 'COUNTRY'
+  
+rights: &rights
+  <<: *rights
+  +key: 'RIGHTS'
+
+provider: &provider
+  +key: 'PROVIDER'
+  +expected_value: str
+
+ugc: &ugc
+  +key: 'UGC'
+  +expected_value: str
+
+rows: &rows
+  +key: 'rows'
+  +expected_value: *stdregex-int
+
+start: &start
+  +key: start
+  +expected_value: *stdregex-int

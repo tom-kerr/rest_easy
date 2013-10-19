@@ -1,0 +1,5 @@
+lxml
+PyYAML
+xmltodict
+dict2xml
+colorama

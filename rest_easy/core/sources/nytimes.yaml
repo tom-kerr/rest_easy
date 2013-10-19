@@ -1,0 +1,184 @@
+import nytimes.def
+
++doc: |
+    The New York Times 
+
+
+    Documentation:
+      http://http://developer.nytimes.com/docs/read
+
+baseurl:
+  'http://api.nytimes.com/svc'
+
++parameters:
+  articles:
+    v2:
+      essential:
+        apiKey:
+          +mode: K+V
+          +this: *apikey
+        responseFormat:
+          +mode: V
+          +this: *responseformat
+            
+      http_method: GET
+      path: '/search/v2/articlesearch{responseFormat}?{0}{1}'
+      input: 
+        format: key_value
+        +parameters:
+          query:
+            +mode: K+V
+            +this: *std-q
+   
+          filteredQuery:
+            +mode: P+MK+V
+            +prefix: 'fq'          
+            +syntax: 
+              args: ':'
+            +this: *filteredquery
+            +parameters:
+              body: 
+                <<: *body
+                +parameters:
+                  search: *body-search 
+              creative_works: 
+                <<: *creativeworks
+                +parameters:
+                  contains: *creativeworks-contains       
+              day_of_week: *dayofweek
+              document_type: *documenttype 
+              glocations: 
+                <<: *glocations
+                +parameters:
+                  contains: *glocations-contains     
+              headline: 
+                <<: *headline
+                +parameters:
+                  search: *headline-search 
+              kicker: 
+                <<: *kicker
+                +parameters:
+                  contains: *kicker-contains 
+              news_desk: 
+                <<: *newsdesk
+                +parameters:
+                  contains: *newsdesk-contains
+              organizations:
+                +this: *organizations
+                +parameters:
+                  contains: *organizations-contains
+              persons:
+                +this: *persons
+                +parameters:
+                  contains: *persons-contains
+              pub_date: *pubdate
+              pub_year: *pubyear
+              secpg: *secpg
+              source:
+                +this: *source
+                +parameters:
+                  contains: *source-contains 
+              subject:
+                +this: *subject
+                +parameters:
+                  contains: *subject-contains
+              section_name:
+                +this: *sectionname
+                +parameters:
+                  contains: *sectionname-contains
+              type_of_material:
+                +this: *typeofmaterial
+                +parameters:
+                  contains: *typeofmaterial-contains
+              web_url: *weburl
+              word_count: *wordcount
+
+          date: 
+            +mode: K+V
+            +parameters:
+              begin: *begindate
+              end: *enddate
+
+          sort: 
+            +mode: K+V
+            +this: *sort
+
+          fl: 
+            +mode: P+MK
+            +prefix:: 'fl'
+            +syntax:
+              multi: ','
+            +parameters: 
+              web_url: 
+                <<: *weburl
+                +expected_value: Null
+              snippet: *snippet
+              lead_paragraph: *leadparagraph
+              abstract: *abstract
+              print_page: *printpage
+              blog: *blog
+              source:
+                <<: *source
+                +expected_value: Null
+              multimedia: *multimedia
+              headline: 
+                <<: *headline
+                +expected_value: Null
+              keywords: *keywords
+              pub_date: 
+                <<: *pubdate
+                +expected_value: Null
+              document_type: 
+                <<: *documenttype
+                +expected_value: Null
+              news_desk: 
+                <<: *newsdesk
+                +expected_value: Null
+              byline: *byline
+              type_of_material:
+                <<: *typeofmaterial
+                +expected_value: Null
+              '@id': *-id
+              word_count: 
+                <<: *wordcount
+                +expected_value: Null
+
+          hl: 
+            +mode: K+V
+            +this: *hl
+
+          page: 
+            +mode: K+V
+            +this: *std-page
+
+          facetField:
+            +mode: P+K+V
+            +prefix:: 'facet_field'
+            +syntax:
+              multi: ','
+            +parameters: 
+              section_name: 
+                <<: *sectionname
+                +expected_value: Null
+              document_type:
+                <<: *documenttype
+                +expected_value: Null
+              type_of_material:
+                <<: *typeofmaterial
+                +expected_value: Null
+              source: 
+                <<: *source
+                +expected_value: Null
+              day_of_week: 
+                <<: *dayofweek
+                +expected_value: Null
+
+          facetFilter:
+            +mode: K+V
+            +this: *facetfilter 
+            
+          callback:
+            +mode: K+V
+            +this: *std-callback
+      output:
+        format: json

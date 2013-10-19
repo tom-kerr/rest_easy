@@ -1,0 +1,273 @@
+# This file contains commonly defined fields, which 
+# can be included for use in mapping APIs by adding 
+# 'import std.yaml' to the beginning of a source.yaml. 
+# Anchors are named in the convention &std-fieldname
+# to avoid collisions.
+#
+# One can modify/extend a field in the following manner:
+#
+#  original-field: &original-field
+#      original-map: 5
+#
+#
+#  modified-field: &new-anchor
+#      <<: *original-field
+#      original-map: foo
+#      new-map: bar
+#
+# where original-map from original-field is modified to
+# map to foo rather than 5, and a new mapping new-map 
+# to bar is created.
+#
+# See http://yaml.org/type/merge.html 
+
+import stdregex
+
+#QUERY
+q: &std-q
+  +doc: |
+    Query string.
+  +key: 'q'
+  +expected_value: str
+          
+query: &std-query
+  +doc: |
+    Query string.
+  +key: 'query'
+  +expected_value: str
+
+
+#STRING IDENTIFIERS
+id: &std-strid
+  +key: 'id'
+  +expected_value: str
+
+
+
+#NUMERICAL IDENTIFIERS
+id: &std-numid
+  +key: 'id'
+  +expected_value: *stdregex-int
+
+isbn: &std-isbn
+  +doc: |
+    International Standard Book Number, a unique 
+    numeric commercial book identifier. 
+
+    http://en.wikipedia.org/wiki/International_Standard_Book_Number
+  +key: 'isbn'
+  +expected_value: *stdregex-isbn
+
+lccn: &std-lccn
+  +doc: |
+    Library of Congress Control Number, a serially 
+    based system of numbering cataloging records in 
+    the Library of Congress in the United States.
+
+    http://en.wikipedia.org/wiki/Library_of_Congress_Control_Number
+  +key: 'lccn'
+  +expected_value: *stdregex-lccn
+
+oclc: &std-oclc
+  +doc: |
+    Online Computer Library Center Control Number, 
+    a unique, sequentially assigned number associated 
+    with a record in WorldCat.
+
+    http://en.wikipedia.org/wiki/Online_Computer_Library_Center
+  +key: 'oclc'
+  +expected_value: str
+
+olid: &std-olid
+  +doc: |
+    Open Library Identifier.
+  +key: 'olid'
+  +expected_value:  *stdregex-int
+
+barcode: &std-barcode
+  +key: 'barcode'
+  +expected_value: *stdregex-int
+
+ia: &std-ia
+  +doc: |
+    Internet Archive item identifier.
+  +key: 'value'
+  +expected_value:  *stdregex-ia
+
+doi: &std-doi
+  +doc: |
+    Digital object identifier.
+
+    http://en.wikipedia.org/wiki/Digital_object_identifier
+  +key: 'value'
+  +expected_value:  *stdregex-doi
+
+issn: &std-issn
+  +doc: |
+    International Standard Serial Number.
+
+    http://en.wikipedia.org/wiki/International_Standard_Serial_Number
+  +key: 'value'
+  +expected_value:  *stdregex-issn
+
+ddc: &std-ddc
+  +doc: |
+    Dewey Decimal Classification
+
+    http://en.wikipedia.org/wiki/Dewey_Decimal_Classification
+  +key: 'value'
+  +expected_value:  *stdregex-ddc
+
+nal: &std-nal
+  +doc: |
+    National Agricultural Library identifier.
+  +key: 'value'
+  +expected_value: str
+  
+nlm: &std-nlm
+  +doc: |
+    National Library of Medicine identifier.
+  +key: 'value'
+  +expected_value: str
+
+coden: &std-coden
+  +doc: |
+    A six character, alphanumeric bibliographic code.
+
+    http://en.wikipedia.org/wiki/CODEN
+  +key: 'value'
+  +expected_value:  *stdregex-coden
+
+
+#GEOGRAPHIC
+country: &std-country
+  +doc: |
+    Location country.        
+  +key: 'country'
+  +expected_value: str
+
+state: &std-state
+  +doc: |
+    Location state.     
+  +key: 'state'
+  +expected_value: str
+
+city: &std-city
+  +doc: |
+    Location city.        
+  +key: 'city'
+  +expected_value: str
+
+county: &std-county
+  +doc: |
+    Location county.     
+  +key: 'county'
+  +expected_value: str
+
+region: &std-region
+  +doc: |
+    Location  region.
+  +key: 'region'
+  +expected_value: str
+
+int_distance: &std-intdistance
+  +key: 'distance'
+  +expected_value:  *stdregex-int
+
+float_distance: &std-floatdistance
+  +key: 'distance'
+  +expected_value:  *stdregex-float
+  
+year: &std-year
+  +key: 'year'
+  +expected_value: '[0-9]{1,}'
+
+
+#BIBLIOGRAPHIC
+name:  &std-name
+  +key: 'name'
+  +expected_value: str
+
+title: &std-title
+  +key: 'title'
+  +expected_value: str
+
+author: &std-author
+  +key: 'author'
+  +expected_value: str
+
+subject: &std-subject
+  +key: 'subject'
+  +expected_value: str
+
+volume: &std-volume
+  +key: 'volume'
+  +expected_value: str
+
+series: &std-series
+  +key: 'series'
+  +expected_value: str
+
+issue: &std-issue
+  +key: 'issue'
+  +expected_value: str
+
+edition: &std-edition
+  +key: 'edition'
+  +expected_value: str
+
+language: &std-language
+  +key: 'language'
+  +expected_value: str
+
+rights: &std-rights
+  +key: 'rights'
+  +expected_value: str
+              
+publisher: &std-publisher
+  +key: 'publisher'
+  +expected_value: str
+
+description: &std-description
+  +key: 'description'
+  +expected_value: str
+
+
+#ISO
+iso369: &std-iso369
+  +doc: |
+    ISO 369 code for the specified language
+  +key: 'iso369'
+  +expected_value: str
+
+iso3166_2: &std-iso3166-2
+  +doc: |
+    ISO 3166-2 code for location state.
+  +key: 'iso3166-2'
+  +expected_value: *stdregex-iso3166-2
+
+
+#OUTPUT
+format: &std-format 
+  +key: 'format'
+  +expected_value: str
+
+callback: &std-callback
+  +key: 'callback' 
+  +expected_value: str
+
+page: &std-page
+  +key: 'page'
+  +expected_value: *stdregex-posint
+
+limit: &std-limit
+  +key: 'limit'
+  +expected_value: *stdregex-posint
+
+#MISC
+url: &std-url 
+  +key: 'url'
+  +expected_value: str
+
+
+

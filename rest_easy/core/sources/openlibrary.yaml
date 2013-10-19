@@ -1,0 +1,317 @@
+import openlibrary.def
+
++doc: | 
+    OpenLibrary 
+
+    Open Library is an open, editable library catalog, 
+    building towards a web page for every book ever published.
+
+    
+    Documentation:
+      http://openlibrary.org/developers/api
+
+baseurl: 
+  'http://openlibrary.org'
+   
++parameters:  
+  Query:
+    http_method: GET
+    path: '/query.json?query={0}'
+    input:
+      format: json
+      +parameters:         
+        author:
+          +mode: S+K+V
+          +scope:
+            type: '/type/author'
+          +parameters:
+            name: *name
+            easternOrder: *easternorder
+            personalName: *personalname
+            enumeration: *enumeration
+            title: *title
+            alternateNames: *alternatenames
+            uris: *uris
+            bio: *bio
+            location: *location
+            birthDate: *birthdate
+            deathDate: *deathdate
+            date: *date
+            wikipedia: *wikipedia
+            links: *links
+
+        about:
+          +mode: S+K+V
+          +scope: 
+            type: '/type/about'
+          +parameters:
+            title: *title
+            body: *body
+  
+        #author_role:
+        #  +mode: S+K+V
+        #  +prefix:: 'type=/type/author_role'
+        #  +parameters:
+        #    author: *author
+        #    role: *role
+        #    as: *as
+
+        collection:
+          +mode: S+K+V
+          +scope: 
+            type: '/type/collection'
+          +parameters:
+            name: *name
+
+        content:
+          +mode: S+K+V
+          +scope: 
+            type: '/type/content'
+          +parameters:
+            title: *title
+            body: *body
+
+        #contribution:
+        #  parameters:
+        #    role: ' '
+        #    contributor: ' '
+
+        doc:
+          +mode: S+K+V
+          +scope: 
+            type: '/type/doc'
+          +parameters:
+            title: *title
+            body: *body
+
+        edition:
+          +mode: S+K+V
+          +scope: 
+            type: '/type/edition'
+          +parameters:
+            title: *title
+            titlePrefix: *title-prefix
+            subtitle: *subtitle
+            otherTitles: *othertitles
+            authors: *authors
+            byStatement: *bystatement
+            publishDate: *publishdate
+            copyrightDate: *copyrightdate
+            editionName: *editionname
+            languages: *languages
+      
+            #NOT INDEXED
+            #description:' '
+            #notes of type /type/text
+            #genres: []
+      
+            tableOfContents: *tableofcontents
+                    
+            #work_titles: []
+            #series: []
+            #physical_dimensions: ' '
+            #physical_format: ' '
+            #number_of_pages: ' '
+            #subjects: []
+            #pagination: ' '
+            #lccn: []
+            #ocaid: ' '
+            #oclc_numbers: []
+            #isbn_10: [] 
+            #isbn_13: [] 
+            #dewey_decimal_class: [] 
+            #lc_classifications: [] 
+            #contributions: [] 
+            #publish_places: [] 
+            #publish_country: ' '
+            #publishers: []
+            #distributors: []
+            #NOT INDEXED
+            #first_sentence: ' '
+            #weight: ' '
+            #location: []
+            #scan_on_demand: ' '
+          
+            #collections: [] of type /type/collection
+            
+            #uris: []
+            #uri_descriptions: []
+            #translation_of: ' '
+            #works: []
+            #source_records: []
+            
+            #translated_from[] of type /type/language
+            
+            #scan_records[] of type /type/scan_record
+            #volumes[] of type /type/volume
+            
+            #accompanying_material: ' '
+
+        options: 
+          +mode: K+V
+          +parameters:
+            limit: 
+              +key: limit
+              +expected_value: '[0-9]+'
+            offset: 
+              +key: offset 
+              +expected_value: '[0-9]+'
+            "return_all": 
+              +key: "*"
+              +expected_value: Null        
+    output:
+      format: json
+
+
+  Search:
+    http_method: GET
+    path: '/search.json?{0}'
+    input: 
+      format: key_value
+      +parameters: 
+        search: 
+          +mode: K+V
+          +parameters: 
+            q:
+              +key: 'q'
+              +expected_value: str
+            title:
+              +key: 'title'
+              +expected_value: str
+            author:
+              +key: 'author'
+              +expected_value: str
+            subject:
+              +key: 'subject'
+              +expected_value: str  
+    output:
+      format: json
+
+  Books:
+    http_method: GET
+    path: '/api/books?{0}{1}'
+    input: 
+      format: key_value
+      +parameters: 
+        id: 
+          +mode: P+K+MV+A
+          +prefix: 'bibkeys'
+          +syntax: 
+            multi: ','
+            args: ':'
+          +parameters: *libidsup
+
+        options: 
+          +mode: K+V
+          +parameters: 
+            format:
+              +key: format
+              +expected_value: '^(json|javascript)$'
+            callback: 
+              +key: callback 
+              +expected_value: str
+            jscmd:
+              +key: jscmd
+              +expected_value: '^(viewapi|data)$'
+    output:
+      format: javascript
+    
+  VolumesBrief:
+    http_method: GET
+    path: '/api/volumes/brief/{0}.json{1}'
+    input:
+      format: key_value
+      +parameters: 
+        id: 
+          +mode: K+V
+          +syntax:
+            bind: '/'
+            chain: ''
+          +parameters: *libidslow
+        
+        options:
+          +mode: K+V
+          +syntax:
+            chain: '?'
+          +parameters:
+            callback: 
+              +key: callback
+              +expected_value: str
+    output:
+      format: json
+
+  MultiVolumesBrief: 
+    http_method: GET
+    path: '/api/volumes/brief/json/{0}{1}'
+    input:
+      format: key_value
+      +parameters: 
+        id: 
+          +mode: MK+MV
+          +syntax:
+            bind: ':'
+            chain: ';'
+            multi: '|'
+          +parameters: *libidslow
+
+        options: 
+          +mode: K+V
+          +syntax:
+            chain: '?'
+          +parameters:
+            callback: 
+              +key: callback
+              +expected_value: str
+    output:
+      format: json
+
+  VolumesFull: 
+    http_method: GET
+    path: '/api/volumes/full/{0}.json{1}'
+    input:
+      format: key_value
+      +parameters: 
+        id: 
+          +mode: K+V
+          +syntax:
+            bind: '/'
+            chain: ''
+          +parameters: *libidslow
+
+        options:
+          +mode: K+V
+          +syntax:
+            chain: '?'
+          +parameters:
+            callback: 
+              +key: callback
+              +expected_value: str
+    output:
+      format: json
+
+  MultiVolumesFull:
+    http_method: GET
+    path: '/api/volumes/full/json/{0}{1}'
+    input:
+      format: key_value
+      +parameters: 
+        id: 
+          +mode: MK+MV
+          +parameters: *libidslow
+          +syntax:
+            bind: ':'
+            chain: ';'
+            multi: '|'
+
+        options: 
+          +mode: K+V
+          +syntax:
+            chain: '?'
+          +parameters:
+            callback: 
+              +key: callback
+              +expected_value: str
+    output:
+      format: json
+      
+

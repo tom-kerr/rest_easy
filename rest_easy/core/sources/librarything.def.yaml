@@ -1,0 +1,78 @@
+import stddef
+
+api+key: &apikey
+  +key: 'apikey'
+  +expected_value: str
+
+q: &q
+  <<: *std-q
+  
+id: &id
+  <<: *std-numid
+  
+isbn: &isbn
+  <<: *std-isbn
+  
+lccn: &lccn
+  <<: *std-lccn
+  
+oclc: &oclc
+  <<: *std-oclc
+  
+olid: &olid
+  <<: *std-olid
+  
+name: &name
+  <<: *std-name
+  
+authorcode: &authorcode
+  +key: 'authorcode'
+  +expected_value: str
+
+latlon: &latlon
+  +key: 'latlon'
+  +expected_value: 
+    '^[0-9\-]+?(\.[0-9]+)?[ ]*[,][ ]*[0-9\-]+?(\.[0-9]+)?$'
+
+lat: &lat
+  +key: 'lat'
+  +expected_value: *stdregex-float
+
+lon: &lon
+  +key: 'lon'
+  +expected_value: *stdregex-float
+
+place: &place
+  +key: 'place'
+  +expected_value: str
+
+distance: &distance
+  <<: *std-intdistance
+  
+measure: &measure
+  +key: 'measure'
+  +expected_value: '^[0-1]$'
+
+venue_type: &venuetype
+  +key: 'venueType'
+  +expected_value: '^[0-4]$'
+
+centeronq: &centeronq
+  +key: 'centeronq'
+  +expected_value: '^[0-1]$'
+
+timestamp: &timestamp
+  +key: 'timestamp'
+  +expected_value: str
+
+venue: &venue
+  +key: 'venue'
+  +expected_value: *stdregex-posint
+
+days: &days
+  +key: 'days'
+  +expected_value: *stdregex-posint
+
+limit: &limit
+  <<: *std-limit
+  

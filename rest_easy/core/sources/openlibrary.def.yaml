@@ -1,0 +1,196 @@
+import stddef
+
+library_identifiers_upper: &libidsup
+  ISBN:
+    +doc: |
+      International Standard Book Number, a unique 
+      numeric commercial book identifier. 
+
+      http://en.wikipedia.org/wiki/International_Standard_Book_Number
+
+    +key: 'ISBN'
+    +expected_value: '[0-9]+'
+  LCCN:
+    +doc: |
+      Library of Congress Control Number, a serially 
+      based system of numbering cataloging records in 
+      the Library of Congress in the United States.
+
+      http://en.wikipedia.org/wiki/Library_of_Congress_Control_Number
+
+    +key: 'LCCN'
+    +expected_value: '[0-9]+'
+  OCLC:
+    +doc: |
+      Online Computer Library Center Control Number, 
+      a unique, sequentially assigned number associated 
+      with a record in WorldCat.
+
+      http://en.wikipedia.org/wiki/Online_Computer_Library_Center
+
+    +key: 'OCLC'
+    +expected_value: '[0-9]+'
+  OLID:
+    +doc: |
+      Open Library Identifier, a unique identifier associated
+       with Open Library items.
+    +key: 'OLID'
+    +expected_value: '[0-9]+'
+
+library_identifiers_lower: &libidslow
+  isbn:
+    +key: 'isbn'
+    +expected_value: '[0-9]+'
+  lccn:
+    +key: 'lccn'
+    +expected_value: '[0-9]+'
+  oclc:
+    +key: 'oclc'
+    +expected_value: '[0-9]+'
+  olid:
+    +key: 'olid'
+    +expected_value: '[0-9]+'
+
+name:  &name
+  +doc: | 
+      An identifying word or term.
+  +key: 'name'
+  +expected_value: str
+
+easternOrder: &easternorder
+  +key: 'eastern_order'
+  +expected_value: bool
+  
+personalName: &personalname
+  +key: 'personal_name'
+  +expected_value: str
+  
+enumeration: &enumeration 
+  +key: 'enumeration'
+  +expected_value: str
+  
+title: &title
+  +key: 'title'
+  +expected_value: str
+    
+alternateNames: &alternatenames
+  +key: 'alternate_names'
+  #+expected_value: [ [str] ]
+  +expected_value: str
+  
+uris: &uris
+  +key: 'uris'
+  +expected_value: str
+  
+bio: &bio
+  +key: 'bio'
+  +expected_value: str
+  
+location: &location
+  +key: 'location'
+  +expected_value: str
+  
+birthDate: &birthdate 
+  +key: 'birth_date'
+  +expected_value: str
+  
+deathDate: &deathdate
+  +key: 'death_date'
+  +expected_value: str
+  
+date: &date
+  +key: 'date'
+  +expected_value: str
+  
+wikipedia: &wikipedia
+  +key: 'wikipedia'
+  +expected_value: str
+    
+links: &links
+  +key: 'links'
+  #+expected_value: []
+  +expected_value: str
+
+role: &role
+  +key: 'role'
+  +expected_value: str
+
+as: &as
+  +key: 'as'
+  +expected_value: str
+
+#NOT INDEXED
+body: &body
+  +key: 'body'
+  +expected_value: str
+
+titlePrefix: &title-prefix
+  +key: 'title_prefix'
+  +expected_value: str
+
+subtitle: &subtitle
+  +key: 'subtitle'
+  +expected_value: str
+
+otherTitles: &othertitles
+  +key: 'other_titles'
+  +expected_value: str #[[str]]
+
+authors: &authors
+  +key: 'authors'
+  +expected_value: '\/author\/.+'
+
+byStatement: &bystatement
+  +key: 'by_statement'
+  +expected_value: str
+
+publishDate: &publishdate
+  +key: 'publish_date'
+  +expected_value: '[0-9]+'
+
+copyrightDate: &copyrightdate
+  +key: 'copyright_date'
+  +expected_value: '[0-9]+'
+
+editionName: &editionname
+  +key: 'edition_name'
+  +expected_value: str
+
+languages: &languages 
+  +key: 'languages'
+  +expected_value: '\/languages\/.+'
+
+#NOT INDEXED
+description: &description
+  +key: 'description'
+  +expected_value: str
+
+notes: &notes
+  +key: 'notes'
+  +expected_value: str
+
+genres: &genres
+  +key: 'genres'
+  +expected_value: str #[[str]]
+
+class: &class
+  +key: 'class'
+  +expected_value: str
+
+label: &label
+  +key: 'label'
+  +expected_value: str
+  
+pagenum: &pagenum
+  +key: 'pagenum'
+  +expected_value: '[0-9]+'
+      
+tableOfContents: &tableofcontents
+  +mode: P+K+V 
+  +prefix: 'table_of_contents'
+  +parameters:
+    class: *class
+    label: *label
+    title: *title
+    pagenum: *pagenum
+    

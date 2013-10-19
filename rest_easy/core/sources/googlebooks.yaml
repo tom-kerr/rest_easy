@@ -1,0 +1,87 @@
+import googlebooks.def
+
++doc: | 
+    Google Books
+    
+    Google Books is our effort to make book content more discoverable on the Web.
+
+        
+    Documentation:
+      https://developers.google.com/books/docs/
+
+baseurl:
+  'https://www.googleapis.com'
+  
++parameters:
+  v1:
+    Volumes:
+      http_method: GET
+      path: '/books/v1/volumes?{0}'
+      input:
+        format: key_value
+        +parameters: 
+          query: 
+            +mode: K+MV+A
+            +syntax:
+              bind: ':'
+              chain: '+'
+            +this: *q
+            +parameters:            
+              inTitle: *intitle
+              inAuthor: *inauthor
+              inPublisher: *inpublisher
+              subject: *subject
+              isbn: *isbn
+              oclc: *oclc
+              lccn: *lccn
+
+          fields:
+            +mode: K+V
+            +this: *fields
+
+          filter: 
+            +mode: K+V
+            +this: *filter
+
+          download: 
+            +mode: K+V
+            +this: *download
+
+          pagination: 
+            +mode: K+V
+            +requirements: 
+              all_or_none: [startIndex, maxResults]
+            +parameters: 
+              startIndex: *startindex
+              maxResults: *maxresults
+
+          printType: 
+            +mode: K+V
+            +this: *printtype
+
+          projection:
+            +mode: K+V
+            +this: *projection
+
+          sorting: 
+            +mode: K+V
+            +parameters:
+              orderBy: *orderby 
+
+          apiKey:
+            +mode: K+V
+            +this: *apikey 
+
+          callback: 
+            +mode: K+V
+            +this: *std-callback
+
+          prettyPrint:
+            +mode: K+V
+            +this: *prettyprint
+          
+          langRestrict:
+            +mode: K+V
+            +this: *langrestrict
+      output:
+        format: json

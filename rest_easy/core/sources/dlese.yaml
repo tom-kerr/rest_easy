@@ -1,0 +1,193 @@
+import dlese.def
+
++doc: |
+    Digital Library for Earth Science Education 
+  
+    The Digital Library for Earth System Education (DLESE) is a distributed 
+    community effort involving educators, students, and scientists working 
+    together to improve the quality, quantity, and efficiency of teaching and 
+    learning about the Earth system at all levels.
+
+    DLESE supports Earth system science education by providing:
+
+    -- Access to high-quality collections of educational resources
+
+    -- Access to Earth data sets and imagery, including the tools 
+       and interfaces that enable their effective use in educational 
+       settings
+
+    -- Support services to help educators and learners effectively 
+       create, use, and share educational resources
+
+    -- Communication networks to facilitate interactions and collaborations 
+       across all dimensions of Earth system education
+
+
+    Documentation:
+      http://www.dlese.org/dds/services/ddsws1-1/index.jsp
+
+baseurl:
+  'http://www.dlese.org/dds/services'
+
++parameters:
+  ddsws:
+    v1.1:
+      http_method: GET
+      path: '/ddsws1-1?{0}'
+      input:
+        format: key_value
+        +parameters:    
+           Search:
+             +mode: S+K+V
+             +scope:
+               verb: 'Search'
+             +requirements:
+               mandatory: 
+                 [startingOffset,
+                 numReturned]
+               all_or_none:
+                 [geoPredicate,
+                 geoBBNorth,
+                 geoBBSouth,
+                 geoBBEast,
+                 geoBBWest,
+                 geoClause]
+               mutually_exclusive:
+                 [sortAscendingBy,
+                 sortDescendingBy]
+             +parameters:
+               startingOffset: *s
+               numReturned: *n
+               query: *q
+               collection: *ky
+               gradeRange: *gr
+               resourceType: *re
+               subject: *su
+               contentStandard: *cs
+               dateField: *datefield
+               fromDate: *fromdate
+               toDate: *todate
+               geoPredicate: *geopredicate
+               geoBBNorth: *geobbnorth
+               geoBBSouth: *geobbsouth
+               geoBBEast: *geobbeast
+               geoBBWest: *geobbwest
+               geoClause: *geoclause
+               xmlFormat: *xmlformat
+               client: *client
+               searchOver: *so
+               sortAscendingBy: *sortascby
+               sortDescendingBy: *sortdescby
+
+           UserSearch:
+             +mode: S+K+V
+             +scope: 
+               verb: 'UserSearch'
+             +requirements:
+               mandatory: [s,n]
+               all_or_none:
+                 [geoPredicate,
+                 geoBBNorth,
+                 geoBBSouth,
+                 geoBBEast,
+                 geoBBWest,
+                 geoClause]
+             +parameters:
+               q: *q
+               ky: *ky
+               gr: *gr
+               re: *re
+               su: *su
+               cs: *cs
+               geoPredicate: *geopredicate
+               geoBBNorth: *geobbnorth
+               geoBBSouth: *geobbsouth
+               geoBBEast: *geobbeast
+               geoBBWest: *geobbwest
+               geoClause: *geoclause
+               s: *s
+               n: *n
+               client: *client
+
+           GetRecord:
+             +mode: S+K+V
+             +scope: 
+               verb: 'GetRecord'
+             +requirements:
+               mandatory: [id]
+             +parameters:
+               id: &id
+                 <<: *std-strid
+               xmlFormat: *xmlformat
+               so: *so
+
+           ListFields:
+             +mode: S+K+V
+             +scope: 
+               verb: 'ListFields'
+             +this: *listfields
+
+           ListTerms:
+             +mode: S+K+V
+             +scope: 
+               verb: 'ListTerms'
+             +requirements:
+               mandatory: [field]
+             +parameters: 
+               field: *field
+
+           ListCollections:
+             +mode: S+K+V
+             +scope: 
+               verb: 'ListCollections'
+             +this: *listcollections
+
+           ListGradeRanges:
+             +mode: S+K+V
+             +scope: 
+               verb: 'ListGradeRanges'
+             +this: *listgraderanges
+
+           ListSubjects:
+             +mode: S+K+V
+             +scope: 
+               verb: 'ListSubjects'
+             +this: *listsubjects
+
+           ListResourceTypes:
+             +mode: S+K+V
+             +scope: 
+               verb: 'ListResourceTypes'
+             +this: *listresourcetypes
+
+           ListContentStandards:
+             +mode: S+K+V
+             +scope: 
+               verb: 'ListContentStandards'
+             +this: *listcontentstandards
+
+           ListXmlFormats:
+             +mode: S+K+V
+             +scope: 
+               verb: 'ListXmlFormats'
+             +this: *listxmlformats
+             +parameters:
+               id: *id
+
+           UrlCheck:
+             +mode: S+K+V
+             +scope: 
+               verb: 'UrlCheck'
+             +requirements:
+               mandatory: [url]
+             +parameters:
+               url: *std-url
+
+           ServiceInfo:
+             +mode: S+K+V
+             +scope: 
+               verb: 'ServiceInfo'
+             +this: *serviceinfo
+      output:
+        format: xml
+                  

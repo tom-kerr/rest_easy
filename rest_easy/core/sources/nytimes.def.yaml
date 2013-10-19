@@ -1,0 +1,195 @@
+import stddef
+
+api+key: &apikey
+  +key: 'api-key'
+  +expected_value: str
+
+responseformat: &responseformat
+  +key: Null
+  +expected_value: '(.json|.jsonp)'
+
+filtered_query: &filteredquery
+  +key: ''
+  +expected_value: str
+  +syntax:
+    args: Null
+
+body: &body
+  +key: 'body'
+  +expected_value: str
+
+body_search: &body-search 
+  +key: 'body.search'
+  +expected_value: str
+
+creative_works: &creativeworks
+  +key: 'creative_works'
+  +expected_value: str
+
+creative_works_contains: &creativeworks-contains 
+  +key: 'creative_works.contains'
+  +expected_value: str
+
+day_of_week: &dayofweek 
+  +key: 'day_of_week'
+  +expected_value: str
+
+document_type: &documenttype 
+  +key: 'document_type'
+  +expected_value: str
+
+glocations: &glocations
+  +key: 'glocations'
+  +expected_value: str
+
+glocations_contains: &glocations-contains
+  +key: 'glocations.contains'
+  +expected_value: str
+
+headline: &headline
+  +key: 'headline'
+  +expected_value: str
+
+headline_search: &headline-search 
+  +key: 'headline.search'
+  +expected_value: str
+
+kicker: &kicker
+  +key: 'kicker'
+  +expected_value: str
+
+kicker_contains: &kicker-contains 
+  +key: 'kicker.contains'
+  +expected_value: str
+
+news_desk: &newsdesk
+  +key: 'news_desk'
+  +expected_value: str
+
+news_desk_contains: &newsdesk-contains
+  +key: 'news_desk.contains'
+  +expected_value: str
+
+organizations: &organizations
+  +key: 'organizations'
+  +expected_value: str
+
+organizations_contains: &organizations-contains 
+  +key: 'organizations.contains'
+  +expected_value: str
+
+persons: &persons
+  +key: 'persons'
+  +expected_value: str
+
+persons_contains: &persons-contains
+  +key: 'persons.contains'
+  +expected_value: str
+
+pub_date: &pubdate 
+  +key: 'pub_date'
+  +expected_value: str
+
+pub_year: &pubyear 
+  +key: 'pub_year'
+  +expected_value: str
+
+secpg: &secpg 
+  +key: 'secpg'
+  +expected_value: str
+
+source: &source
+  +key: 'source'
+  +expected_value: str
+
+source_contains: &source-contains 
+  +key: 'source.contains'
+  +expected_value: str
+
+subject: &subject
+  <<: *std-subject
+
+subject_contains: &subject-contains 
+  +key: 'subject.contains'
+  +expected_value: str
+
+section_name: &sectionname
+  +key: 'section_name'
+  +expected_value: str
+
+section_name_contains: &sectionname-contains
+  +key: 'section_name.contains'
+  +expected_value: str
+
+type_of_material: &typeofmaterial
+  +key: 'type_of_material'
+  +expected_value: str
+
+type_of_material_contains: &typeofmaterial-contains 
+  +key: 'type_of_material.contains'
+  +expected_value: str
+
+web_url: &weburl
+  +key: 'web_url'
+  +expected_value: str
+
+word_count: &wordcount 
+  +key: 'word_count'
+  +expected_value: '^[0-9]+$'
+
+begin: &begindate 
+  +key: 'begin_date'
+  +expected_value: *stdregex-yyyymmdd
+
+end: &enddate 
+  +key: 'end_date'
+  +expected_value: *stdregex-yyyymmdd
+
+sort: &sort 
+  +key: 'sort'
+  +expected_value: '^(newest|oldest)$' 
+
+snippet: &snippet
+  +key: 'snippet'
+  +expected_value: Null
+
+lead_paragraph: &leadparagraph
+  +key: 'lead_paragraph'
+  +expected_value: Null
+
+abstract: &abstract
+  +key: 'abstract'
+  +expected_value: Null
+
+print_page: &printpage
+  +key: 'print_page'
+  +expected_value: Null
+
+blog: &blog
+  +key: 'blog'
+  +expected_value: Null
+
+multimedia: &multimedia
+  +key: 'multimedia'
+  +expected_value: Null
+
+keywords: &keywords
+  +key: 'keywords'
+  +expected_value: Null
+
+byline: &byline
+  +key: 'byline'
+  +expected_value: Null
+
+'@id': &-id
+  +key: '@id'
+  +expected_value: Null
+
+hl: &hl
+  +key: 'hl'
+  +expected_value: '^(true|false)$'
+
+facet_filter: &facetfilter
+  +key: 'facet_filter'
+  +expected_value: '^(true|false)$'
+

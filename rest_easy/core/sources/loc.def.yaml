@@ -1,0 +1,77 @@
+import stddef
+
+query: &query
+  <<: *std-query
+
+startRecord: &startrecord
+  +doc: |
+    The position within the sequence of matched records of the first record to be
+    returned. The first position in the sequence is 1. The value supplied MUST be
+    greater than 0. The default value if not supplied is 1. 
+  +key: 'startRecord'
+  +expected_value: '^([1-9][0-9]+|[1-9])$'
+
+maximumRecords: &maximumrecords
+  +doc: |
+    The number of records requested to be returned. The value must be 0 or
+    greater. Default value if not supplied is determined by the server. The
+    server MAY return less than this number of records, for example, if there
+    are fewer matching records than requested, but MUST NOT return more than
+    this number of records.
+  +key: 'maximumRecords'
+  +expected_value: '^([1-9][0-9]+|[1-9])$'
+
+recordPacking: &recordpacking
+  +doc: |
+    A string to determine how the record should be escaped in the response.
+    Defined values are 'string' and 'xml'. The default is 'xml'.
+  +key: 'recordPacking'
+  +expected_value: '^(string|xml)$'
+
+recordSchema: &recordschema
+  +doc: |
+    The schema in which the records MUST be returned. The value is the URI
+    identifier for the schema or the short name for it published by the server.
+    The default value if not supplied is determined by the server.
+
+    If the recordXPath parameter is included, it is the abstract schema for
+    purposes of evaluation by the XPath expression. 
+  +key: 'recordSchema'
+  +expected_value: str
+
+recordXPath: &recordxpath
+  +doc: |
+    An XPath expression, to be applied to the records before returning them. It
+    is to be applied relative to the schema supplied in the recordSchema
+    parameter, and response records should assume the SRU XPath schema.
+  +key: 'recordXPath'
+  +expected_value: str
+
+sortKeys: &sortkeys
+  +doc: |
+    Contains a sequence of sort keys to be applied to the results.
+  +key: 'sortKeys'
+  +expected_value: str
+
+resultSetTTL: &resultsetttl
+  +doc: |
+    The number of seconds for which the client requests that the result set
+    created should be maintained. The server MAY choose not to fulfill this
+    request, and may respond with a difference number of seconds. If
+    resultSetTTL is not supplied then the server will determine the value. 
+  +key: 'resultSetTTL'
+  +expected_value: str
+
+stylesheet: &stylesheet
+  +doc: |
+    A URL for a stylesheet. The client requests that the server simply return
+    this URL in the response.
+  +key: 'stylesheet'
+  +expected_value: str
+
+extraRequestData: &extrarequestdata
+  +doc: |
+    Provides additional information for the server to process.
+  +key: 'extraRequestData'
+  +expected_value: Null      
+

@@ -1,0 +1,612 @@
+import stddef
+
+api+key: &apikey
+  +key: 'api_key'
+  +expected_value: str
+   
+'@context':  &-context
+  +doc: |
+    Simply speaking, a context is used to map  terms to IRIs.
+    Terms are case sensitive, and any valid string that is not
+    a reserved JSON-LD keyword can be used as a term.
+  +key: '@context' 
+  +expected_value: str
+
+'@id': &-id
+  +doc: |
+    Used to uniquely identify things that are being described
+    in the document. To be able to externally reference nodes
+    in a graph, it is important that nodes have an identifier. IRIs
+    are a fundamental concept of Linked Data, for nodes to be
+    truly linked, dereferencing the identifier should results in a
+    representation of that node. This may allow an application
+    to retrieve further information about a node.
+  +key: '@id'
+  +expected_value: str
+      
+count: &count
+  +doc: |
+    The number of matches for a query. 
+  +key: 'count'
+  +expected_value: *stdregex-int
+
+dataProvider: &dataprovider
+  +doc: |
+    Provider of the SourceResource and WebResource.
+  +key: 'dataProvider'
+  +expected_value: str
+    
+hasView: &hasview
+  +this: &hasview-this
+    +key: 'hasView'
+    +expected_value: bool
+  +parameters:
+    '@id': &hasview-id
+      +key: 'hasView.@id'
+      +expected_value: *stdregex-int
+    format: &hasview-format
+      +doc: |
+        Information about format.
+      +key: 'hasView.format'
+      +expected_value: str
+    rights: &hasview-rights
+      +doc: |
+        Information  about rights held in and over a SourceResource.
+        Typically, rights information includes a statement about various
+        property rights associated with the SourceResource, including
+        intellectual property rights.
+      +key: 'hasView.rights'
+      +expected_value: str
+
+id: &id
+  +doc: |
+    ID of a SourceResource within a given context.
+  +key: 'id'
+  +expected_value: str
+
+ingestDate: &ingestdate
+  +doc: |
+    Date on which the original record was imported into the DPLA database.
+  +key: 'ingestDate'
+  +expected_value: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{6}$'
+
+ingestType:  &ingesttype
+  +doc: |
+    Type of record created by ingestion (either 'item' or 'collection')
+  +key: 'ingestType'
+  +expected_value: str
+
+isPartOf: &ispartof
+  +this: &ispartof-this
+    +key: 'isPartOf'
+    +expected_value: str
+  +parameters:
+    '@id': &ispartof-id
+      +key: 'isPartOf.@id'
+      +expected_value: *stdregex-posint
+    name: &ispartof-name
+      +key: 'isPartOf.name'
+      +expected_value: str
+
+isShownAt: &isshownat
+  +this: &isshownat-this
+    +doc: |
+      An unambiguous URL reference to the digital object on the provider's
+      web site in its full information context.
+    +key: 'isShownAt'
+    +expected_value: str
+  +parameters:
+    '@id': &isshownat-id
+      +doc: |
+        Actual URL to the digital object on the provider's web site
+        in its full information context.
+      +key: 'isShownAt.@id'
+      +expected_value: '^[0-9]+$'
+    format: &isshownat-format
+      +doc: |
+        MIME type of digital object
+      +key: 'isShownAt.format'
+      +expected_value: str
+    rights: &isshownat-rights
+      +doc: |
+        Any rights asserted in the digital object referenced as isShownAt.@id.
+      +key: 'isShownAt.rights' 
+      +expected_value: str
+    
+object: &object
+  +this: &object-this
+    +doc: |
+      An unambiguous URL reference to the DPLA digital content preview of the item.
+    +key: 'object'
+    +expected_value: str
+  +parameters:
+    '@id': &object-id
+      +doc: |
+        Actual URL to the digital object preview content on the DPLA web site.
+      +key: 'object.@id'
+      +expected_value: str
+    format: &object-format
+      +doc: |
+        MIME type of digital object
+      +key: 'object.format'
+      +expected_value: str
+    rights: &object-rights
+      +doc: |
+        Any rights asserted in the digital object referenced at object.@id.
+      +key: 'object.rights'
+      +expected_value: str
+
+provider: &provider
+  +this: &provider-this
+    +doc: |
+      Service or content hub providing access to the Data Providers content.
+      May contain the same value is Data Provider. (literal value in this version)
+    +key: 'provider'
+    +expected_value: str
+  +parameters:
+    '@id': &provider-id
+      +doc: |
+        URI pointing to the data provider page within the DPLA API.
+      +key: 'provider.@id'
+      +expected_value: '^[0-9]+$'
+    name: &provider-name
+      +doc: |
+        Human-readable version of provider name 
+      +key: 'provider.name'
+      +expected_value: str
+
+collection: &collection
+  +this:  &collection-this
+    +doc: |
+      Array of URIs of collection or aggregation of which SourceResource is a part.
+    +key: 'sourceResource.collection'
+    +expected_value: str
+  +parameters:
+    '@id': &collection-id
+      +doc: |
+        URI of collection or aggregation of which SourceResource is a part.
+      +key: 'sourceResource.collection.@id'
+      +expected_value: '^[0-9]+$'
+    
+contributor: &contributor
+  +doc: |
+    Entity responsible for making contributions to the resource.
+  +key: 'sourceResource.contributor'  
+  +expected_value: str
+
+creator: &creator
+  +doc: |
+    Entity primarily responsible for making sourceResource.
+  +key: 'sourceResource.creator'
+  +expected_value: str
+
+date: &date
+  +this: &date-this
+    +doc: |
+      Array containing point or period of time associated with an event in lifecycle
+      of a sourceResource (literal value).
+    +key: 'sourceResource.date'
+    +expected_value: '^[0-9]+$'
+  +parameters:
+    begin: &date-begin
+      +doc: |
+        Date/time of the start of a time span (inclusive).
+      +key: 'sourceResource.date.begin'
+      +expected_value: '^[0-9]+$'
+    displayDate: &date-displaydate
+      +doc: |
+        The date to be displayed by an application seeking to provide a date
+        to accompany the sourceResource
+      +key: 'sourceResource.date.displayDate'
+      +expected_value: '^[0-9]+$'
+    end: &date-end
+      +doc: |
+        Date/time of the end of a time span (inclusive).
+      +key: 'sourceResource.date.end'
+      +expected_value: '^[0-9]+$'
+      
+description: &description
+  +doc: |
+    Includes but is not limited to: an abstract, a table of contents,
+    or a free-text account of SourceResource.
+  +key: 'sourceResource.description'
+  +expected_value: str
+
+extent: &extent
+  +doc: |
+    Size of duration of the SourceResource
+  +key: 'sourceResource.extent'
+  +expected_value: str
+
+format: &format
+  +doc: |
+    Array containing file format, physical medium, or dimensions of a SourceResource.
+  +key: 'sourceResource.format'
+  +expected_value: str
+
+identifier: &identifier
+  +doc: |
+    Original identifier of a SourceResouce within a given context.
+  +key: 'sourceResource.identifier'
+  +expected_value: str
+
+language: &language
+  +this: &language-this
+    +doc: |
+      Array containing language(s) of SourceResource
+    +key: 'sourceResource.language'
+    +expected_value: str
+  +parameters:
+    name: &language-name
+      +doc: |
+        Language(s) of SourceResource
+      +key: 'sourceResource.language.name'
+      +expected_value: str
+    iso369: &language-iso369
+      <<: *std-iso369
+      +key: 'sourceResource.language.iso639'
+      
+physicalMedium: &physicalmedium
+  +doc: |
+    A physical material of carrier in which SourceResource exists.
+  +key: 'sourceResource.physicalMedium'
+  +expected_value: str
+
+publisher: &publisher
+  +doc: |
+    Entity responsible for making the SourceResource available,
+    typically the publisher of a text (not dataProvider or provider) 
+  +key: 'sourceResource.publisher'
+  +expected_value: str
+
+rights: &rights
+  +doc: |
+    Information  about rights held in and over a SourceResource.
+    Typically, rights information includes a statement about various
+    property rights associated with the SourceResource, including
+    intellectual property rights.
+  +key: 'sourceResource.rights'
+  +expected_value: str
+
+spatial: &spatial
+  +this: &spatial-this
+    +doc: |
+      Spatial characteristics of SourceResource (usually a literal value in this version).
+    +key: 'sourceResource.spatial'
+    +expected_value: str
+  +parameters:
+    coordinates: &spatial-coordinates
+      +doc: |
+        Location coordinates in latitude, longitude form.
+      +key: 'sourceResource.spatial.coordinates'
+      +expected_value: '^[0-9.-]+[ ]*[:][ ]*[0-9.-]+$'
+    city: &spatial-city
+      +doc: |
+        Location city.        
+      +key: 'sourceResource.spatial.city'
+      +expected_value: str
+    county: &spatial-county
+      +doc: |
+        Location county.     
+      +key: 'sourceResource.spatial.county'
+      +expected_value: str
+    distance: &spatial-distance
+      +doc: |
+        Distance from point defined in sourceResource.spatial.coordinates.
+      +key: 'sourceResource.spatial.distance'
+      +expected_value: '^[0-9]+$'
+    iso3166_2: &spatial-iso3166-2
+      <<: *std-iso3166-2
+      +key: 'sourceResource.spatial.iso3166-2'
+    name: &spatial-name
+      +doc: |
+        Location name.
+      +key: 'sourceResource.spatial.name'
+      +expected_value: str
+    region: &spatial-region
+      <<: *std-region
+      +key: 'sourceResource.spatial.region'
+    state: &spatial-state
+      <<: *std-state
+      +key: 'sourceResource.spatial.state'
+      
+stateLocatedIn: &statelocatedin
+  name: &statelocatedin-name
+    +doc: |
+      Name of the U.S. state in which the SourceResource is held
+    +key: 'sourceResource.stateLocatedIn.name'
+    +expected_value: str
+  iso3166_2: &statelocatedin-iso3166-2
+    <<: *std-iso3166-2
+    +key: 'sourceResource.stateLocatedIn.iso3166-2'
+
+subject: &subject
+  +this: &subject-this
+    +doc: |
+      Array containing topic(s) of a SourceResource
+    +key: 'sourceResource.subject'
+    +expected_value: str
+  +parameters:
+    '@id': &subject-id
+      +doc: |
+        Identifier of a subject of a SourceResource.
+        (note: not yet specified in the database)
+      +key: 'sourceResource.subject.@id'
+      +expected_value: '^[0-9]+$'
+    '@type': &subject-type
+      +doc: |
+        Identifier of a subject of a SourceResource.
+        (note: not yet specified in the database)
+      +key: 'sourceResource.subject.@type'
+      +expected_value: str
+    name: &subject-name
+      +doc: |
+        Topic or subject of a SourceResource
+      +key: 'sourceResource.subject.name'
+      +expected_value: str
+
+temporal: &temporal
+  +this: &temporal-this
+    +doc: |
+      Spatial characteristics of SourceResource
+      (usually a literal value in this version).
+    +key: 'sourceResource.temporal'
+    +expected_value: str
+  +parameters:
+    begin: &temporal-begin
+      +doc: |
+        Date/time of the start of a time span (inclusive).
+      +key: 'sourceResource.temporal.begin'
+      +expected_value: '^[0-9-]+$'
+    end: &temporal-end
+      +doc: |
+        Date/time of the end of a time span (inclusive).
+      +key: 'sourceResource.temporal.end'
+      +expected_value: str
+    
+title: &title
+  +doc: |
+    Name given to a SourceResource.
+  +key: 'sourceResource.title'
+  +expected_value: str
+
+type: &type
+  +doc: |
+    Nature or genre of SourceResource
+  +key: 'sourceResource.type'    
+  +expected_value: str
+
+pin: &pin
+  +key: 'sort_by_pin'
+  +expected_value: '^[0-9.-]+[ ]*[,][ ]*[0-9.-]+$'
+
+page: &page
+  <<: *std-page
+
+pageSize: &pagesize
+  +key: 'page_size'
+  +expected_value: '^[0-9]+$'
+  
+facetSize: &facetsize
+  +key: 'facet_size'
+  +expected_value: '^[0-9]+$'
+
+callback: &callback
+  <<: *std-callback
+
+
+novalue:
+  '@id': &-id-novalue
+    <<: *-id 
+    +expected_value: Null
+
+  id: &id-novalue
+    <<: *id
+    +expected_value: Null
+
+  dataProvider: &dataprovider-novalue
+    <<: *dataprovider
+    +expected_value: Null
+
+  hasView: &hasview-novalue
+    +this: &hasview-this-novalue
+      <<: *hasview-this
+      +expected_value: Null
+    +parameters:
+      '@id': &hasview-id-novalue
+        <<: *hasview-id
+        +expected_value: Null
+      format: &hasview-format-novalue
+        <<: *hasview-format
+        +expected_value: Null
+      rights: &hasview-rights-novalue
+        <<: *hasview-rights
+        +expected_value: Null
+
+  isPartOf: &ispartof-novalue
+    +this: &ispartof-this-novalue
+      <<: *ispartof-this
+      +expected_value: Null
+    +parameters:
+      '@id': &ispartof-id-novalue
+        <<: *ispartof-id
+        +expected_value: Null
+      name: &ispartof-name-novalue
+        <<: *ispartof-name
+        +expected_value: Null
+
+  isShownAt: &isshownat-novalue
+    +this: &isshownat-this-novalue
+      <<: *isshownat-this
+      +expected_value: Null
+    +parameters:
+      '@id': &isshownat-id-novalue
+        <<: *isshownat-id
+        +expected_value: Null
+      format: &isshownat-format-novalue
+        <<: *isshownat-format-novalue
+        +expected_value: Null
+      rights: &isshownat-rights-novalue
+        <<: *isshownat-rights
+        +expected_value: Null
+
+  object: &object-novalue
+    +this: &object-this-novalue
+      <<: *object-this
+      +expected_value: Null
+    +parameters:
+      '@id': &object-id-novalue
+        <<: *object-id
+        +expected_value: Null
+      format: &object-format-novalue
+        <<: *object-format-novalue
+        +expected_value: Null
+      rights: &object-rights-novalue
+        <<: *object-rights
+        +expected_value: Null
+
+  provider: &provider-novalue
+    +this: &provider-this-novalue
+      <<: *provider-this
+      +expected_value: Null
+    +parameters:
+      '@id': &provider-id-noalue
+        <<: *provider-id
+        +expected_value: Null
+      name: &provider-name-novalue
+        <<: *provider-name
+        +expected_value: Null
+   
+  collection: &collection-novalue
+    +this:  &collection-this-novalue
+      <<: *collection-this
+      +expected_value: Null
+    +parameters:
+      '@id': &collection-id-novalue
+        <<: *collection-id
+        +expected_value: Null
+
+  contributor: &contributor-novalue
+    <<: *contributor
+    +expected_value: Null
+
+  creator: &creator-novalue
+    <<: *creator
+    +expected_value: Null
+
+  date: &date-novalue
+    begin: 
+      <<: *date-begin
+      +expected_value: Null
+    end: 
+      <<: *date-end
+      +expected_value: Null
+
+  extent: &extent-novalue
+    <<: *extent
+    +expected_value: Null    
+
+  format: &format-novalue
+    <<: *format
+    +expected_value: Null
+
+  identifier: &identifier-novalue
+    <<: *identifier
+    +expected_value: Null
+
+  language: &language-novalue
+    +this: &language-this-novalue
+      <<: *language-this
+      +expected_value: Null
+    +parameters:
+      name: &language-name-novalue 
+        <<: *language-name
+        +expected_value: Null  
+      iso369: &language-iso369-novalue
+        <<: *language-iso369
+        +expected_value: Null
+
+  physicalMedium: &physicalmedium-novalue
+    <<: *physicalmedium
+    +expected_value: Null
+
+  publisher: &publisher-novalue
+    <<: *publisher
+    +expected_value: Null
+
+  rights: &rights-novalue
+    <<: *rights
+    +expected_value: Null
+
+  spatial: &spatial-novalue
+    +this: 
+      <<: *spatial-this      
+      +expected_value: Null
+    +parameters: &spatial-properties-novalue
+      coordinates: &spatial-coordinates-novalue
+        <<: *spatial-coordinates
+        +expected_value: Null
+      city:
+        <<: *spatial-city      
+        +expected_value: Null
+      county:
+        <<: *spatial-county      
+        +expected_value: Null
+      distance:
+        <<: *spatial-distance    
+        +expected_value: Null
+      iso3166_2:
+        <<: *spatial-iso3166-2  
+        +expected_value: Null
+      name:
+        <<: *spatial-name 
+        +expected_value: Null
+      region:
+        <<: *spatial-region      
+        +expected_value: Null
+      state:
+        <<: *spatial-state      
+        +expected_value: Null
+
+  stateLocatedIn: &statelocatedin-novalue
+    name: 
+      <<: *statelocatedin-name
+      +expected_value: Null
+    iso3166_2: 
+      <<: *statelocatedin-iso3166-2
+      +expected_value: Null
+
+  subject: &subject-novalue
+    +this: 
+      <<: *subject-this
+      +expected_value: Null
+    +parameters:
+      '@id': &subject-id-novalue
+        <<: *subject-id
+        +expected_value: Null
+      '@type': 
+        <<: *subject-type
+        +expected_value: Null
+      name: &subject-name-novalue
+        <<: *subject-name
+        +expected_value: Null
+
+  temporal: &temporal-novalue
+    +this: 
+      <<: *temporal-this
+      +expected_value: Null
+    +parameters:
+      begin: 
+        <<: *temporal-begin    
+        +expected_value: Null
+      end: 
+        <<: *temporal-end
+        +expected_value: Null
+
+  title: &title-novalue
+    <<: *title
+    +expected_value: Null
+
+  type: &type-novalue
+    <<: *type 
+    +expected_value: Null

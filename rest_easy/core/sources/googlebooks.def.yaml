@@ -1,0 +1,91 @@
+import stddef
+
+q: &q
+  <<: *std-q
+
+fields: &fields
+  +key: 'fields'
+  +expected_value: str
+
+inTitle: &intitle
+  +key: 'intitle'
+  +expected_value: [str, Null]
+  +syntax:
+    bind: ':'
+    chain: '+'
+
+inAuthor: &inauthor
+  +key: 'inauthor'
+  +expected_value: [str, Null]
+  +syntax:
+    bind: ':'
+
+inPublisher: &inpublisher
+  +key: 'inpublisher'
+  +expected_value: [str, Null]
+  +syntax:
+    bind: ':'
+
+subject: &subject
+  +key: 'subject'
+  +expected_value: [str, Null]
+  +syntax:
+    bind: ':'
+
+isbn: &isbn
+  +key: 'isbn'
+  +expected_value: [*stdregex-isbn, Null]
+  +syntax:
+    bind: ':'
+
+oclc: &oclc
+  +key: 'oclc'
+  +expected_value: [str, Null]
+  +syntax:
+    bind: ':'
+
+lccn: &lccn
+  +key: 'lccn'
+  +expected_value: [*stdregex-int, Null]
+  +syntax:
+    bind: ':'
+
+filter: &filter
+  +key: 'filter'
+  +expected_value: '^(partial|full|free\-ebooks|paid\-ebooks|^ebooks)$'
+            
+download: &download 
+  +key: 'download=epub'
+  +expected_value: Null
+
+startIndex: &startindex
+  +key: 'startIndex'
+  +expected_value: *stdregex-int
+
+maxResults: &maxresults
+  +key: 'maxResults'
+  +expected_value: *stdregex-int
+
+printType: &printtype 
+  +key: 'printType'
+  +expected_value: '^(all|books|magazines)$'
+
+projection: &projection
+  +key: 'projection'
+  +expected_value: '^(full|lite)$'
+    
+orderBy: &orderby 
+  +key: 'orderBy'
+  +expected_value: '^(newest|relevance)$'
+              
+apiKey: &apikey
+  +key: 'api_key'
+  +expected_value: str            
+
+prettyPrint: &prettyprint
+  +key: 'prettyPrint'
+  +expected_value: '^(true|false)$'
+
+langRestrict: &langrestrict
+  +key: 'langRestrict'
+  +expected_value: *stdregex-iso639-1

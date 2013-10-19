@@ -1,0 +1,326 @@
+import bhl.def
+
++doc: |  
+    Biodiversity Heritage Library
+
+    The Biodiversity Heritage Library (BHL) is a consortium of natural history 
+    and botanical libraries that cooperate to digitize and make accessible the 
+    legacy literature of biodiversity held in their collections and to make 
+    that literature available for open access and responsible use as a part of 
+    a global “biodiversity commons.” The BHL consortium works with the 
+    international taxonomic community, rights holders, and other interested 
+    parties to ensure that this biodiversity heritage is made available to a 
+    global audience through open access principles. In partnership with the 
+    Internet Archive and through local digitization efforts , the BHL has 
+    digitized millions of pages of taxonomic literature, representing tens of 
+    thousands of titles and over 100,000 volumes.
+
+
+    Documentation:
+      http://www.biodiversitylibrary.org/api2/docs/docs.html
+
+baseurl:
+  'http://biodiversitylibrary.org'
+
++parameters:
+  v2:
+    essential:
+      apiKey:
+        +mode: K+V
+        +this: *apikey
+          
+    http_method: GET
+    path: '/api2/httpquery.ashx?{0}{1}'
+    input:
+      format: key_value
+      +parameters:         
+        authorSearch:
+          +mode: S+K+V
+          +scope: 
+            op: 'AuthorSearch'          
+          +parameters:
+            name: *name
+
+        bookSearch:
+          +mode: S+K+V
+          +requirements: 
+            +at_least_one: [title, lname, collectionid]
+          +scope: 
+            op: 'BookSearch'          
+          +parameters:
+            title: *title
+            lname: *lname
+            volume: *volume
+            edition: *edition
+            year: *year
+            subject: *subject
+            language: *language
+            collectionId: *collectionid
+                  
+        getAuthorParts:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetAuthorParts'          
+          +parameters:
+            creatorId: *creatorid
+            
+        getAuthorTitles:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetAuthorTitles'          
+          +parameters:
+            creatorId: *creatorid  
+            
+        getCollections: 
+          +mode: S+K+V
+          +scope: 
+            op: 'GetCollections'          
+          +this: *getcollections
+                
+        getItemByIdentifier:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetItemByIdentifier'          
+          +parameters:                
+            barcode: *barcode
+            ia: *ia
+            
+        getItemMetadata:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetItemMetadata'          
+          +parameters:
+            itemId: *itemid
+            pages: *pages
+            ocr: *ocr
+            parts: *parts            
+
+        getItemPages:
+          +mode: S+K+V
+          +requirements:
+            mandatory: [itemId]              
+          +scope: 
+            op: 'GetItemPages'          
+          +parameters:
+            itemId: *itemid
+            ocr: *ocr
+            
+        getItemParts:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetItemParts'          
+          +parameters:
+            itemId: *itemid
+
+        getLanguages:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetLanguages'          
+          +this: *getlanguages
+                
+        getPageMetadata:
+          +mode: S+K+V
+          +requirements: 
+            mandatory: [pageId]
+          +scope: 
+            op: 'GetPageMetadata'          
+          +parameters:
+            pageId: *pageid
+            ocr: *ocr
+            names: *names  
+
+        getPageNames:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetPageNames'          
+          +parameters:
+            pageId: *pageid
+
+        getPageOcrText:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetPageOcrText'          
+          +parameters:
+            pageId: *pageid
+
+        getPartBibTeX:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetPartBibTeX'          
+          +parameters:
+            partId: *partid
+
+        getPartByIdentifier:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetPartByIdentifier'          
+          +parameters:
+            doi: *doi
+            oclc: *oclc
+            issn: *issn
+            isbn: *isbn
+            lccn: *lccn
+            ddc: *ddc
+            nal: *nal
+            nlm: *nlm
+            coden: *coden
+
+        getPartEndNote:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetPartEndNote'          
+          +parameters:
+            partId: *partid
+
+        getPartMetadata:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetPartMetadata'          
+          +parameters:
+            partId: *partid
+
+        getPartNames:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetPartNames'          
+          +parameters:
+            partId: *partid
+
+        getSubjectParts:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetSubjectParts'          
+          +parameters:
+            subject: *subject
+
+        getSubjectTitles:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetSubjectTitles'          
+          +parameters:
+            subject: *subject
+
+        getTitleBibTex:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetTitleBibTex'          
+          +parameters:
+            titleId: *titleid
+      
+        getTitleByIdentifier:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetTitleByIdentifier'          
+          +parameters:
+            doi: *doi
+            oclc: *oclc
+            issn: *issn
+            isbn: *isbn
+            lccn: *lccn
+            ddc: *ddc
+            nal: *nal
+            nlm: *nlm
+            coden: *coden
+
+        getTitleEndNote:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetTitleEndNote'          
+          +parameters:
+            titleId: *titleid
+
+        getTitleItems:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetTitleItems'          
+          +parameters:
+            titleId: *titleid
+
+        getTitleMetadata:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetTitleMetadata'          
+          +parameters:
+            titleId: *titleid
+            items: *items
+
+        getUnpublishedItems:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetUnpublishedItems'          
+          +this: *getunpublisheditems
+                    
+        getUnpublishedParts:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetUnpublishedParts'          
+          +this: *getunpublishedparts
+      
+        getUnpublishedTitles:
+          +mode: S+K+V
+          +scope: 
+            op: 'GetUnpublishedTitles'          
+          +this: *getunpublishedtitles
+          
+        nameCount:
+          +mode: S+K+V
+          +scope: 
+            op: 'NameCount'          
+          +this: *namecount
+          +parameters:
+            startDate: *startdate
+            endDate: *enddate
+
+        nameList:
+          +mode: S+K+V
+          +scope: 
+            op: 'NameList'          
+          +parameters:
+            startRow: *startrow
+            batchSize: *batchsize
+            startDate: *startdate
+            endDate: *enddate
+
+        nameSearch:
+          +mode: S+K+V
+          +scope: 
+            op: 'NameSearch'          
+          +parameters:
+            name: *name
+
+        partSearch:
+          +mode: S+K+V
+          +scope: 
+            op: 'PartSearch'          
+          +requirements:
+            at_least_one: [title, author]
+          +parameters:
+            title: *title
+            author: *author
+            containerTitle: *containertitle
+            date: *date
+            volume: *volume
+            series: *series
+            issue: *issue
+
+        subjectSearch:
+          +mode: S+K+V
+          +scope: 
+            op: 'SubjectSearch'          
+          +parameters:
+            subject: *subject
+
+        titleSearchSimple:
+          +mode: S+K+V
+          +scope: 
+            op: 'TitleSearchSimple'
+          +parameters:
+            title: *title
+
+        options: 
+          +mode: K+V
+          +parameters:
+            format: *format
+            callback: *callback
+    output:
+      format: xml

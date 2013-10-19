@@ -1,0 +1,90 @@
+import europeana.def
+
++doc: |
+    Europeana
+    
+    The Europeana Foundation is the operator of the Europeana service, including
+    the search portal at Europeana.eu and related data services such as the 
+    Europeana Application Programming Interface (API) and the Linked Open Data 
+    pilot. The Foundation is governed by an Executive Committee and Board, and 
+    employs full-time and part-time staff.
+    
+    The Europeana Network is an open, expert forum comprising content holders 
+    and aggregators along with providers of technical, legal and strategic 
+    knowledge.
+    
+    Our services are under constant development by content and technology 
+    projects, collectively referred to as the Europeana project group.
+    
+    What We Do
+    ----------
+
+    Aggregate – We are building the open, trusted source for European cultural 
+    content.
+
+    Facilitate – We support the cultural heritage sector through knowledge 
+    transfer, innovation and advocacy.
+
+    Distribute – We make heritage available to people wherever they are, 
+    whenever they want it.
+    
+    Engage – We cultivate new ways for people to participate in their cultural 
+    heritage.
+
+    
+    Documentation:
+      http://europeana.eu/portal/api-introduction.html
+
+baseurl:
+  'http://europeana.eu/api'
+  
++parameters:
+  v2:
+    essential:
+      apiKey:
+        +mode: K+V
+        +this: *wskey
+          
+    Search: 
+      http_method: GET
+      path: '/v2/search.json?{0}'
+      input:
+        format: key_value
+        essential: [query]
+        +parameters:    
+          query: 
+            +mode: K+V
+            +this: *std-query
+
+          callback:
+            +mode: K+V
+            +this: *std-callback 
+              
+          profile:
+            +mode: K+V
+            +this: *profile
+              
+          qf:
+            +mode: P+K+V
+            +prefix:: 'qf'
+            syntax:
+              args: ':'
+            +this: *qf
+            +parameters:
+              type: *type
+              language: *language
+              year: *year
+              country: *country
+              rights: *rights
+              provider: *provider
+              ugc: *ugc
+              
+          rows:
+            +mode: K+V
+            +this: *rows
+              
+          start:
+            +mode: K+V
+            +this: *start
+      output:
+        format: json

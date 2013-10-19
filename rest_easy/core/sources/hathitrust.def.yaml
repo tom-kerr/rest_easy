@@ -1,0 +1,16 @@
+import stddef
+
+isbn: &isbn
+  <<: *std-isbn
+  
+lccn: &lccn
+  <<: *std-lccn
+
+oclc: &oclc
+  <<: *std-oclc
+
+olid: &olid
+  <<: *std-olid
+
+callback: &callback
+  <<: *std-callback

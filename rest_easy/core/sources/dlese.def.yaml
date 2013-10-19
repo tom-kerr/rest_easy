@@ -1,0 +1,131 @@
+import stddef
+
+startingOffset: &s
+  +key: 's'
+  +expected_value: '([1-9][0-9]+|[1-9])'
+
+numReturned: &n
+  +key: 'n'
+  +expected_value: '^([1-9]|[1-9][0-9]|[1-9][0-9][0-9]|1000)$'
+
+query: &q
+  <<: *std-q
+    
+collection: &ky
+  +key: 'ky'
+  +expected_value: str
+  
+gradeRange: &gr
+  +key: 'gr'
+  +expected_value: *stdregex-int
+  
+resourceType: &re
+  +key: 're'
+  +expected_value: str
+  
+subject: &su
+  +key: 'su'
+  +expected_value: str
+  
+contentStandard: &cs
+  +key: 'cs'
+  +expected_value: str
+  
+dateField: &datefield
+  +key: 'dateField'
+  +expected_value: str
+  +requirements:
+    at_least_one: [fromDate, toDate]
+    
+fromDate: &fromdate
+  +key: 'fromDate'
+  +expected_value: str
+  +requirements:
+    mandatory: [dateField]
+    
+toDate: &todate
+  +key: 'toDate'
+  +expected_value: str
+  +requirements:
+    mandatory: [dateField]
+
+geoPredicate: &geopredicate
+  +key: 'geoPredicate'
+  +expected_value: '^(within|overlaps|contains)$'
+  
+geoBBNorth: &geobbnorth
+  +key: 'geoBBNorth'
+  +expected_value: '^([-]?[0-8]?[0-9][\.][0-9]+|[-]?[0-8]?[0-9]|[-]?90)$'
+  
+geoBBSouth: &geobbsouth
+  +key: 'geoBBSouth'
+  +expected_value: '^([-]?[0-8]?[0-9][\.][0-9]+|[-]?[0-8]?[0-9]|[-]?90)$'
+  
+geoBBEast: &geobbeast
+  +key: 'geoBBEast'
+  +expected_value: '^([-]?[1]?[0-7]?[0-9][\.][0-9]+|[-]?[1]?[0-7]?[0-9]|[-]?180)$'
+  
+geoBBWest: &geobbwest
+  +key: 'geoBBWest'
+  +expected_value: '^([-]?[1]?[0-7]?[0-9][\.][0-9]+|[-]?[1]?[0-7]?[0-9]|[-]?180)$'
+  
+geoClause: &geoclause
+  +key: 'geoClause'
+  +expected_value: '^(must|should)$'
+  
+xmlFormat: &xmlformat
+  +key: 'xmlFormat'
+  +expected_value: str
+  
+client: &client
+  +key: 'client'
+  +expected_value: str
+
+searchOver: &so
+  +key: 'so'
+  +expected_value: str
+  
+sortAscendingBy: &sortascby
+  +key: 'soryAscendingBy'
+  +expected_value: str
+  
+sortDescendingBy: &sortdescby
+  +key: 'sortDescendingBy'
+  +expected_value: str
+
+ListFields: &listfields
+  +key: 'ListFields'
+  +expected_value: Null
+
+field: &field
+  +key: 'field'
+  +expected_value: str
+
+ListCollections: &listcollections
+  +key: 'ListCollections'
+  +expected_value: Null
+
+ListGradeRanges: &listgraderanges
+  +key: 'ListGradeRanges'
+  +expected_value: Null
+
+ListSubjects: &listsubjects
+  +key: 'ListSubjects'
+  +expected_value: Null
+
+ListResourceTypes: &listresourcetypes
+  +key: 'ListResourceTypes'
+  +expected_value: Null
+
+ListContentStandards: &listcontentstandards
+  +key: 'ListContentStandards'
+  +expected_value: Null
+
+ListXmlFormats: &listxmlformats
+  +key: 'ListXmlFormats'
+  +expected_value: Null
+ 
+ServiceInfo: &serviceinfo
+  +key: 'ServiceInfo'
+  +expected_value: Null
+

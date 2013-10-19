@@ -1,0 +1,201 @@
+import stddef
+
+api+key: &apikey
+  +key: 'apikey'
+  +expected_value: str            
+
+barcode: &barcode
+  <<: *std-barcode
+  
+ia: &ia
+  <<: *std-ia
+  +prefix:: 
+    type: 'ia'
+  +key: 'value'
+
+doi: &doi
+  <<: *std-doi
+  +prefix:: 
+    type: 'doi'
+  +key: 'value'
+  
+oclc: &oclc
+  <<: *std-oclc
+  +prefix:: 
+    type: 'oclc'
+  +key: 'value'
+  
+issn: &issn
+  <<: *std-issn
+  +prefix:: 
+    type: 'issn'
+  +key: 'value'
+  
+isbn: &isbn
+  <<: *std-isbn
+  +prefix:: 
+    type: 'isbn'
+  +key: 'value'
+
+lccn: &lccn
+  <<: *std-lccn
+  +prefix:: 
+    type: 'lccn'
+  +key: 'value'
+
+ddc: &ddc
+  <<: *std-ddc
+  +prefix:: 
+    type: 'ddc'
+  +key: 'value'
+
+nal: &nal
+  <<: *std-nal
+  +prefix:: 
+    type: 'nal'
+  +key: 'value'
+    
+nlm: &nlm
+  <<: *std-nlm
+  +prefix:: 
+    type: 'nlm'
+  +key: 'value'
+
+coden: &coden
+  <<: *std-coden
+  +prefix:: 
+    type: 'coden'
+  +key: 'value'
+  
+name: &name
+  <<: *std-name
+
+names: &names
+  +key: 'name'
+  +expected_value: '^(t|true|f|false)$'
+
+title: &title
+  <<: *std-title
+  
+author: &author
+  <<: *std-author
+  
+lname: &lname
+  +key: 'lname'
+  +expected_value: str
+
+volume: &volume
+  <<: *std-volume
+
+series: &series
+  <<: *std-series
+  
+issue: &issue
+  <<: *std-issue
+  
+edition: &edition
+  <<: *std-edition
+    
+year: &year
+  <<: *std-year
+  
+subject: &subject
+  <<: *std-subject
+    
+language: &language
+  <<: *std-language
+    
+collectionid: &collectionid
+  +key: 'collectionid '
+  +expected_value: *stdregex-int
+
+creatorid: &creatorid
+  +key: 'creatorid'
+  +expected_value: *stdregex-int
+
+itemid: &itemid
+  +key: 'itemid'
+  +expected_value: str
+
+partid: &partid
+  +key: 'partid'
+  +expected_value: str
+  
+pages: &pages
+  +key: 'pages'
+  +expected_value: '^(t|true|f|false)$'
+  
+ocr: &ocr
+  +key: 'ocr'
+  +expected_value: '^(t|true|f|false)$'
+  
+parts: &parts
+  +key: 'parts'
+  +expected_value: '^(t|true|f|false)$'
+
+pageid: &pageid
+  +key: 'pageid'
+  +expected_value: str
+
+titleid: &titleid
+  +key: 'titleid'
+  +expected_value: *stdregex-int
+
+items: &items
+  +key: 'items'
+  +expected_value: '^(t|true|f|false)$'
+
+date: &date
+  +key: 'date'
+  +expected_value: *stdregex-yyyymmdd
+  
+startdate: &startdate
+  +key: 'startdate'
+  +expected_value: *stdregex-ddmmyyyy
+
+enddate: &enddate
+  +key: 'enddate'
+  +expected_value: *stdregex-ddmmyyyy
+
+startrow: &startrow
+  +key: 'startrow'
+  +expected_value: *stdregex-int
+
+batchsize: &batchsize
+  +key: 'batchsize'
+  +expected_value: *stdregex-int
+
+container_title: &containertitle
+  +key: 'containerTitle'
+  +expected_value: str
+
+format: &format
+  <<: *std-format
+
+callback: &callback
+  <<: *std-callback
+
+getcollections: &getcollections
+  +key: 'GetCollections'
+  +expected_value: Null
+
+getlanguages: &getlanguages
+  +key: 'GetLanguages'
+  +expected_value: Null
+
+getunpublisheditems: &getunpublisheditems
+  +key: 'GetUnpublishedItems'
+  +expected_value: Null
+
+getunpublishedparts: &getunpublishedparts
+  +key: 'GetUnpublishedParts'
+  +expected_value: Null
+  
+getunpublishedtitles: &getunpublishedtitles
+  +key: 'GetUnpublishedTitles'
+  +expected_value: Null
+
+namecount: &namecount
+  +key: 'NameCount'
+  +expected_value: Null
+

@@ -1,0 +1,296 @@
+import dpla.def
+
++doc: | 
+    Digital Public Library of America   
+
+    The Digital Public Library of America brings together the riches of 
+    America’s libraries, archives, and museums, and makes them freely 
+    available to the world. It strives to contain the full breadth of human 
+    expression, from the written word, to works of art and culture, to records 
+    of America’s heritage, to the efforts and data of science.
+    
+    Documentation:
+      http://dp.la/info/developers/codex/
+
+baseurl:
+  'http://api.dp.la'
+
++parameters: 
+  v2:
+    essential:
+      apiKey:
+        +mode: K+V
+        +this: *apikey
+
+    Item:
+      +doc: |
+        Retrieves a single item.
+      http_method: GET
+      path: '/v2/items/{0}?{apiKey}'
+      input:
+        format: key_value
+        +parameters:      
+          fetch:
+            +mode: MV
+            syntax: 
+              multi: ','
+            +parameters:
+              id: 
+                <<: *id
+                +key: Null
+                
+      output:
+        format: json
+          
+    Items:
+      +doc: |
+        A DPLA item is a reference to the digital representation of a single 
+        piece of content indexed by the DPLA. The piece of content can be, for 
+        example, a book, a photograph, a video, etc. The content is digitized 
+        from its original, physical source and uploaded to an online repository. 
+        The DPLA allows users to search for content across a multitude of online 
+        repositories, including University of Virginia Library, Kentucky Digital 
+        Library, Harvard University Library, etc. After retrieving DPLA items, 
+        developers can display or follow links to their original online digital 
+        records.
+      http_method: GET
+      path: '/v2/items?{0}{1}'
+      input:
+        format: key_value
+        +parameters:                             
+          keywordSearch: 
+            +doc: |
+              A keyword search against all the text fields.
+            +mode: K+V
+            +this: *std-q
+                          
+          searchIn:
+            +doc: |
+              Search within one or more textual fields.
+            +mode: K+V
+            +parameters:
+              '@id': *-id 
+              dataProvider: *dataprovider
+              hasView: *hasview
+              id: *id
+              isPartOf: *ispartof
+              isShownAt: *isshownat
+              object: *object
+              provider: *provider
+              collection: *collection
+              contributor: *contributor
+              creator: *creator
+              description: *description
+              date: *date              
+              extent: *extent
+              format: *format
+              identifier: *identifier
+              language: *language
+              physicalMedium: *physicalmedium
+              publisher: *publisher
+              rights: *rights 
+              spatial: *spatial      
+              stateLocatedIn: *statelocatedin
+              subject: *subject
+              temporal: *temporal    
+              title: *title
+              type: *type 
+
+          fetchFields: 
+            +doc: |
+              Indicates specific fields to be returned.
+            +mode: P+K+MV
+            +prefix: 'fields'
+            syntax:
+              multi: ','
+            +parameters: 
+              dataProvider: *dataprovider-novalue
+              hasView: *hasview-novalue
+              id: *id-novalue
+              isPartOf: *ispartof-novalue
+              isShownAt: *isshownat-this-novalue
+              object: *object-this-novalue
+              provider: *provider-novalue
+              collection: *collection-novalue
+              contributor: *contributor-novalue
+              creator: *creator-novalue
+              date: *date-novalue
+              extent: *extent-novalue
+              format: *format-novalue
+              identifier: *identifier-novalue
+              language: *language-novalue
+              physicalMedium: *physicalmedium-novalue
+              publisher: *publisher-novalue
+              rights: *rights-novalue
+              spatial: *spatial-novalue
+              stateLocatedIn: *statelocatedin-novalue
+              subject: *subject-novalue
+              temporal: *temporal-novalue
+              title: *title-novalue
+              type: *type-novalue
+              
+          facets:
+            +doc: |
+              Groups of items collected by shared field values. 
+            +mode: P+K+MV+A
+            +prefix: 'facets'
+            +syntax:
+              multi: ','
+              args: ':'
+            +parameters: 
+              hasView: 
+                <<: *hasview-novalue
+                +parameters:
+                  '@id': *hasview-id-novalue
+                  format: *hasview-format-novalue
+              isPartOf: *ispartof-novalue
+              isShownAt: *isshownat-this-novalue
+              object: *object-this-novalue
+              provider: *provider-novalue
+              contributor: *contributor-novalue
+              date: *date-novalue
+              format: *format-novalue
+              language: *language-novalue
+              spatial: 
+                <<: *spatial-novalue
+                +parameters:
+                  <<: *spatial-properties-novalue
+                  coordinates: *spatial-coordinates
+              stateLocatedIn: *statelocatedin-novalue
+              subject: 
+                <<: *subject-novalue
+                +parameters:
+                  '@id': *subject-id-novalue
+                  'name': *subject-name-novalue
+              temporal: *temporal-novalue
+              type: *type-novalue
+            
+          sortBy: 
+            +mode: P+K+V
+            +prefix: 'sort_by'
+            +parameters: 
+              id: *id-novalue
+              '@id': *-id-novalue
+              identifier: *identifier-novalue
+              contributor: *contributor-novalue
+              date: *date-novalue
+              extent: *extent-novalue
+              language: *language-novalue
+              format: *format-novalue
+              stateLocatedIn: *statelocatedin-novalue
+              spatial: *spatial-novalue
+              subject: *subject-novalue
+              temporal: *temporal-novalue              
+              title: *title-novalue
+              type: *type-novalue
+              hasView: 
+                <<: *hasview-novalue
+                +parameters:
+                  '@id': *hasview-id-novalue
+                  format: *hasview-format-novalue
+              isPartOf: *ispartof-novalue
+              isShownAt: *isshownat-this-novalue
+              object: *object-this-novalue
+              provider: *provider-novalue
+                    
+          sortByPin:
+            +mode: K+V
+            +parameters: 
+              pin: *pin
+
+          page:            
+            +mode: K+V
+            +this: *page
+          
+          pageSize:
+            +mode: K+V
+            +this: *pagesize
+
+          facetSize:
+            +mode: K+V
+            +this: *facetsize
+
+          callback:
+            +mode: K+V
+            +this: *callback
+      output:
+        format: json
+
+    Collections:
+      +doc: |
+        A collection is a little more abstract than an item. Where an item is a 
+        reference to the digital representation of a physical object, a 
+        collection is a representation of the grouping of a set of items.
+
+        For example, a university could have a collection of Emily Dickinson 
+        poems. If so, the DPLA would have a digital collection object that 
+        represents the library’s conceptual collection. All DPLA items that 
+        represent online digital records that are part of a conceptual collection 
+        are identified as belonging to a collection object.
+      http_method: GET
+      path: '/v2/collections?{0}{1}'
+      input:
+        format: key_value
+        +parameters:
+          keywordSearch: 
+            +mode: K+V
+            +this: *std-q
+                                    
+          searchIn: 
+            +mode: K+V
+            +parameters:
+              '@id': *-id 
+              id: *id
+              description: *description
+              title: 
+                <<: *title
+                +key: 'title'
+
+          fetchFields: 
+            +mode: P+K+MV
+            +prefix: 'fields'
+            syntax:
+              multi: ','
+            +parameters: 
+              '@id': *-id-novalue
+              id: *id-novalue
+              title: 
+                <<: *title-novalue
+                +key: 'title'
+              
+          #facets:
+          #  +doc: |
+          #    Groups of items collected by shared field values. 
+          #  +mode: P+K+MV+A
+          #  +prefix:: 'facets'
+          #  syntax:
+          #    multi: ','
+          #    args: ':'
+          #  +parameters: 
+          #    type: *type-novalue
+            
+          sortBy: 
+            +mode: P+K+V
+            +prefix: 'sort_by'
+            +parameters: 
+              '@id': *-id-novalue
+              id: *id-novalue
+              title: *title-novalue
+
+          page:            
+            +mode: K+V
+            +this: *page
+          
+          pageSize:
+            +mode: K+V
+            +this: *pagesize
+
+          facetSize:
+            +mode: K+V
+            +this: *facetsize
+
+          callback:
+            +mode: K+V
+            +this: *callback
+      output:
+        format: json

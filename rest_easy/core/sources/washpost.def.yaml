@@ -1,0 +1,25 @@
+import stddef
+
+apiKey: &apikey
+  +key: 'key'
+  +expected_value: str
+
+variant: &variant
+  +key: 'variant'
+  +expected_value: str
+
+includeCompletions: &includecompletions
+  +key: 'include_completions'
+  +expected_value: '^(0|1)$'
+
+resourcetype: &resourcetype
+  +key: 'resource_type'
+  +expected_value: '^(entity|catagory|source|feed)$'
+
+includeVariants: &includevariants
+  +key: 'include_variants'
+  +expected_value: '^(0|1)$'
+
+resourceSubtype: &resourcesubtype
+  +key: 'resource_subtype'
+  +expected_value: '^(event|award|title|peoples|organization|product|person|company|generic|place|concept)$'
