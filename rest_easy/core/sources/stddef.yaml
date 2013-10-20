@@ -234,10 +234,10 @@ description: &std-description
 
 
 #ISO
-iso369: &std-iso369
+iso639: &std-iso639
   +doc: |
-    ISO 369 code for the specified language
-  +key: 'iso369'
+    ISO 639 code for the specified language
+  +key: 'iso639'
   +expected_value: str
 
 iso3166_2: &std-iso3166-2

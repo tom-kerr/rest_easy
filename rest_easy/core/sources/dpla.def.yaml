@@ -242,8 +242,8 @@ language: &language
         Language(s) of SourceResource
       +key: 'sourceResource.language.name'
       +expected_value: str
-    iso369: &language-iso369
-      <<: *std-iso369
+    iso639: &language-iso639
+      <<: *std-iso639
       +key: 'sourceResource.language.iso639'
       
 physicalMedium: &physicalmedium
@@ -522,8 +522,8 @@ novalue:
       name: &language-name-novalue 
         <<: *language-name
         +expected_value: Null  
-      iso369: &language-iso369-novalue
-        <<: *language-iso369
+      iso639: &language-iso639-novalue
+        <<: *language-iso639
         +expected_value: Null
 
   physicalMedium: &physicalmedium-novalue

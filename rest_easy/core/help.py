@@ -148,6 +148,9 @@ class Helper(object):
                     properties.append(attrname)
                 elif isinstance(attr, API):
                     apis.append(attrname)
+
+        self._buffer_ += '\n'
+        
         if apis:
             self._buffer_ += self._color_('    apis:', fore='blue')
             for api in apis:
@@ -175,6 +178,7 @@ class Helper(object):
         else:
             self._buffer_ += ('\n    ' + self._color_('expected_value: ', fore='blue') +
                               self._color_(obj._expected_value_, fore='cyan'))
+        self._buffer_ += '\n'
 
     def _print_detail_(self, api, detail):
         elements = self._parse_query_string_(detail, mode='lookup')
