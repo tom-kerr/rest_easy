@@ -11,7 +11,7 @@ import openlibrary.def
       http://openlibrary.org/developers/api
 
 baseurl: 
-  'http://openlibrary.org'
+  'https://openlibrary.org'
    
 +parameters:  
   Query:
@@ -161,7 +161,6 @@ baseurl:
               +expected_value: Null        
     output:
       format: json
-
 
   Search:
     http_method: GET
