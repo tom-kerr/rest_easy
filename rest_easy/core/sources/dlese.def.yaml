@@ -35,19 +35,19 @@ dateField: &datefield
   +key: 'dateField'
   +expected_value: str
   +requirements:
-    at_least_one: [fromDate, toDate]
+    +at_least_one: [fromDate, toDate]
     
 fromDate: &fromdate
   +key: 'fromDate'
   +expected_value: str
   +requirements:
-    mandatory: [dateField]
+    +mandatory: [dateField]
     
 toDate: &todate
   +key: 'toDate'
   +expected_value: str
   +requirements:
-    mandatory: [dateField]
+    +mandatory: [dateField]
 
 geoPredicate: &geopredicate
   +key: 'geoPredicate'

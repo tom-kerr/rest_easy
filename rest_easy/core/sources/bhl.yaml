@@ -19,308 +19,302 @@ import bhl.def
     Documentation:
       http://www.biodiversitylibrary.org/api2/docs/docs.html
 
-baseurl:
++baseurl:
   'http://biodiversitylibrary.org'
 
-+parameters:
++children:
   v2:
-    essential:
-      apiKey:
-        +mode: K+V
-        +this: *apikey
-          
-    http_method: GET
-    path: '/api2/httpquery.ashx?{0}{1}'
-    input:
-      format: key_value
-      +parameters:         
-        authorSearch:
-          +mode: S+K+V
-          +scope: 
-            op: 'AuthorSearch'          
-          +parameters:
-            name: *name
+    +http_method: GET
+    +path: '/api2/httpquery.ashx?{0}'
+    +input_format: key_value
+    +output_format: xml
+    +requirements:
+      +mandatory: [apiKey]
+    +children:         
+      apiKey: *apikey
 
-        bookSearch:
-          +mode: S+K+V
-          +requirements: 
-            +at_least_one: [title, lname, collectionid]
-          +scope: 
-            op: 'BookSearch'          
-          +parameters:
-            title: *title
-            lname: *lname
-            volume: *volume
-            edition: *edition
-            year: *year
-            subject: *subject
-            language: *language
-            collectionId: *collectionid
-                  
-        getAuthorParts:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetAuthorParts'          
-          +parameters:
-            creatorId: *creatorid
-            
-        getAuthorTitles:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetAuthorTitles'          
-          +parameters:
-            creatorId: *creatorid  
-            
-        getCollections: 
-          +mode: S+K+V
-          +scope: 
-            op: 'GetCollections'          
-          +this: *getcollections
-                
-        getItemByIdentifier:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetItemByIdentifier'          
-          +parameters:                
-            barcode: *barcode
-            ia: *ia
-            
-        getItemMetadata:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetItemMetadata'          
-          +parameters:
-            itemId: *itemid
-            pages: *pages
-            ocr: *ocr
-            parts: *parts            
+      authorSearch:
+        +mode: S+K+V
+        +scope: 
+          op: 'AuthorSearch'          
+        +children:
+          name: *name
 
-        getItemPages:
-          +mode: S+K+V
-          +requirements:
-            mandatory: [itemId]              
-          +scope: 
-            op: 'GetItemPages'          
-          +parameters:
-            itemId: *itemid
-            ocr: *ocr
-            
-        getItemParts:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetItemParts'          
-          +parameters:
-            itemId: *itemid
+      bookSearch:
+        +mode: S+K+V
+        +requirements: 
+          +at_least_one: [title, lname, collectionid]
+        +scope: 
+          op: 'BookSearch'          
+        +children:
+          title: *title
+          lname: *lname
+          volume: *volume
+          edition: *edition
+          year: *year
+          subject: *subject
+          language: *language
+          collectionId: *collectionid
 
-        getLanguages:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetLanguages'          
-          +this: *getlanguages
-                
-        getPageMetadata:
-          +mode: S+K+V
-          +requirements: 
-            mandatory: [pageId]
-          +scope: 
-            op: 'GetPageMetadata'          
-          +parameters:
-            pageId: *pageid
-            ocr: *ocr
-            names: *names  
+      getAuthorParts:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetAuthorParts'          
+        +children:
+          creatorId: *creatorid
 
-        getPageNames:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetPageNames'          
-          +parameters:
-            pageId: *pageid
+      getAuthorTitles:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetAuthorTitles'          
+        +children:
+          creatorId: *creatorid  
 
-        getPageOcrText:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetPageOcrText'          
-          +parameters:
-            pageId: *pageid
+      getCollections: 
+        +mode: S+K+V
+        +scope: 
+          op: 'GetCollections'          
+        +this: *getcollections
 
-        getPartBibTeX:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetPartBibTeX'          
-          +parameters:
-            partId: *partid
+      getItemByIdentifier:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetItemByIdentifier'          
+        +children:                
+          barcode: *barcode
+          ia: *ia
 
-        getPartByIdentifier:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetPartByIdentifier'          
-          +parameters:
-            doi: *doi
-            oclc: *oclc
-            issn: *issn
-            isbn: *isbn
-            lccn: *lccn
-            ddc: *ddc
-            nal: *nal
-            nlm: *nlm
-            coden: *coden
+      getItemMetadata:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetItemMetadata'          
+        +children:
+          itemId: *itemid
+          pages: *pages
+          ocr: *ocr
+          parts: *parts            
 
-        getPartEndNote:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetPartEndNote'          
-          +parameters:
-            partId: *partid
+      getItemPages:
+        +mode: S+K+V
+        +requirements:
+          +mandatory: [itemId]              
+        +scope: 
+          op: 'GetItemPages'          
+        +children:
+          itemId: *itemid
+          ocr: *ocr
 
-        getPartMetadata:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetPartMetadata'          
-          +parameters:
-            partId: *partid
+      getItemParts:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetItemParts'          
+        +children:
+          itemId: *itemid
 
-        getPartNames:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetPartNames'          
-          +parameters:
-            partId: *partid
+      getLanguages:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetLanguages'          
+        +this: *getlanguages
 
-        getSubjectParts:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetSubjectParts'          
-          +parameters:
-            subject: *subject
+      getPageMetadata:
+        +mode: S+K+V
+        +requirements: 
+          +mandatory: [pageId]
+        +scope: 
+          op: 'GetPageMetadata'          
+        +children:
+          pageId: *pageid
+          ocr: *ocr
+          names: *names  
 
-        getSubjectTitles:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetSubjectTitles'          
-          +parameters:
-            subject: *subject
+      getPageNames:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetPageNames'          
+        +children:
+          pageId: *pageid
 
-        getTitleBibTex:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetTitleBibTex'          
-          +parameters:
-            titleId: *titleid
-      
-        getTitleByIdentifier:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetTitleByIdentifier'          
-          +parameters:
-            doi: *doi
-            oclc: *oclc
-            issn: *issn
-            isbn: *isbn
-            lccn: *lccn
-            ddc: *ddc
-            nal: *nal
-            nlm: *nlm
-            coden: *coden
+      getPageOcrText:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetPageOcrText'          
+        +children:
+          pageId: *pageid
 
-        getTitleEndNote:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetTitleEndNote'          
-          +parameters:
-            titleId: *titleid
+      getPartBibTeX:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetPartBibTeX'          
+        +children:
+          partId: *partid
 
-        getTitleItems:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetTitleItems'          
-          +parameters:
-            titleId: *titleid
+      getPartByIdentifier:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetPartByIdentifier'          
+        +children:
+          doi: *doi
+          oclc: *oclc
+          issn: *issn
+          isbn: *isbn
+          lccn: *lccn
+          ddc: *ddc
+          nal: *nal
+          nlm: *nlm
+          coden: *coden
 
-        getTitleMetadata:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetTitleMetadata'          
-          +parameters:
-            titleId: *titleid
-            items: *items
+      getPartEndNote:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetPartEndNote'          
+        +children:
+          partId: *partid
 
-        getUnpublishedItems:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetUnpublishedItems'          
-          +this: *getunpublisheditems
-                    
-        getUnpublishedParts:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetUnpublishedParts'          
-          +this: *getunpublishedparts
-      
-        getUnpublishedTitles:
-          +mode: S+K+V
-          +scope: 
-            op: 'GetUnpublishedTitles'          
-          +this: *getunpublishedtitles
-          
-        nameCount:
-          +mode: S+K+V
-          +scope: 
-            op: 'NameCount'          
-          +this: *namecount
-          +parameters:
-            startDate: *startdate
-            endDate: *enddate
+      getPartMetadata:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetPartMetadata'          
+        +children:
+          partId: *partid
 
-        nameList:
-          +mode: S+K+V
-          +scope: 
-            op: 'NameList'          
-          +parameters:
-            startRow: *startrow
-            batchSize: *batchsize
-            startDate: *startdate
-            endDate: *enddate
+      getPartNames:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetPartNames'          
+        +children:
+          partId: *partid
 
-        nameSearch:
-          +mode: S+K+V
-          +scope: 
-            op: 'NameSearch'          
-          +parameters:
-            name: *name
+      getSubjectParts:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetSubjectParts'          
+        +children:
+          subject: *subject
 
-        partSearch:
-          +mode: S+K+V
-          +scope: 
-            op: 'PartSearch'          
-          +requirements:
-            at_least_one: [title, author]
-          +parameters:
-            title: *title
-            author: *author
-            containerTitle: *containertitle
-            date: *date
-            volume: *volume
-            series: *series
-            issue: *issue
+      getSubjectTitles:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetSubjectTitles'          
+        +children:
+          subject: *subject
 
-        subjectSearch:
-          +mode: S+K+V
-          +scope: 
-            op: 'SubjectSearch'          
-          +parameters:
-            subject: *subject
+      getTitleBibTex:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetTitleBibTex'          
+        +children:
+          titleId: *titleid
 
-        titleSearchSimple:
-          +mode: S+K+V
-          +scope: 
-            op: 'TitleSearchSimple'
-          +parameters:
-            title: *title
+      getTitleByIdentifier:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetTitleByIdentifier'          
+        +children:
+          doi: *doi
+          oclc: *oclc
+          issn: *issn
+          isbn: *isbn
+          lccn: *lccn
+          ddc: *ddc
+          nal: *nal
+          nlm: *nlm
+          coden: *coden
 
-        options: 
-          +mode: K+V
-          +parameters:
-            format: *format
-            callback: *callback
-    output:
-      format: xml
+      getTitleEndNote:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetTitleEndNote'          
+        +children:
+          titleId: *titleid
+
+      getTitleItems:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetTitleItems'          
+        +children:
+          titleId: *titleid
+
+      getTitleMetadata:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetTitleMetadata'          
+        +children:
+          titleId: *titleid
+          items: *items
+
+      getUnpublishedItems:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetUnpublishedItems'          
+        +this: *getunpublisheditems
+
+      getUnpublishedParts:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetUnpublishedParts'          
+        +this: *getunpublishedparts
+
+      getUnpublishedTitles:
+        +mode: S+K+V
+        +scope: 
+          op: 'GetUnpublishedTitles'          
+        +this: *getunpublishedtitles
+
+      nameCount:
+        +mode: S+K+V
+        +scope: 
+          op: 'NameCount'          
+        +this: *namecount
+        +children:
+          startDate: *startdate
+          endDate: *enddate
+
+      nameList:
+        +mode: S+K+V
+        +scope: 
+          op: 'NameList'          
+        +children:
+          startRow: *startrow
+          batchSize: *batchsize
+          startDate: *startdate
+          endDate: *enddate
+
+      nameSearch:
+        +mode: S+K+V
+        +scope: 
+          op: 'NameSearch'          
+        +children:
+          name: *name
+
+      partSearch:
+        +mode: S+K+V
+        +scope: 
+          op: 'PartSearch'          
+        +requirements:
+          +at_least_one: [title, author]
+        +children:
+          title: *title
+          author: *author
+          containerTitle: *containertitle
+          date: *date
+          volume: *volume
+          series: *series
+          issue: *issue
+
+      subjectSearch:
+        +mode: S+K+V
+        +scope: 
+          op: 'SubjectSearch'          
+        +children:
+          subject: *subject
+
+      titleSearchSimple:
+        +mode: S+K+V
+        +scope: 
+          op: 'TitleSearchSimple'
+        +children:
+          title: *title
+
+      format: *format
+      callback: *callback

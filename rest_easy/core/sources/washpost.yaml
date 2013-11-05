@@ -7,50 +7,30 @@ import washpost.def
     Documentation:
       https://developer.washingtonpost.com
 
-baseurl:
++baseurl:
   'http://api.washingtonpost.com'
 
-+parameters:
++children:
   trove:
-    v1:
-      essential:
-        apiKey:
-          +mode: K+V
-          +this: *apikey
+    +children:
+      v1:
+        +requirements:
+          +mandatory: [apiKey]
+        +children:
+          apiKey: *apikey
 
-      Resources:
-         http_method: GET
-         path: '/trove/v1/resources?{0}'
-         input:
-           format: key_value
-           essential: [variant]
-           +parameters:        
-             variant:
-               +mode: K+V
-               +this: *variant
-
-             includeCompletions:
-               +mode: K+V
-               +this: *includecompletions
-
-             resourceType:
-               +mode: K+V
-               +this: *resourcetype
-
-             limit:
-               +mode: K+V
-               +this: *std-limit
-               
-             includeVariants:
-               +mode: K+V
-               +this: *includevariants
-
-             resourceSubtype:
-               +mode: K+V
-               +this: *resourcesubtype
-
-             callback:
-               +mode: K+V
-               +this: *std-callback
-         output:
-           format: json
+          Resources:
+             +http_method: GET
+             +path: '/trove/v1/resources?{0}'
+             +input_format: key_value
+             +output_format: json
+             +requirements: 
+               +mandatory: [variant]
+             +children:        
+               variant: *variant
+               includeCompletions: *includecompletions
+               resourceType: *resourcetype
+               limit: *std-limit
+               includeVariants: *includevariants
+               resourceSubtype: *resourcesubtype
+               callback: *std-callback

@@ -33,7 +33,7 @@ Each of these queries are equivalent:
 
 ```python
 #setters
-dpla = RestEasy.getSourceAPIs('dpla')
+dpla = RestEasy.getWrappers('dpla')
 dpla('v2').apiKey('xxxx')
 dpla('v2').Items.searchIn.title('Tom Sawyer')
 results = dpla('v2').Items.GET()
@@ -54,7 +54,7 @@ results = RestEasy.GET('dpla', 'v2', {'apiKey': 'xxxx',
 <h3>Setters</h3>
 To query using setters, one must first retrieve the Source object:
 ```python
-dpla = RestEasy.getSourceAPIs('dpla')
+dpla = RestEasy.getWrappers('dpla')
 ```
 *dpla* is now an object with DPLA API wrappers as attributes. The root object of a wrapper is the **API**, which is always written in lowercase and contains parameters of two types, **Methods** and **Properties**. **Properties**, always in mixedCase, are setters which validate our input and build our query strings, while **Methods**, always Capitalized, handle HTTP requests and act as collections of Properties (and may also behave like Properties themselves). 
 
@@ -78,7 +78,7 @@ Calling Method Items' attribute GET will construct a url string from the paramet
 
 Or, if we just want the url string:
 ```python
-query_string = dpla('v2').Items.get_query_string()
+query_string = dpla('v2').Items.getQueryString()
 ```
 
 <h3>Strings</h3>
@@ -201,68 +201,21 @@ Method "Items"
         searchIn
         sortBy
         sortByPin
+```
 
->>> RestEasy.help('dpla->v2->Items->searchIn')
 
-Property "searchIn"
-    Search within one or more textual fields.
-    
-    
-    properties:
-        @id
-        collection
-        contributor
-        creator
-        dataProvider
-        date
-        description
-        extent
-        format
-        hasView
-        id
-        identifier
-        isPartOf
-        isShownAt
-        language
-        object
-        physicalMedium
-        provider
-        publisher
-        rights
-        spatial
-        stateLocatedIn
-        subject
-        temporal
-        title
-        type
-
->>> RestEasy.help('dpla->v2->Items->searchIn->spatial')
-
-Property "spatial"
-    Spatial characteristics of SourceResource (usually a literal value in this version).
-    
-    key: sourceResource.spatial
-    expected_value: <class 'str'>
-
-    properties:
-        city
-        coordinates
-        county
-        distance
-        iso3166_2
-        name
-        region
-        state
-
->>> RestEasy.help('dpla->v2->Items->searchIn->spatial->coordinates')
-
-Property "coordinates"
-    Location coordinates in latitude, longitude form.
-    
-    key: sourceResource.spatial.coordinates
-    expected_value: ^[0-9.-]+[ ]*[:][ ]*[0-9.-]+$
+or, one can call a parameter's **help** method:
 
 ```
+>>> dpla('v2').Items.help()
+
+Method "Items"
+    A DPLA item is a reference to the digital representation of a single 
+    piece of content indexed by the DPLA. The piece of content can be, for 
+    ...
+
+```
+
 
 Installation
 

@@ -16,9 +16,7 @@ from __future__ import print_function
 
 import os, sys
 major, minor = sys.version_info[0], sys.version_info[1]
-if major == 2 and minor < 7:
-    raise RuntimeError('Your python is too small; 2.7 or larger required.')
-elif major == 2 and minor >= 7:
+if major == 2 and minor >= 7:
     from StringIO import StringIO
 elif major == 3:
     from io import StringIO

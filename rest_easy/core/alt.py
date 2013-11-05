@@ -55,23 +55,23 @@ class AlternateInterface(Parser):
     def GET(self, source, api, query,
             return_format='', inherit_from=None, pretty_print=False):
         self._method_ = None
-        source_apis = self.getSourceAPIs(source)
+        source_apis = self.getWrappers(source)
         query_elements = self._parse_query_string_(query)
         api_object = self._get_api_object_(source_apis, api)
         self._submit_elements_(source, api, api_object, query_elements)
         if not self._method_:
             raise Exception('Insufficient arguments -- you must supply a Method.')
-        getattr(api_object, self._method_).GET(return_format, inherit_from, pretty_print)
+        return self._method_.GET(return_format, inherit_from, pretty_print)
 
-    def get_query_string(self, source, api, input_strings):
+    def getQueryString(self, source, api, input_strings):
         self._method_ = None
-        source_apis = self.getSourceAPIs(source)
+        source_apis = self.getWrappers(source)
         query_elements = self._parse_query_string_(input_strings)
         api_object = self._get_api_object_(source_apis, api)
         self._submit_elements_(source, api, api_object, query_elements)
         if not self._method_:
             raise Exception('Insufficient arguments -- you must supply a Method.')
-        return self._method_.get_query_string()
+        return self._method_.getQueryString()
 
     def _get_api_object_(self, source_object, api):
         try:

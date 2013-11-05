@@ -158,7 +158,7 @@ editionName: &editionname
 
 languages: &languages 
   +key: 'languages'
-  +expected_value: '\/languages\/.+'
+  +expected_value: {'/languages/': str}
 
 #NOT INDEXED
 description: &description
@@ -171,7 +171,7 @@ notes: &notes
 
 genres: &genres
   +key: 'genres'
-  +expected_value: str #[[str]]
+  +expected_value: [ [str], str ]
 
 class: &class
   +key: 'class'
@@ -188,7 +188,7 @@ pagenum: &pagenum
 tableOfContents: &tableofcontents
   +mode: P+K+V 
   +prefix: 'table_of_contents'
-  +parameters:
+  +children:
     class: *class
     label: *label
     title: *title

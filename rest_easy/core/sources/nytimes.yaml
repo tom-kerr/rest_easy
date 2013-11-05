@@ -7,108 +7,104 @@ import nytimes.def
     Documentation:
       http://http://developer.nytimes.com/docs/read
 
-baseurl:
++baseurl:
   'http://api.nytimes.com/svc'
 
-+parameters:
++children:
   articles:
-    v2:
-      essential:
-        apiKey:
-          +mode: K+V
-          +this: *apikey
-        responseFormat:
-          +mode: V
-          +this: *responseformat
-            
-      http_method: GET
-      path: '/search/v2/articlesearch{responseFormat}?{0}{1}'
-      input: 
-        format: key_value
-        +parameters:
-          query:
-            +mode: K+V
-            +this: *std-q
-   
+    +children:
+      v2:                    
+        +http_method: GET
+        +path: '/search/v2/articlesearch{responseFormat}?{0}'
+        +input_format: key_value
+        +output_format: json
+        +requirements:
+          +mandatory: [apiKey, responseFormat]
+        +children:
+          apiKey: *apikey
+
+          responseFormat:
+            +mode: V
+            +this: *responseformat
+
+          query: *std-q
+
           filteredQuery:
             +mode: P+MK+V
             +prefix: 'fq'          
             +syntax: 
-              args: ':'
+              +args: ':'
             +this: *filteredquery
-            +parameters:
+            +children:
               body: 
                 <<: *body
-                +parameters:
+                +children:
                   search: *body-search 
               creative_works: 
                 <<: *creativeworks
-                +parameters:
+                +children:
                   contains: *creativeworks-contains       
               day_of_week: *dayofweek
               document_type: *documenttype 
               glocations: 
                 <<: *glocations
-                +parameters:
+                +children:
                   contains: *glocations-contains     
               headline: 
                 <<: *headline
-                +parameters:
+                +children:
                   search: *headline-search 
               kicker: 
                 <<: *kicker
-                +parameters:
+                +children:
                   contains: *kicker-contains 
               news_desk: 
                 <<: *newsdesk
-                +parameters:
+                +children:
                   contains: *newsdesk-contains
               organizations:
                 +this: *organizations
-                +parameters:
+                +children:
                   contains: *organizations-contains
               persons:
                 +this: *persons
-                +parameters:
+                +children:
                   contains: *persons-contains
               pub_date: *pubdate
               pub_year: *pubyear
               secpg: *secpg
               source:
                 +this: *source
-                +parameters:
+                +children:
                   contains: *source-contains 
               subject:
                 +this: *subject
-                +parameters:
+                +children:
                   contains: *subject-contains
               section_name:
                 +this: *sectionname
-                +parameters:
+                +children:
                   contains: *sectionname-contains
               type_of_material:
                 +this: *typeofmaterial
-                +parameters:
+                +children:
                   contains: *typeofmaterial-contains
               web_url: *weburl
               word_count: *wordcount
 
           date: 
-            +mode: K+V
-            +parameters:
+            +children:
               begin: *begindate
               end: *enddate
 
-          sort: 
-            +mode: K+V
-            +this: *sort
+          sort: *sort
 
           fl: 
             +mode: P+MK
-            +prefix:: 'fl'
+            +prefix: 'fl'
             +syntax:
-              multi: ','
-            +parameters: 
+              +multi: ','
+            +children: 
               web_url: 
                 <<: *weburl
                 +expected_value: Null
@@ -143,20 +139,15 @@ baseurl:
                 <<: *wordcount
                 +expected_value: Null
 
-          hl: 
-            +mode: K+V
-            +this: *hl
-
-          page: 
-            +mode: K+V
-            +this: *std-page
+          hl: *hl
+          page: *std-page
 
           facetField:
             +mode: P+K+V
             +prefix:: 'facet_field'
             +syntax:
-              multi: ','
-            +parameters: 
+              +multi: ','
+            +children: 
               section_name: 
                 <<: *sectionname
                 +expected_value: Null
@@ -173,12 +164,5 @@ baseurl:
                 <<: *dayofweek
                 +expected_value: Null
 
-          facetFilter:
-            +mode: K+V
-            +this: *facetfilter 
-            
-          callback:
-            +mode: K+V
-            +this: *std-callback
-      output:
-        format: json
+          facetFilter: *facetfilter 
+          callback: *std-callback

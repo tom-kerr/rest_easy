@@ -12,56 +12,28 @@ import loc.def
     Documentation:
       http://www.loc.gov/standards
 
-baseurl:
++baseurl:
   'http://z3950.loc.gov:7090'
 
-+parameters:
++children:
   sru:
-    v1.1:
-      http_method: GET
-      path: '/voyager?version=1.1&operation=searchRetrieve&{0}'
-      input:
-        format: key_value
-        essential: [query]
-        +parameters:
-          query:          
-            +mode: K+V
-            +this: *query               
+    +children:
+      v1.1:
+        +http_method: GET
+        +path: '/voyager?version=1.1&operation=searchRetrieve&{0}'
+        +input_format: key_value
+        +output_format: xml
+        +requirements: 
+          +mandatory: [query]
+        +children:
+          query: *query               
+          startRecord: *startrecord               
+          maximumRecords: *maximumrecords
+          recordPacking: *recordpacking
+          recordSchema: *recordschema               
+          recordXPath: *recordxpath               
+          sortKeys: *sortkeys               
+          resultSetTTL: *resultsetttl               
+          stylesheet: *stylesheet               
+          extraRequestData: *extrarequestdata
 
-          startRecord:
-            +mode: K+V
-            +this: *startrecord               
-
-          maximumRecords:
-            +mode: K+V
-            +this: *maximumrecords
-
-          recordPacking:
-            +mode: K+V
-            +this: *recordpacking
-
-          recordSchema:
-            +mode: K+V
-            +this: *recordschema               
-
-          recordXPath:
-            +mode: K+V
-            +this: *recordxpath               
-
-          sortKeys:
-            +mode: K+V
-            +this: *sortkeys               
-
-          resultSetTTL:
-            +mode: K+V
-            +this: *resultsetttl               
-
-          stylesheet:
-            +mode: K+V
-            +this: *stylesheet               
-
-          extraRequestData:
-            +mode: K+V
-            +this: *extrarequestdata
-      output:
-        format: xml

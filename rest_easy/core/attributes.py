@@ -23,18 +23,18 @@ class BaseAttributes(object):
     """Verify the existence of and/or add attributes from
     source/api/method/property data.
     """
-    def __init__(self, add=None, check=None, data=None):
-        if add:
-            self.__add_attributes(add, data)
-        if check:
-            self.__check_attributes(check, data)
+    def __init__(self, attr_add=None, attr_check=None, data=None):
+        if attr_add:
+            self.__add_attributes(attr_add, data)
+        if attr_check:
+            self.__check_attributes(attr_check, data)
 
     def __add_attributes(self, attributes, data):
         for attr in attributes:
             if attr not in data:
                 raise LookupError('Failed to find required attribute "'+attr+'".')
             else:
-                setattr(self, '_'+attr+'_', data[attr])
+                setattr(self, '_'+attr.lstrip('+')+'_', data[attr])
 
     def __check_attributes(self, attributes, data):
         for attr in attributes:
@@ -97,10 +97,10 @@ class Aspects(object):
         return self._set_default_syntax_(syntax)
 
     def _set_default_syntax_(self, syntax):
-        if 'bind' not in syntax:
-            syntax['bind'] = '='
-        if 'chain' not in syntax:
-            syntax['chain'] = '&'
+        if '+bind' not in syntax:
+            syntax['+bind'] = '='
+        if '+chain' not in syntax:
+            syntax['+chain'] = '&'
         return syntax
 
     def _get_scope_(self, data):
@@ -124,6 +124,11 @@ class Aspects(object):
     def _parse_type_(self, data_type):
         if isinstance(data_type, list):
             return self._get_type_tuple_(data_type)
+        elif isinstance(data_type, dict):
+            d = {}
+            for k,v in data_type.items():
+                d[k] = self._parse_type_(v)
+            return d
         else:
             _type = self._check_type_(data_type)
             if _type is not False:
@@ -136,7 +141,7 @@ class Aspects(object):
         for dt in data_type:
             _type = self._check_type_(dt)
             if _type is list:
-                typelist.append( [ self.get_type_tuple(dt) ])
+                typelist.append( list(self._get_type_tuple_(dt)) )
             elif _type is not False:
                 typelist.append(_type)
             else:

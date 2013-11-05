@@ -16,9 +16,7 @@ from __future__ import print_function
 
 import sys
 major, minor = sys.version_info[0], sys.version_info[1]
-if major == 2 and minor < 7:
-    raise RuntimeError('Your python is too small; 2.7 or larger required.')
-elif major == 2 and minor >= 7:
+if major == 2 and minor >= 7:
     from urllib2 import urlopen
 elif major == 3:
     from urllib.request import urlopen
@@ -33,10 +31,11 @@ import types
 
 def GET(self, return_format='', inherit_from=None,
         pretty_print=False):
-    query_string = self.get_query_string()
+    query_string = self.getQueryString()
+    self._parent_._reset_query_data_()
     request = urlopen(query_string)
     results = request.read().decode('utf-8')
-    results = self._convert_results_(results, self._output_._format_,
+    results = self._convert_results_(results, self._output_format_,
                                      return_format, inherit_from)
     if pretty_print:
         pprint.pprint(results)
@@ -56,23 +55,14 @@ class HTTPMethods(Parser, Convert):
             if method in self._http_method_:
                 setattr(self, method, types.MethodType(globals()[method], self))
 
-    def get_query_string(self):
-
-        if self._parent_._essential_objects_:
-            essential = self._parent_._essential_#self._essential_ + self._parent_._essential_
-            for item, data in self._parent_._essential_objects_.items():
-                self._essential_objects_[item] = data
-        elif self._parent_._essential_:
-            essential = self._parent_._essential_
-        else:
-            essential = self._essential_
-
-        self._check_essential_(essential, self._parent_._essential_objects_)
+    def getQueryString(self):
         #pprint.pprint(self._parent_._query_objects_)
-        query_string = self._parse_(self._parent_._query_objects_)
-        option_string = self._parse_(self._optional_objects_)
-        qstring = self._baseurl_ + self._path_.format(query_string, option_string)
-        self._parent_._reset_query_data_()
+        string = self._parse_(self._parent_._query_objects_)
+        submitted = self._find_in_requirements_()
+        self._enforce_requirements_(submitted)
+        self._clean_path_string_()
+        qstring = self._baseurl_ + self._path_.format(string)
+        #secondary=secondary_string)
         return qstring
 
 
@@ -83,22 +73,18 @@ class QueryTree(object):
             rset = []
         if parameter not in rset:
             rset.append(parameter)
-        self._raise_essential_()
         new_state = {parameter: self._get_state_(parameter, None)}
         for k,v in state.items():
             new_state[k] = v
         state = new_state
-        if hasattr(self, '_parent_') and self._parent_:
+        if self._is_root_:
+            rset.reverse()
+            tree = self._query_objects_
+            tree = self._make_tree_(rset, tree, state, parameter)
+        else:
             self._parent_._add_query_object_(self._name_, child_kw,
                                              function, state, rset)
             return
-        else:
-            rset.reverse()
-            if child_kw in self._essential_:
-                tree = self._essential_objects_
-            else:
-                tree = self._query_objects_
-            tree = self._make_tree_(rset, tree, state, parameter)
 
     def _make_tree_(self, rset, tree, state, root):
         _rset = copy(rset)

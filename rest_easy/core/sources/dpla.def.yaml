@@ -1,6 +1,6 @@
 import stddef
 
-api+key: &apikey
+apiKey: &apikey
   +key: 'api_key'
   +expected_value: str
    
@@ -40,7 +40,7 @@ hasView: &hasview
   +this: &hasview-this
     +key: 'hasView'
     +expected_value: bool
-  +parameters:
+  +children:
     '@id': &hasview-id
       +key: 'hasView.@id'
       +expected_value: *stdregex-int
@@ -80,7 +80,7 @@ isPartOf: &ispartof
   +this: &ispartof-this
     +key: 'isPartOf'
     +expected_value: str
-  +parameters:
+  +children:
     '@id': &ispartof-id
       +key: 'isPartOf.@id'
       +expected_value: *stdregex-posint
@@ -95,7 +95,7 @@ isShownAt: &isshownat
       web site in its full information context.
     +key: 'isShownAt'
     +expected_value: str
-  +parameters:
+  +children:
     '@id': &isshownat-id
       +doc: |
         Actual URL to the digital object on the provider's web site
@@ -119,7 +119,7 @@ object: &object
       An unambiguous URL reference to the DPLA digital content preview of the item.
     +key: 'object'
     +expected_value: str
-  +parameters:
+  +children:
     '@id': &object-id
       +doc: |
         Actual URL to the digital object preview content on the DPLA web site.
@@ -143,7 +143,7 @@ provider: &provider
       May contain the same value is Data Provider. (literal value in this version)
     +key: 'provider'
     +expected_value: str
-  +parameters:
+  +children:
     '@id': &provider-id
       +doc: |
         URI pointing to the data provider page within the DPLA API.
@@ -161,7 +161,7 @@ collection: &collection
       Array of URIs of collection or aggregation of which SourceResource is a part.
     +key: 'sourceResource.collection'
     +expected_value: str
-  +parameters:
+  +children:
     '@id': &collection-id
       +doc: |
         URI of collection or aggregation of which SourceResource is a part.
@@ -187,7 +187,7 @@ date: &date
       of a sourceResource (literal value).
     +key: 'sourceResource.date'
     +expected_value: '^[0-9]+$'
-  +parameters:
+  +children:
     begin: &date-begin
       +doc: |
         Date/time of the start of a time span (inclusive).
@@ -236,7 +236,7 @@ language: &language
       Array containing language(s) of SourceResource
     +key: 'sourceResource.language'
     +expected_value: str
-  +parameters:
+  +children:
     name: &language-name
       +doc: |
         Language(s) of SourceResource
@@ -274,7 +274,7 @@ spatial: &spatial
       Spatial characteristics of SourceResource (usually a literal value in this version).
     +key: 'sourceResource.spatial'
     +expected_value: str
-  +parameters:
+  +children:
     coordinates: &spatial-coordinates
       +doc: |
         Location coordinates in latitude, longitude form.
@@ -326,7 +326,7 @@ subject: &subject
       Array containing topic(s) of a SourceResource
     +key: 'sourceResource.subject'
     +expected_value: str
-  +parameters:
+  +children:
     '@id': &subject-id
       +doc: |
         Identifier of a subject of a SourceResource.
@@ -352,7 +352,7 @@ temporal: &temporal
       (usually a literal value in this version).
     +key: 'sourceResource.temporal'
     +expected_value: str
-  +parameters:
+  +children:
     begin: &temporal-begin
       +doc: |
         Date/time of the start of a time span (inclusive).
@@ -391,9 +391,6 @@ facetSize: &facetsize
   +key: 'facet_size'
   +expected_value: '^[0-9]+$'
 
-callback: &callback
-  <<: *std-callback
-
 
 novalue:
   '@id': &-id-novalue
@@ -412,7 +409,7 @@ novalue:
     +this: &hasview-this-novalue
       <<: *hasview-this
       +expected_value: Null
-    +parameters:
+    +children:
       '@id': &hasview-id-novalue
         <<: *hasview-id
         +expected_value: Null
@@ -427,7 +424,7 @@ novalue:
     +this: &ispartof-this-novalue
       <<: *ispartof-this
       +expected_value: Null
-    +parameters:
+    +children:
       '@id': &ispartof-id-novalue
         <<: *ispartof-id
         +expected_value: Null
@@ -439,7 +436,7 @@ novalue:
     +this: &isshownat-this-novalue
       <<: *isshownat-this
       +expected_value: Null
-    +parameters:
+    +children:
       '@id': &isshownat-id-novalue
         <<: *isshownat-id
         +expected_value: Null
@@ -454,7 +451,7 @@ novalue:
     +this: &object-this-novalue
       <<: *object-this
       +expected_value: Null
-    +parameters:
+    +children:
       '@id': &object-id-novalue
         <<: *object-id
         +expected_value: Null
@@ -469,7 +466,7 @@ novalue:
     +this: &provider-this-novalue
       <<: *provider-this
       +expected_value: Null
-    +parameters:
+    +children:
       '@id': &provider-id-noalue
         <<: *provider-id
         +expected_value: Null
@@ -481,7 +478,7 @@ novalue:
     +this:  &collection-this-novalue
       <<: *collection-this
       +expected_value: Null
-    +parameters:
+    +children:
       '@id': &collection-id-novalue
         <<: *collection-id
         +expected_value: Null
@@ -518,7 +515,7 @@ novalue:
     +this: &language-this-novalue
       <<: *language-this
       +expected_value: Null
-    +parameters:
+    +children:
       name: &language-name-novalue 
         <<: *language-name
         +expected_value: Null  
@@ -542,7 +539,7 @@ novalue:
     +this: 
       <<: *spatial-this      
       +expected_value: Null
-    +parameters: &spatial-properties-novalue
+    +children: &spatial-properties-novalue
       coordinates: &spatial-coordinates-novalue
         <<: *spatial-coordinates
         +expected_value: Null
@@ -580,7 +577,7 @@ novalue:
     +this: 
       <<: *subject-this
       +expected_value: Null
-    +parameters:
+    +children:
       '@id': &subject-id-novalue
         <<: *subject-id
         +expected_value: Null
@@ -595,7 +592,7 @@ novalue:
     +this: 
       <<: *temporal-this
       +expected_value: Null
-    +parameters:
+    +children:
       begin: 
         <<: *temporal-begin    
         +expected_value: Null

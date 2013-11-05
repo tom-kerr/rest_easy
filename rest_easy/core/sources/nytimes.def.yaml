@@ -12,7 +12,7 @@ filtered_query: &filteredquery
   +key: ''
   +expected_value: str
   +syntax:
-    args: Null
+    +args: Null
 
 body: &body
   +key: 'body'

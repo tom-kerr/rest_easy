@@ -11,44 +11,44 @@ inTitle: &intitle
   +key: 'intitle'
   +expected_value: [str, Null]
   +syntax:
-    bind: ':'
-    chain: '+'
+    +bind: ':'
+    +chain: '+'
 
 inAuthor: &inauthor
   +key: 'inauthor'
   +expected_value: [str, Null]
   +syntax:
-    bind: ':'
+    +bind: ':'
 
 inPublisher: &inpublisher
   +key: 'inpublisher'
   +expected_value: [str, Null]
   +syntax:
-    bind: ':'
+    +bind: ':'
 
 subject: &subject
   +key: 'subject'
   +expected_value: [str, Null]
   +syntax:
-    bind: ':'
+    +bind: ':'
 
 isbn: &isbn
   +key: 'isbn'
   +expected_value: [*stdregex-isbn, Null]
   +syntax:
-    bind: ':'
+    +bind: ':'
 
 oclc: &oclc
   +key: 'oclc'
   +expected_value: [str, Null]
   +syntax:
-    bind: ':'
+    +bind: ':'
 
 lccn: &lccn
   +key: 'lccn'
   +expected_value: [*stdregex-int, Null]
   +syntax:
-    bind: ':'
+    +bind: ':'
 
 filter: &filter
   +key: 'filter'

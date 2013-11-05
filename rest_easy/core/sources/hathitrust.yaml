@@ -12,113 +12,83 @@ import hathitrust.def
     Documentation:
       http://www.hathitrust.org/bib_api
 
-baseurl:
++baseurl:
   'http://catalog.hathitrust.org'
 
-+parameters: 
++children: 
   VolumesBrief:
-    http_method: GET
-    path: '/api/volumes/brief/{0}.json{1}'
-    input:
-      format: key_value
-      +parameters: 
-        id: 
-          +mode: K+V
-          +syntax:
-            bind: '/'
-            chain: ''
-          +parameters:
-            isbn: *isbn
-            lccn: *lccn
-            oclc: *oclc
-            olid: *olid
-          
-        options:
-          +mode: K+V
-          +syntax:
-            chain: '?'
-          +parameters:
-            callback: *callback
-    output:
-      format: json
+    +http_method: GET
+    +path: '/api/volumes/brief/{0}.json?{callback}'
+    +input_format: key_value
+    +output_format: json
+    +children: 
+      id: 
+        +syntax:
+          +bind: '/'
+          +chain: ''
+        +children:
+          isbn: *isbn
+          lccn: *lccn
+          oclc: *oclc
+          olid: *olid
+
+      callback: *callback
 
   MultiVolumesBrief:
-    http_method: GET
-    path: '/api/volumes/brief/json/{0}{1}'
-    input:
-      format: key_value
-      +parameters: 
-        id: 
-          +mode: MK+MV
-          +syntax:
-            bind: ':'
-            chain: ';'
-            multi: '|'
-          +parameters: 
-            isbn: *isbn
-            lccn: *lccn
-            oclc: *oclc
-            olid: *olid
+    +http_method: GET
+    +path: '/api/volumes/brief/json/{0}&{callback}'
+    +input_format: key_value
+    +output_format: json
+    +children: 
+      id: 
+        +mode: MK+MV
+        +syntax:
+          +bind: ':'
+          +chain: ';'
+          +multi: '|'
+        +children: 
+          isbn: *isbn
+          lccn: *lccn
+          oclc: *oclc
+          olid: *olid
 
-        options: 
-          +mode: K+V
-          +syntax:
-            chain: '?'
-          +parameters:
-            callback: *callback
-    output:
-      format: json
+      callback: *callback
 
   VolumesFull:
-    http_method: GET
-    path: '/api/volumes/full/{0}.json{1}'
-    input:
-      format: key_value
-      +parameters: 
-        id: 
-          +mode: K+V
-          +syntax:
-            bind: '/'
-            chain: ''
-          +parameters:
-            isbn: *isbn
-            lccn: *lccn
-            oclc: *oclc
-            olid: *olid
+    +http_method: GET
+    +path: '/api/volumes/full/{0}.json?{callback}'
+    +input_format: key_value
+    +output_format: json
+    +children: 
+      id: 
+        +syntax:
+          +bind: '/'
+          +chain: ''
+        +children:
+          isbn: *isbn
+          lccn: *lccn
+          oclc: *oclc
+          olid: *olid
 
-        options:
-          +mode: K+V
-          +syntax:
-            chain: '?'
-          +parameters:
-            callback: *callback
-    output:
-      format: json
+      callback: *callback
 
   MultiVolumesFull:
-    http_method: GET
-    path: '/api/volumes/full/json/{0}{1}'
-    input:
-      format: key_value
-      +parameters: 
-        id: 
-          +mode: MK+MV
-          +syntax:
-            bind: ':'
-            chain: ';'
-            multi: '|'
-          +parameters: 
-            isbn: *isbn
-            lccn: *lccn
-            oclc: *oclc
-            olid: *olid
+    +http_method: GET
+    +path: '/api/volumes/full/json/{0}&{callback}'
+    +input_format: key_value
+    +output_format: json
+    +children: 
+      id: 
+        +mode: MK+MV
+        +syntax:
+          +bind: ':'
+          +chain: ';'
+          +multi: '|'
+        +children: 
+          isbn: *isbn
+          lccn: *lccn
+          oclc: *oclc
+          olid: *olid
 
-        options: 
-          +mode: K+V
-          +syntax:
-            chain: '?'
-          +parameters:
-            callback: *callback
-    output:
-      format: json
-   
+      callback: *callback
+      

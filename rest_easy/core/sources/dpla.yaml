@@ -12,63 +12,58 @@ import dpla.def
     Documentation:
       http://dp.la/info/developers/codex/
 
-baseurl:
++baseurl:
   'http://api.dp.la'
 
-+parameters: 
-  v2:
-    essential:
-      apiKey:
-        +mode: K+V
-        +this: *apikey
++children: 
+  v2:  
+    +requirements:
+      +mandatory: [apiKey]    
+    +children:
+      apiKey: *apikey
 
-    Item:
-      +doc: |
-        Retrieves a single item.
-      http_method: GET
-      path: '/v2/items/{0}?{apiKey}'
-      input:
-        format: key_value
-        +parameters:      
+      Item:
+        +doc: |
+          Retrieves a single item.
+        +http_method: GET
+        +path: '/v2/items/{0}?{apiKey}'
+        +input_format: key_value                
+        +output_format: json
+        +children:      
           fetch:
             +mode: MV
-            syntax: 
-              multi: ','
-            +parameters:
+            +syntax: 
+              +multi: ','
+            +children:
               id: 
                 <<: *id
                 +key: Null
-                
-      output:
-        format: json
-          
-    Items:
-      +doc: |
-        A DPLA item is a reference to the digital representation of a single 
-        piece of content indexed by the DPLA. The piece of content can be, for 
-        example, a book, a photograph, a video, etc. The content is digitized 
-        from its original, physical source and uploaded to an online repository. 
-        The DPLA allows users to search for content across a multitude of online 
-        repositories, including University of Virginia Library, Kentucky Digital 
-        Library, Harvard University Library, etc. After retrieving DPLA items, 
-        developers can display or follow links to their original online digital 
-        records.
-      http_method: GET
-      path: '/v2/items?{0}{1}'
-      input:
-        format: key_value
-        +parameters:                             
+
+      Items:
+        +doc: |
+          A DPLA item is a reference to the digital representation of a single 
+          piece of content indexed by the DPLA. The piece of content can be, for 
+          example, a book, a photograph, a video, etc. The content is digitized 
+          from its original, physical source and uploaded to an online repository. 
+          The DPLA allows users to search for content across a multitude of online 
+          repositories, including University of Virginia Library, Kentucky Digital 
+          Library, Harvard University Library, etc. After retrieving DPLA items, 
+          developers can display or follow links to their original online digital 
+          records.
+        +http_method: GET
+        +path: '/v2/items?{0}'
+        +input_format: key_value
+        +output_format: json
+        +children:                             
           keywordSearch: 
             +doc: |
               A keyword search against all the text fields.
-            +mode: K+V
             +this: *std-q
                           
           searchIn:
             +doc: |
               Search within one or more textual fields.
-            +mode: K+V
-            +parameters:
+            +children:
               '@id': *-id 
               dataProvider: *dataprovider
               hasView: *hasview
@@ -101,9 +96,9 @@ baseurl:
               Indicates specific fields to be returned.
             +mode: P+K+MV
             +prefix: 'fields'
-            syntax:
-              multi: ','
-            +parameters: 
+            +syntax:
+              +multi: ','
+            +children: 
               dataProvider: *dataprovider-novalue
               hasView: *hasview-novalue
               id: *id-novalue
@@ -128,19 +123,19 @@ baseurl:
               temporal: *temporal-novalue
               title: *title-novalue
               type: *type-novalue
-              
+
           facets:
             +doc: |
               Groups of items collected by shared field values. 
             +mode: P+K+MV+A
             +prefix: 'facets'
             +syntax:
-              multi: ','
-              args: ':'
-            +parameters: 
+              +multi: ','
+              +args: ':'
+            +children: 
               hasView: 
                 <<: *hasview-novalue
-                +parameters:
+                +children:
                   '@id': *hasview-id-novalue
                   format: *hasview-format-novalue
               isPartOf: *ispartof-novalue
@@ -153,13 +148,13 @@ baseurl:
               language: *language-novalue
               spatial: 
                 <<: *spatial-novalue
-                +parameters:
+                +children:
                   <<: *spatial-properties-novalue
                   coordinates: *spatial-coordinates
               stateLocatedIn: *statelocatedin-novalue
               subject: 
                 <<: *subject-novalue
-                +parameters:
+                +children:
                   '@id': *subject-id-novalue
                   'name': *subject-name-novalue
               temporal: *temporal-novalue
@@ -168,7 +163,7 @@ baseurl:
           sortBy: 
             +mode: P+K+V
             +prefix: 'sort_by'
-            +parameters: 
+            +children: 
               id: *id-novalue
               '@id': *-id-novalue
               identifier: *identifier-novalue
@@ -185,7 +180,7 @@ baseurl:
               type: *type-novalue
               hasView: 
                 <<: *hasview-novalue
-                +parameters:
+                +children:
                   '@id': *hasview-id-novalue
                   format: *hasview-format-novalue
               isPartOf: *ispartof-novalue
@@ -194,51 +189,37 @@ baseurl:
               provider: *provider-novalue
                     
           sortByPin:
-            +mode: K+V
-            +parameters: 
+            +children: 
               pin: *pin
 
-          page:            
-            +mode: K+V
-            +this: *page
-          
-          pageSize:
-            +mode: K+V
-            +this: *pagesize
+          page: *page
+          pageSize: *pagesize
+          facetSize: *facetsize
+          callback: *std-callback
 
-          facetSize:
-            +mode: K+V
-            +this: *facetsize
+      Collections:
+        +doc: |
+          A collection is a little more abstract than an item. Where an item is a 
+          reference to the digital representation of a physical object, a 
+          collection is a representation of the grouping of a set of items.
 
-          callback:
-            +mode: K+V
-            +this: *callback
-      output:
-        format: json
-
-    Collections:
-      +doc: |
-        A collection is a little more abstract than an item. Where an item is a 
-        reference to the digital representation of a physical object, a 
-        collection is a representation of the grouping of a set of items.
-
-        For example, a university could have a collection of Emily Dickinson 
-        poems. If so, the DPLA would have a digital collection object that 
-        represents the library’s conceptual collection. All DPLA items that 
-        represent online digital records that are part of a conceptual collection 
-        are identified as belonging to a collection object.
-      http_method: GET
-      path: '/v2/collections?{0}{1}'
-      input:
-        format: key_value
-        +parameters:
+          For example, a university could have a collection of Emily Dickinson 
+          poems. If so, the DPLA would have a digital collection object that 
+          represents the library’s conceptual collection. All DPLA items that 
+          represent online digital records that are part of a conceptual collection 
+          are identified as belonging to a collection object.
+        +http_method: GET
+        +path: '/v2/collections?{0}'
+        +input_format: key_value
+        +output_format: json          
+        +children:
           keywordSearch: 
-            +mode: K+V
+            +doc: |
+              A keyword search against all the text fields.
             +this: *std-q
                                     
           searchIn: 
-            +mode: K+V
-            +parameters:
+            +children:
               '@id': *-id 
               id: *id
               description: *description
@@ -249,9 +230,9 @@ baseurl:
           fetchFields: 
             +mode: P+K+MV
             +prefix: 'fields'
-            syntax:
-              multi: ','
-            +parameters: 
+            +syntax:
+              +multi: ','
+            +children: 
               '@id': *-id-novalue
               id: *id-novalue
               title: 
@@ -262,35 +243,22 @@ baseurl:
           #  +doc: |
           #    Groups of items collected by shared field values. 
           #  +mode: P+K+MV+A
-          #  +prefix:: 'facets'
+          #  +prefix: 'facets'
           #  syntax:
-          #    multi: ','
-          #    args: ':'
-          #  +parameters: 
+          #    +multi: ','
+          #    +args: ':'
+          #  +children: 
           #    type: *type-novalue
             
           sortBy: 
             +mode: P+K+V
             +prefix: 'sort_by'
-            +parameters: 
+            +children: 
               '@id': *-id-novalue
               id: *id-novalue
               title: *title-novalue
 
-          page:            
-            +mode: K+V
-            +this: *page
-          
-          pageSize:
-            +mode: K+V
-            +this: *pagesize
-
-          facetSize:
-            +mode: K+V
-            +this: *facetsize
-
-          callback:
-            +mode: K+V
-            +this: *callback
-      output:
-        format: json
+          page: *page
+          pageSize: *pagesize
+          facetSize: *facetsize
+          callback: *std-callback

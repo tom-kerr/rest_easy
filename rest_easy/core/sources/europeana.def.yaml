@@ -13,7 +13,7 @@ qf: &qf
   +key: ''
   +expected_value: str
   syntax:
-    args: Null
+    +args: Null
 
 type: &type
   +key: 'TYPE'

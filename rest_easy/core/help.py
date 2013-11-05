@@ -27,10 +27,11 @@ from colorama import init as colorama_init
 from colorama import Fore, Back, Style
 colorama_init()
 
-from .parser import Parser
+#from .parser import Parser
 from .alt import AlternateInterface
-from .api import API
-from .parameter import Method, Property
+#from .source import SourceBuilder
+#from .api import API
+from .parameter import API, Method, Property
 
 
 class Helper(object):
@@ -56,7 +57,7 @@ class Helper(object):
             self._print_sources_()
         else:
             source, api, detail = self._get_query_elements_(string)
-            source_obj = self.getSourceAPIs(source)
+            source_obj = self.getWrappers(source)
             if not api:
                 self._print_source_details_(source_obj)
             else:
@@ -150,7 +151,7 @@ class Helper(object):
                     apis.append(attrname)
 
         self._buffer_ += '\n'
-        
+
         if apis:
             self._buffer_ += self._color_('    apis:', fore='blue')
             for api in apis:

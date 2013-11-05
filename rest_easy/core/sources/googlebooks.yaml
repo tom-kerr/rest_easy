@@ -9,24 +9,25 @@ import googlebooks.def
     Documentation:
       https://developers.google.com/books/docs/
 
-baseurl:
++baseurl:
   'https://www.googleapis.com'
   
-+parameters:
++children:
   v1:
-    Volumes:
-      http_method: GET
-      path: '/books/v1/volumes?{0}'
-      input:
-        format: key_value
-        +parameters: 
+    +children:
+      Volumes:
+        +http_method: GET
+        +path: '/books/v1/volumes?{0}'
+        +input_format: key_value
+        +output_format: json
+        +children: 
           query: 
             +mode: K+MV+A
             +syntax:
-              bind: ':'
-              chain: '+'
+              +bind: ':'
+              +chain: '+'
             +this: *q
-            +parameters:            
+            +children:            
               inTitle: *intitle
               inAuthor: *inauthor
               inPublisher: *inpublisher
@@ -35,53 +36,25 @@ baseurl:
               oclc: *oclc
               lccn: *lccn
 
-          fields:
-            +mode: K+V
-            +this: *fields
-
-          filter: 
-            +mode: K+V
-            +this: *filter
-
-          download: 
-            +mode: K+V
-            +this: *download
+          fields: *fields
+          filter: *filter
+          download: *download
 
           pagination: 
-            +mode: K+V
             +requirements: 
-              all_or_none: [startIndex, maxResults]
-            +parameters: 
+              +all_or_none: [startIndex, maxResults]
+            +children: 
               startIndex: *startindex
               maxResults: *maxresults
 
-          printType: 
-            +mode: K+V
-            +this: *printtype
+          printType: *printtype
+          projection: *projection
 
-          projection:
-            +mode: K+V
-            +this: *projection
-
-          sorting: 
-            +mode: K+V
-            +parameters:
+          sorting:
+            +children:
               orderBy: *orderby 
 
-          apiKey:
-            +mode: K+V
-            +this: *apikey 
-
-          callback: 
-            +mode: K+V
-            +this: *std-callback
-
-          prettyPrint:
-            +mode: K+V
-            +this: *prettyprint
-          
-          langRestrict:
-            +mode: K+V
-            +this: *langrestrict
-      output:
-        format: json
+          apiKey: *apikey 
+          callback: *std-callback
+          prettyPrint: *prettyprint
+          langRestrict: *langrestrict

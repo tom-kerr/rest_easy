@@ -17,11 +17,9 @@ from __future__ import print_function
 import os
 
 from .source import SourceBuilder
-from .parser import Parser
-from .help import Helper
 from .alt import AlternateInterface
 
-class RestEasy(SourceBuilder, AlternateInterface, Parser, Helper):
+class RestEasy(SourceBuilder, AlternateInterface):
 
     def __init__(self):
         self.source_dir = os.path.abspath(os.path.dirname(__file__))+'/sources'

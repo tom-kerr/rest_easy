@@ -29,15 +29,20 @@ from collections import OrderedDict
 
 from .requirements import Requirements, EnforceRequirements
 
+
 class Parser(EnforceRequirements):
     """Turns a QueryTree into a URL"""
     def __init__(self):
         self._init_format_tokens_()
+        self._query_requirements_ = Requirements()
+        self._submitted_ = []
 
     def _parse_(self, tree):
-        if self._input_._format_ == 'key_value':
+        if hasattr(self._parent_, '_requirements_') and self._parent_._requirements_:
+            self._query_requirements_.add_requirements(self._parent_._requirements_)
+        if self._input_format_ == 'key_value':
             return str(self._parse_key_value_(tree))[:-1]
-        elif self._input_._format_ == 'json':
+        elif self._input_format_ == 'json':
             return str(self._parse_json_(tree)).replace("'", '"').replace(' ', '')
 
     def _get_query_elements_(self, string):
@@ -58,15 +63,23 @@ class Parser(EnforceRequirements):
     def _init_format_tokens_(self):
         formatter = string.Formatter()
         tokensgen = formatter.parse(self._path_)
-        self._format_tokens_ = []
+        self._tokens_ = []
         for tokens in tokensgen:
-            for t in tokens:
-                self._format_tokens_.append(t)
+            if tokens[1] != '0':
+                self._tokens_.append(tokens[1])
+
+    def _clean_path_string_(self):
+        if self._tokens_:
+            for token in self._tokens_:
+                if token != '0':
+                    self._path_ = self._path_.replace('{'+token+'}', '')
+            self._path_ = self._path_[:-1]
 
     def _parse_json_(self, tree, has_scope=False, has_prefix=False):
         json = {}
         for k, item in tree.items():
-            requirements = self._get_requirements_(item)
+            requirements = self._retrieve_requirements_(item)
+            self._query_requirements_.add_requirements(requirements)
             scope = self._format_scope_(item)
             if scope:
                 if isinstance(scope, dict):
@@ -88,8 +101,6 @@ class Parser(EnforceRequirements):
                     has_prefix = json[prefix]
 
             for num, func in enumerate(item['zfunctions']):
-                if requirements:
-                    requirements = self._find_in_requirements_(func, requirements)
                 fcount = len(item['zfunctions'])
                 if isinstance(func, dict):
                     for k,v in self._parse_json_({func['parameter']: func},
@@ -104,8 +115,6 @@ class Parser(EnforceRequirements):
                 else:
                     raise Exception('Invalid item found in ' +
                                     str(k) + '\'s zfunction list')
-            if requirements:
-                self._enforce_requirements_(k, requirements)
         return json
 
     def _parse_key_value_(self, tree, has_scope=False, has_prefix=False):
@@ -114,8 +123,8 @@ class Parser(EnforceRequirements):
             if type(item).__name__ == 'function':
                 item = self._get_state_(k, item)
             item_string = ''
-            requirements = self._get_requirements_(item)
-            self.submitted = deepcopy(requirements)
+            requirements = self._retrieve_requirements_(item)
+            self._query_requirements_.add_requirements(requirements)
             scope = self._format_scope_(item)
             if scope:
                 item_string += scope
@@ -130,8 +139,6 @@ class Parser(EnforceRequirements):
                     item_string += self._parse_key_value_({func['parameter']: func},
                                                           has_scope, has_prefix)
                 elif isinstance(func, tuple) or hasattr(func, '__call__'):
-                    if requirements:
-                        self._find_in_requirements_(func)
 
                     #hack
                     if isinstance(func, tuple):
@@ -150,33 +157,35 @@ class Parser(EnforceRequirements):
                                                      item['mode'], has_scope, has_prefix)
                 else:
                     raise Exception('Invalid item found in ' + str(k) + '\'s zfunction list')
-            if k in self._format_tokens_:
+            if k in self._tokens_:
                 self._path_ = self._path_.replace('{'+k+'}', item_string)
+                self._tokens_.remove(k)
+                if not self._tokens_:
+                    if self._path_[-1:] != '}':
+                        self._path_ = self._path_[:-1]
             else:
                 string += item_string
-            if requirements:
-                self._enforce_requirements_(k, requirements)
         return string
 
     def _parse_func_(self, num, fcount, func, syntax, mode,
                     has_scope=False, has_prefix=False):
-        if self._input_._format_ == 'key_value':
+        if self._input_format_ == 'key_value':
             string = ''
-            bind = syntax['bind']
-            chain = syntax['chain']
+            bind = syntax['+bind']
+            chain = syntax['+chain']
             if has_scope or has_prefix or 'MV' in mode.flags or 'MK' in mode.flags:
-                if 'args' in syntax:
-                    if syntax['args'] is None:
+                if '+args' in syntax:
+                    if syntax['+args'] is None:
                         bind = ''
                     else:
-                        bind = syntax['args']
-                if 'multi' in syntax:
+                        bind = syntax['+args']
+                if '+multi' in syntax:
                     if isinstance(func, tuple):
-                        chain = syntax['multi']
-                        #syntax = {'bind': bind, 'chain': chain}
+                        chain = syntax['+multi']
+                        #syntax = {'+bind': bind, '+chain': chain}
                     elif num != fcount-1:
-                        chain = syntax['multi']
-        elif self._input_._format_ == 'json':
+                        chain = syntax['+multi']
+        elif self._input_format_ == 'json':
             if isinstance(has_scope, dict):
                 json = has_scope
             elif isinstance(has_prefix, dict):
@@ -186,18 +195,20 @@ class Parser(EnforceRequirements):
 
         if isinstance(func, tuple):
             for n, f in enumerate(func):
-                if self._input_._format_ == 'key_value':
+                self._submitted_.append(f._name_)
+                if self._input_format_ == 'key_value':
                     string += self._parse_func_(n, len(func), f, syntax, mode,
                                                has_scope, has_prefix)
-                elif self._input_._format_ == 'json':
+                elif self._input_format_ == 'json':
                     for k,v in self._parse_func_(n, len(func), f, syntax, mode,
                                                 has_scope, has_prefix).items():
                         json[k] = v
         else:
+            self._submitted_.append(func._name_)
             if func._value_:
-                if self._input_._format_ == 'key_value':
+                if self._input_format_ == 'key_value':
                     if 'K' not in mode.flags and 'MK' not in mode.flags:
-                        if 'MV' in mode.flags and chain == syntax['multi']:
+                        if 'MV' in mode.flags and chain == syntax['+multi']:
                             string += '{}{}'.format(quote( str(func._value_) ), chain)
                         else:
                             string += '{}'.format(quote( str(func._value_)) )
@@ -205,29 +216,29 @@ class Parser(EnforceRequirements):
                         string += '{}{}{}{}'.format(func._key_, bind,
                                                     quote( str(func._value_)), chain)
 
-                elif self._input_._format_ == 'json':
-                    json[func._key_] = quote( str(func._value_))
+                elif self._input_format_ == 'json':
+                    json[func._key_] = func._value_#quote( str(func._value_))
             elif not func._value_ and not has_scope:
-                if self._input_._format_ == 'key_value':
+                if self._input_format_ == 'key_value':
                     string += '{}{}'.format(func._key_, chain)
-                elif self._input_._format_ == 'json':
+                elif self._input_format_ == 'json':
                     pass
-        if self._input_._format_ == 'key_value':
+        if self._input_format_ == 'key_value':
             return string
-        elif self._input_._format_ == 'json':
+        elif self._input_format_ == 'json':
             return json
 
-    def _get_requirements_(self, item):
-        if 'requirements' in item:
+    def _retrieve_requirements_(self, item):
+        if 'requirements' in item and item['requirements']:
             return item['requirements']
         else:
-            None
+            return Requirements()
 
     def _get_parameter_prefix_(self, parameter):
         prefix = None
         if 'prefix' in parameter and parameter['prefix']:
             prefix = parameter['prefix']
-            if self._input_._format_ == 'key_value':
+            if self._input_format_ == 'key_value':
                 syntax = parameter['syntax']
                 prefix = self._format_prefix_(prefix, syntax)
         return prefix
@@ -236,7 +247,7 @@ class Parser(EnforceRequirements):
         prefix = None
         if func._prefix_:
             prefix = func._prefix_
-            if self._input_._format_ == 'key_value':
+            if self._input_format_ == 'key_value':
                 syntax = func._syntax_
                 prefix = self._format_prefix_(prefix, syntax)
         return prefix
@@ -245,69 +256,39 @@ class Parser(EnforceRequirements):
         if isinstance(prefix, dict):
             p = ''
             for k,v in prefix.items():
-                p += '{}{}{}{}'.format(k, syntax['bind'],
-                                       v, syntax['chain'])
+                p += '{}{}{}{}'.format(k, syntax['+bind'],
+                                       v, syntax['+chain'])
             prefix = p
         elif isinstance(prefix, str):
-            prefix = '{}{}'.format(prefix, syntax['bind'])
+            prefix = '{}{}'.format(prefix, syntax['+bind'])
         return prefix
 
     def _format_scope_(self, item):
         scope = None
         if 'scope' in item and item['scope']:
             scope = item['scope']
-            if self._input_._format_ == 'key_value':
+            if self._input_format_ == 'key_value':
                 syntax = item['syntax']
                 if isinstance(scope, dict):
                     s = ''
                     for k,v in scope.items():
-                        s += '{}{}{}{}'.format(k, syntax['bind'],
-                                               v, syntax['chain'])
+                        s += '{}{}{}{}'.format(k, syntax['+bind'],
+                                               v, syntax['+chain'])
                     scope = s
         return scope
 
-    def _check_essential_(self, essential, submitted):
-        if essential:
-            if isinstance(submitted, dict):
-                for item, data in submitted.items():
-                    if item in essential:
-                        essential.remove(item)
-                        self._parent_._query_objects_[item] = data
-                    if data and 'zfunctions' in data:
-                        try:
-                            self._check_essential_(essential, data['zfunctions'])
-                        except:
-                            pass
-            elif isinstance(submitted, list):
-                for item in submitted:
-                    if item.__class__ == 'function' or hasattr(item, '__call__'):
-                        name = item._name_
-                    else:
-                        name = item['parameter']
-                        if 'zfunctions' in item:
-                            try:
-                                self._check_essential_(essential, item['zfunctions'])
-                            except:
-                                pass
-                    if name in essential:
-                        essential.remove(name)
-
-                        self._parent_._query_objects_[name] = item
-
-            if essential:
-                raise Exception('Missing essential ' + str(essential))
-
-    def _enforce_requirements_(self, parameter, required):
-        e = EnforceRequirements(parameter, required, self.submitted)
+    def _enforce_requirements_(self, submitted):
+        e = EnforceRequirements(self._query_requirements_, submitted)
         e()
 
-
-    def _find_in_requirements_(self, func):
-        name = func.__name__.split('.')[-1]
-        for k, v in self.submitted.required.items():
-            for lst in v:
-                if name in lst:
-                    lst.remove(name)
+    def _find_in_requirements_(self):
+        submitted = deepcopy(self._query_requirements_)
+        for k,v in submitted.required.items():
+            for rset in v:
+                for item in self._submitted_:
+                    if item in rset:
+                        rset.remove(item)
+        return submitted
 
     def _parse_query_string_(self, query, mode='query'):
         """For alternate interfaces"""

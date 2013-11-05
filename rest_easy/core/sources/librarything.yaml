@@ -12,42 +12,42 @@ import librarything.def
     Documentation:
       http://www.librarything.com/services/webservices.php
 
-baseurl:
++baseurl:
   'http://www.librarything.com/services'
     
-+parameters:
++children:
   webservices:
-    v1.1:
-      essential: 
-        apiKey:
-          +mode: K+V
-          +this: *apikey
+    +children:
+      v1.1:
+        +http_method: GET
+        +path: '/rest/1.1/?{0}'
+        +input_format: key_value
+        +output_format: xml
+        +requirements:
+          +mandatory: [apiKey]
+        +children: 
+          apiKey: *apikey
 
-      #Rest:
-      http_method: GET
-      path: '/rest/1.1/?{0}'
-      input:
-        format: key_value
-        +parameters: 
           getWork: 
             +mode: S+K+V
             +scope: 
               method: 'librarything.ck.getwork'
             +requirements:
-              at_least_one: [id, isbn, lccn, oclc, name]
-            +parameters:
+              +at_least_one: [id, isbn, lccn, oclc, name]
+            +children:
               id: *id
               isbn: *isbn
               lccn: *lccn
               oclc: *oclc
               name: *name
+
           getAuthor:
             +mode: S+K+V
             +scope: 
               method: 'librarything.ck.getauthor'
             +requirements:
-              at_least_one: [id, authorCode, name]
-            +parameters:
+              +at_least_one: [id, authorCode, name]
+            +children:
               id: *id
               authorCode: *authorcode
               name: *name
@@ -57,8 +57,8 @@ baseurl:
             +scope: 
               method: 'librarything.local.getvenue'
             +requirements:
-              mandatory: [id]
-            +parameters:
+              +mandatory: [id]
+            +children:
               id: *id
 
           getVenuesNear:
@@ -66,8 +66,8 @@ baseurl:
             +scope: 
               method: 'librarything.local.getvenuesnear'
             +requirements: 
-              atleast_one: [latlon, lat, lon, id , place]
-            +parameters:
+              +at_least_one: [latlon, lat, lon, id , place]
+            +children:
               latlon: *latlon
               lat: *lat
               lon: *lon
@@ -82,23 +82,24 @@ baseurl:
             +scope: 
               method: 'librarything.local.searchvenues'
             +requirements:
-              mandatory: [q]
-            +parameters:
+              +mandatory: [q]
+            +children:
               q: *q
               latlon: *latlon
               lat: *lat
               lon: *lon
               centeronq: *centeronq
               measure: *measure
+
           getEventsNear:
             +mode: S+K+V
             +scope: 
               method: 'librarything.local.geteventsnear'
-            requirements:
-              mandatory: [timestamp]
-              at_least_one: [latlon, lat, lon, venue, place, 
+            +requirements:
+              +mandatory: [timestamp]
+              +at_least_one: [latlon, lat, lon, venue, place, 
               distance, measure, days, limit]
-            +parameters:
+            +children:
               timestamp: *timestamp
               latlon: *latlon
               lat: *lat
@@ -115,13 +116,11 @@ baseurl:
             +scope: 
               method: 'librarything.local.searchevents'
             +requirements:
-              mandatory: [q]
-            +parameters:
+              +mandatory: [q]
+            +children:
               q: *q
               latlon: *latlon
               lat: *lat
               lon: *lon
               centeronq: *centeronq
               measure: *measure      
-      output:
-        format: xml

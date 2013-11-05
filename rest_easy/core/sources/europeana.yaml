@@ -35,42 +35,35 @@ import europeana.def
     Documentation:
       http://europeana.eu/portal/api-introduction.html
 
-baseurl:
++baseurl:
   'http://europeana.eu/api'
   
-+parameters:
++children:
   v2:
-    essential:
-      apiKey:
-        +mode: K+V
-        +this: *wskey
-          
-    Search: 
-      http_method: GET
-      path: '/v2/search.json?{0}'
-      input:
-        format: key_value
-        essential: [query]
-        +parameters:    
-          query: 
-            +mode: K+V
-            +this: *std-query
+    +requirements:
+      +mandatory: [apiKey]
+    +children:
+      apiKey: *wskey  
 
-          callback:
-            +mode: K+V
-            +this: *std-callback 
-              
-          profile:
-            +mode: K+V
-            +this: *profile
-              
+      Search: 
+        +http_method: GET
+        +path: '/v2/search.json?{0}'
+        +input_format: key_value
+        +output_format: json
+        +requirements: 
+          +mandatory: [query]
+        +children:    
+          query: *std-query
+          callback: *std-callback 
+          profile: *profile
+
           qf:
             +mode: P+K+V
-            +prefix:: 'qf'
-            syntax:
-              args: ':'
+            +prefix: 'qf'
+            +syntax:
+              +args: ':'
             +this: *qf
-            +parameters:
+            +children:
               type: *type
               language: *language
               year: *year
@@ -78,13 +71,6 @@ baseurl:
               rights: *rights
               provider: *provider
               ugc: *ugc
-              
-          rows:
-            +mode: K+V
-            +this: *rows
-              
-          start:
-            +mode: K+V
-            +this: *start
-      output:
-        format: json
+
+          rows: *rows
+          start: *start

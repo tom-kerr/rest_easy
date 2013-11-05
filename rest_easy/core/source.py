@@ -20,37 +20,12 @@ import glob
 import re
 from copy import deepcopy
 
+from .help import Helper
 from .yamler import Yamler
-from .attributes import BaseAttributes, Aspects, Callable
-from .api import API
-from .parameter import Node, Method, Essential
+from .parameter import Source, Method
 
 
-class Source(BaseAttributes, Aspects,
-             Callable, Node, Essential):
-    """Root object of a wrapper."""
-    def __init__(self, source_data):
-        self._parent_ = None
-        self._query_objects_ = {}
-        BaseAttributes.__init__(self, ('baseurl', ), ('+parameters', ), source_data)
-        Aspects.__init__(self, source_data)
-        Essential.__init__(self, source_data, True)
-
-    def _add_api_(self, name, api_data, obj=None):
-        """Create API object(s) and set as attributes"""
-        new_api = API(name, self._baseurl_, api_data)
-        for parameter, data in api_data.items():
-            if 'http_method' in data:
-                new_api._add_method_(parameter, data)
-            else:
-                self._add_api_(parameter, data, new_api)
-        if not obj:
-            setattr(self, name, new_api)
-        else:
-            setattr(obj, name, new_api)
-
-
-class SourceBuilder(Source):
+class SourceBuilder(Helper):
     """Fetch source files and create Source objects"""
     def __init__(self):
         self.sources = {}
@@ -86,24 +61,20 @@ class SourceBuilder(Source):
                 return deepcopy(y)
         raise Exception('Invalid Source.')
 
-    def getSourceAPIs(self, source):
+    def getWrappers(self, source):
         """Return API wrapper(s) for a given source."""
         source_data = self._get_source_(source)
-        return SourceBuilder._parse_data_(source, source_data)
+        return SourceBuilder._parse_data_(self, source, source_data)
 
     @staticmethod
-    def _parse_data_(source, source_data):
+    def _parse_data_(parent_obj, source, source_data):
         """Create and return a Source instance."""
-        new_source = Source(source_data)
+        new_source = Source(parent_obj, source_data)
         new_source._name_ = source
-        for api, data in source_data['+parameters'].items():
-            if 'http_method' in data:
-                method = api
-                param = Method(parent=new_source,
-                               method_name=method,
-                               baseurl=new_source._baseurl_,
-                               data=data)
-                setattr(new_source, method, param)
+        for kw, data in source_data['+children'].items():
+            if '+http_method' in data:
+                new_source._is_root_ = True
+                new_source._add_(kw, None, data)
             else:
-                new_source._add_api_(api, data)
+                new_source._add_api_(kw, data)
         return new_source
