@@ -93,7 +93,7 @@ def openlibrary():
     openlib = RestEasy.get_wrappers('openlibrary')
     openlib.Query.edition.tableOfContents.pagenum(2)
     print (openlib.Query.get_query_string(reset=True))
-    
+
     #results = openlib.RESTful.Query.GET(pretty_print=True)
 
     openlib.MultiVolumesBrief.id.multikey([('oclc', '0030110408'),
@@ -132,15 +132,18 @@ def hathitrust():
 def inline():
 
     print (RestEasy.get_query_string('dpla', 'v2',
-                                     'apiKey->xxx:Items->searchIn->title->Dead Souls'))
+                                     'apiKey->xxx:Items->searchIn->title->Dead Souls',
+                                     reset=True))
 
     print (RestEasy.get_query_string('dpla', 'v2', {'apiKey': 'xxxx',
                                                     'Items': {'searchIn':
-                                                              {'title': 'Dead Souls'}}}))
+                                                              {'title': 'Dead Souls'}}},
+                                    reset=True))
 
     print (RestEasy.get_query_string('washpost', 'trove',
                                      'v1->apiKey->1234:v1->Resources->variant->Mark Twain:'+
-                                     'v1->Resources->includeVariants->1'))
+                                     'v1->Resources->includeVariants->1',
+                                     reset=True))
 
 
     #print RestEasy.get_query_string('europeana', 'v2', 'apiKey->432434:Search->query->blah')
