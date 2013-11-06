@@ -20,7 +20,6 @@ from copy import copy, deepcopy
 from collections import OrderedDict
 import types
 
-from .IO import Input, Output
 from .attributes import BaseAttributes, Aspects, Callable
 from .query import HTTPMethods, QueryTree
 from .requirements import Requirements
@@ -41,6 +40,12 @@ class Node(BaseAttributes, Aspects, Callable, QueryTree):
     def help(self, path=''):
         path = self._name_ + '->' + path
         self._parent_.help(path)
+
+    def reset_query(self):
+        if self._is_root_:
+            self._query_objects_ = {}
+        else:
+            self._parent_.reset_query()
 
     def _add_(self, parent_kw, child_kw=None, data=None):
         if 'MK' in self._mode_.flags:
@@ -90,10 +95,7 @@ class Node(BaseAttributes, Aspects, Callable, QueryTree):
             data['+syntax'] = self._syntax_
         pattrs = Aspects(data)
         self._set_method_(parent_kw, child_kw, pattrs)
-
-    def _reset_query_data_(self):
-        self._query_objects_ = {}
-
+        
     def _set_method_(self, parent_kw, child_kw, pattrs):
         """Set child function as attribute"""
         if not child_kw:
@@ -343,10 +345,6 @@ class Method(Node, HTTPMethods):
         Node.__init__(self, ('+path', '+http_method', '+output_format', '+input_format'),
                       None, self._method_data_, is_root)
         HTTPMethods.__init__(self)
-        self.new()
-
-    def new(self):
-        self._query_objects_ = {}
 
 
 class Property(Node):

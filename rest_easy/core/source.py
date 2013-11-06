@@ -61,7 +61,7 @@ class SourceBuilder(Helper):
                 return deepcopy(y)
         raise Exception('Invalid Source.')
 
-    def getWrappers(self, source):
+    def get_wrappers(self, source):
         """Return API wrapper(s) for a given source."""
         source_data = self._get_source_(source)
         return SourceBuilder._parse_data_(self, source, source_data)

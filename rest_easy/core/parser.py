@@ -37,7 +37,8 @@ class Parser(EnforceRequirements):
         self._query_requirements_ = Requirements()
         self._submitted_ = []
 
-    def _parse_(self, tree):
+    def _parse_(self, tree, reset_values=True):
+        self._reset_values_ = reset_values
         if hasattr(self._parent_, '_requirements_') and self._parent_._requirements_:
             self._query_requirements_.add_requirements(self._parent_._requirements_)
         if self._input_format_ == 'key_value':
@@ -203,6 +204,9 @@ class Parser(EnforceRequirements):
                     for k,v in self._parse_func_(n, len(func), f, syntax, mode,
                                                 has_scope, has_prefix).items():
                         json[k] = v
+                        
+                if self._reset_values_:
+                    f._value_ = None
         else:
             self._submitted_.append(func._name_)
             if func._value_:
@@ -223,6 +227,10 @@ class Parser(EnforceRequirements):
                     string += '{}{}'.format(func._key_, chain)
                 elif self._input_format_ == 'json':
                     pass
+
+            if self._reset_values_:
+                func._value_ = None
+
         if self._input_format_ == 'key_value':
             return string
         elif self._input_format_ == 'json':

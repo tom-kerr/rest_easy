@@ -31,8 +31,7 @@ import types
 
 def GET(self, return_format='', inherit_from=None,
         pretty_print=False):
-    query_string = self.getQueryString()
-    self._parent_._reset_query_data_()
+    query_string = self.get_query_string(reset=True)
     request = urlopen(query_string)
     results = request.read().decode('utf-8')
     results = self._convert_results_(results, self._output_format_,
@@ -48,21 +47,20 @@ def POST(self):
 
 class HTTPMethods(Parser, Convert):
     """Request methods for querying APIs."""
-
     def __init__(self):
         Parser.__init__(self)
         for method in ('GET', 'POST'):
             if method in self._http_method_:
                 setattr(self, method, types.MethodType(globals()[method], self))
 
-    def getQueryString(self):
-        #pprint.pprint(self._parent_._query_objects_)
-        string = self._parse_(self._parent_._query_objects_)
+    def get_query_string(self, reset=False):
+        string = self._parse_(self._parent_._query_objects_, reset)
         submitted = self._find_in_requirements_()
         self._enforce_requirements_(submitted)
         self._clean_path_string_()
         qstring = self._baseurl_ + self._path_.format(string)
-        #secondary=secondary_string)
+        if reset:
+            self._parent_.reset_query()
         return qstring
 
 
@@ -127,7 +125,4 @@ class QueryTree(object):
                     self._make_tree_(rset, tree[root], state, item)
                     return
         return tree
-
-
-
 

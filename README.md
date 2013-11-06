@@ -33,7 +33,7 @@ Each of these queries are equivalent:
 
 ```python
 #setters
-dpla = RestEasy.getWrappers('dpla')
+dpla = RestEasy.get_wrappers('dpla')
 dpla('v2').apiKey('xxxx')
 dpla('v2').Items.searchIn.title('Tom Sawyer')
 results = dpla('v2').Items.GET()
@@ -54,9 +54,9 @@ results = RestEasy.GET('dpla', 'v2', {'apiKey': 'xxxx',
 <h3>Setters</h3>
 To query using setters, one must first retrieve the Source object:
 ```python
-dpla = RestEasy.getWrappers('dpla')
+dpla = RestEasy.get_wrappers('dpla')
 ```
-*dpla* is now an object with DPLA API wrappers as attributes. The root object of a wrapper is the **API**, which is always written in lowercase and contains parameters of two types, **Methods** and **Properties**. **Properties**, always in mixedCase, are setters which validate our input and build our query strings, while **Methods**, always Capitalized, handle HTTP requests and act as collections of Properties (and may also behave like Properties themselves). 
+*dpla* is now an object with DPLA API wrappers as attributes. A wrapper in a nutshell is a heirarchy of objects. The root object of a wrapper is the **API**, which is always written in lowercase and contains parameters of two types, **Methods** and **Properties**. **Properties**, always in mixedCase, are setters which validate our input and build our query strings, while **Methods**, always Capitalized, handle HTTP requests and act as collections of Properties (and may also behave like Properties themselves). 
 
 These parameters can be accessed either with the dot operator or by passing keys and values as arguments to the parent object:
 
@@ -78,7 +78,7 @@ Calling Method Items' attribute GET will construct a url string from the paramet
 
 Or, if we just want the url string:
 ```python
-query_string = dpla('v2').Items.getQueryString()
+query_string = dpla('v2').Items.get_query_string()
 ```
 
 <h3>Strings</h3>

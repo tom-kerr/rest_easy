@@ -57,7 +57,7 @@ class Helper(object):
             self._print_sources_()
         else:
             source, api, detail = self._get_query_elements_(string)
-            source_obj = self.getWrappers(source)
+            source_obj = self.get_wrappers(source)
             if not api:
                 self._print_source_details_(source_obj)
             else:
