@@ -54,24 +54,24 @@ class AlternateInterface(Parser):
     """
     def GET(self, source, api, query,
             return_format='', inherit_from=None, pretty_print=False):
-        self._method_ = None
+        self._resource_method_ = None
         source_apis = self.get_wrappers(source)
         query_elements = self._parse_query_string_(query)
         api_object = self._get_api_object_(source_apis, api)
         self._submit_elements_(source, api, api_object, query_elements)
-        if not self._method_:
-            raise Exception('Insufficient arguments -- you must supply a Method.')
+        if not self._resource_method_:
+            raise Exception('Insufficient arguments -- you must supply a Resource Method.')
         return self._method_.GET(return_format, inherit_from, pretty_print)
 
     def get_query_string(self, source, api, input_strings, reset=False):
-        self._method_ = None
+        self._resource_method_ = None
         source_apis = self.get_wrappers(source)
         query_elements = self._parse_query_string_(input_strings)
         api_object = self._get_api_object_(source_apis, api)
         self._submit_elements_(source, api, api_object, query_elements)
-        if not self._method_:
-            raise Exception('Insufficient arguments -- you must supply a Method.')
-        return self._method_.get_query_string(reset)
+        if not self._resource_method_:
+            raise Exception('Insufficient arguments -- you must supply a Resource Method.')
+        return self._resource_method_.get_query_string(reset)
 
     def _get_api_object_(self, source_object, api):
         try:
@@ -80,13 +80,13 @@ class AlternateInterface(Parser):
             raise LookupError('Invalid API "' + str(api) + '"')
         return api_object
 
-    def _assign_method_(self, method_obj):
-        if self._method_ is None:
-            self._method_ = method_obj
+    def _assign_resource_method_(self, method_obj):
+        if self._resource_method_ is None:
+            self._resource_method_ = method_obj
         else:
-            if self._method_ != method_obj:
-                raise Exception('Invalid query -- conflicting Methods '+
-                                '"'+self._method_+'" and "'+method_obj+'"')
+            if self._resource_method_ != method_obj:
+                raise Exception('Invalid query -- conflicting Resource Methods '+
+                                '"'+self._resource_method_+'" and "'+method_obj+'"')
 
     def _submit_elements_(self, source, api, api_object, query_elements):
         if not isinstance(query_elements, list):
@@ -96,7 +96,7 @@ class AlternateInterface(Parser):
                 for k, v in element.items():
                     param = self._get_parameter_(source, api, api_object, k)
                     if hasattr(param, '_http_method_'):
-                        self._assign_method_( getattr(api_object, k) )
+                        self._assign_resource_method_( getattr(api_object, k) )
                     if isinstance(v, dict):
                         self._submit_elements_(source, api, param, v)
                     else:

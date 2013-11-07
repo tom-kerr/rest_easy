@@ -22,7 +22,7 @@ from copy import deepcopy
 
 from .help import Helper
 from .yamler import Yamler
-from .parameter import Source, Method
+from .parameter import Source
 
 
 class SourceBuilder(Helper):
@@ -69,8 +69,9 @@ class SourceBuilder(Helper):
     @staticmethod
     def _parse_data_(parent_obj, source, source_data):
         """Create and return a Source instance."""
-        new_source = Source(parent_obj, source_data)
-        new_source._name_ = source
+        new_source = Source(parent=parent_obj,
+                            name=source,
+                            data_dict=source_data)
         for kw, data in source_data['+children'].items():
             if '+http_method' in data:
                 new_source._is_root_ = True

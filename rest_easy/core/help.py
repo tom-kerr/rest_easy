@@ -31,7 +31,7 @@ colorama_init()
 from .alt import AlternateInterface
 #from .source import SourceBuilder
 #from .api import API
-from .parameter import API, Method, Property
+from .parameter import API, ResourceMethod, Property
 
 
 class Helper(object):
@@ -143,7 +143,7 @@ class Helper(object):
         for attrname in dir(obj):
             if not self._is_internal_(attrname):
                 attr = getattr(obj, attrname)
-                if isinstance(attr, Method):
+                if isinstance(attr, ResourceMethod):
                     methods.append(attrname)
                 elif isinstance(attr, Property) or attr.__class__.__name__ == 'function':
                     properties.append(attrname)

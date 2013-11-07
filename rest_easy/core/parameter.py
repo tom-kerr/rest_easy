@@ -25,17 +25,19 @@ from .query import HTTPMethods, QueryTree
 from .requirements import Requirements
 
 
-class Node(BaseAttributes, Aspects, Callable, QueryTree):
+class Node(Callable, QueryTree):
     """ """
     _reserved_ = ('+this', '+mode', '+scope', '+prefix',
                   '+requirements', '+children', '+key',
                   '+expected_value', '+doc')
 
-    def __init__(self, attr_add=None, attr_check=None, data=None, is_root=False):
-        BaseAttributes.__init__(self, attr_add, attr_check, data)
-        Aspects.__init__(self, data)
+    def __init__(self, **kwargs):
+        if 'is_root' in kwargs:
+            self._is_root_ = kwargs['is_root']
+        else:
+            self._is_root_ = False
         self._has_scope_ = None
-        self._is_root_ = is_root
+        self._query_objects_ = {}
 
     def help(self, path=''):
         path = self._name_ + '->' + path
@@ -70,14 +72,14 @@ class Node(BaseAttributes, Aspects, Callable, QueryTree):
                 data['+syntax'] = self._syntax_
 
             if '+http_method' in data:
-                param = Method(parent=self,
-                               method_name=parent_kw,
-                               baseurl=self._baseurl_,
-                               data=data)
+                param = ResourceMethod(parent=self,
+                                       name=parent_kw,
+                                       baseurl=self._baseurl_,
+                                       data_dict=data)
             else:
                 param = Property(parent=self,
-                                 property_name=parent_kw,
-                                 data=data)
+                                 name=parent_kw,
+                                 data_dict=data)
             if '+children' in data:
                 for keyword, pdata in data['+children'].items():
                     if keyword in Node._reserved_:
@@ -95,7 +97,7 @@ class Node(BaseAttributes, Aspects, Callable, QueryTree):
             data['+syntax'] = self._syntax_
         pattrs = Aspects(data)
         self._set_method_(parent_kw, child_kw, pattrs)
-        
+
     def _set_method_(self, parent_kw, child_kw, pattrs):
         """Set child function as attribute"""
         if not child_kw:
@@ -296,16 +298,40 @@ class Node(BaseAttributes, Aspects, Callable, QueryTree):
         return _class()
 
 
-class Source(Node):
+class Parameter(BaseAttributes, Aspects):
+    """ """
+    _attrs_ = ('parent', 'name', 'baseurl', 'data_dict', )
+
+    def __init__(self, **kwargs):
+        for attr in self._attrs_:
+            if attr in kwargs:
+                setattr(self, '_'+attr+'_', kwargs[attr])
+            else:
+                setattr(self, '_'+attr+'_', None)
+        for kw in ('_attr_add_', '_attr_check_'):
+            if not hasattr(self, kw):
+                setattr(self, kw, None)
+        BaseAttributes.__init__(self, self._attr_add_,
+                                self._attr_check_, self._data_dict_)
+        Aspects.__init__(self, self._data_dict_)
+
+
+class Source(Parameter, Node):
     """Root object of a wrapper."""
-    def __init__(self, parent, source_data):
-        self._parent_ = parent
+    _attr_add_ = ('+baseurl', )
+    _attr_check_ = ('+children', )
+
+    def __init__(self, **kwargs):
         self._query_objects_ = {}
-        Node.__init__(self, ('+baseurl', ), ('+children', ), source_data)
+        Parameter.__init__(self, **kwargs)
+        Node.__init__(self, **kwargs)
 
     def _add_api_(self, name, api_data, obj=None):
         """Create API object(s) and set as attributes"""
-        new_api = API(self, name, self._baseurl_, api_data)
+        new_api = API(parent=self,
+                      name=name,
+                      baseurl=self._baseurl_,
+                      data_dict=api_data)
         for parameter, data in api_data['+children'].items():
             if self._is_api_(data):
                 self._add_api_(parameter, data, new_api)
@@ -325,34 +351,28 @@ class Source(Node):
         return True
 
 
-class API(Node):
-    """Collections of Methods."""
-    def __init__(self, parent, name, baseurl, api_data, is_root=True):
-        self._parent_ = parent
-        self._name_ = name
-        self._baseurl_ = baseurl
-        self._query_objects_ = {}
-        Node.__init__(self, None, None, api_data, is_root)
+class API(Parameter, Node):
+    """Collections of ResourceMethods."""
+    def __init__(self, **kwargs):
+        kwargs['is_root'] = True
+        Parameter.__init__(self, **kwargs)
+        Node.__init__(self, **kwargs)
 
 
-class Method(Node, HTTPMethods):
+class ResourceMethod(Parameter, Node, HTTPMethods):
     """Instantiate subobject(s), handle HTTP requests."""
-    def __init__(self, parent, method_name, baseurl, data, is_root=False):
-        self._parent_ = parent
-        self._name_ = method_name
-        self._baseurl_ = baseurl
-        self._method_data_ = data
-        Node.__init__(self, ('+path', '+http_method', '+output_format', '+input_format'),
-                      None, self._method_data_, is_root)
-        HTTPMethods.__init__(self)
+    _attr_add_ = ('+path', '+http_method', '+output_format', '+input_format', )
+
+    def __init__(self, **kwargs):
+        Parameter.__init__(self, **kwargs)
+        Node.__init__(self, **kwargs)
+        HTTPMethods.__init__(self, **kwargs)
 
 
-class Property(Node):
+class Property(Parameter, Node):
     """ """
-    def __init__(self, parent, property_name, data, is_root=False):
-        self._parent_ = parent
-        self._name_ = property_name
-        self._property_data_ = data
-        Node.__init__(self, ('+mode', ), None, self._property_data_, is_root)
+    _attr_add_ = ('+mode', )
 
-
+    def __init__(self, **kwargs):
+        Parameter.__init__(self, **kwargs)
+        Node.__init__(self, **kwargs)

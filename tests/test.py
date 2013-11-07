@@ -138,7 +138,7 @@ def inline():
     print (RestEasy.get_query_string('dpla', 'v2', {'apiKey': 'xxxx',
                                                     'Items': {'searchIn':
                                                               {'title': 'Dead Souls'}}},
-                                    reset=True))
+                                     reset=True))
 
     print (RestEasy.get_query_string('washpost', 'trove',
                                      'v1->apiKey->1234:v1->Resources->variant->Mark Twain:'+

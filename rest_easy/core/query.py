@@ -47,7 +47,7 @@ def POST(self):
 
 class HTTPMethods(Parser, Convert):
     """Request methods for querying APIs."""
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         Parser.__init__(self)
         for method in ('GET', 'POST'):
             if method in self._http_method_:
