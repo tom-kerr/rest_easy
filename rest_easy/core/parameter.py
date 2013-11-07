@@ -322,7 +322,6 @@ class Source(Parameter, Node):
     _attr_check_ = ('+children', )
 
     def __init__(self, **kwargs):
-        self._query_objects_ = {}
         Parameter.__init__(self, **kwargs)
         Node.__init__(self, **kwargs)
 
