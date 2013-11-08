@@ -75,7 +75,7 @@ class SourceBuilder(Helper):
         for kw, data in source_data['+children'].items():
             if '+http_method' in data:
                 new_source._is_root_ = True
-                new_source._add_(kw, None, data)
+                new_source._add_child_(kw, data)
             else:
                 new_source._add_api_(kw, data)
         return new_source

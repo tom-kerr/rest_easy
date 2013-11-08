@@ -49,7 +49,7 @@ class Node(Callable, QueryTree):
         else:
             self._parent_.reset_query()
 
-    def _add_(self, parent_kw, child_kw=None, data=None):
+    def _add_child_(self, keyword, data=None):
         if 'MK' in self._mode_.flags:
             if not hasattr(self, 'multikey'):
                 self._create_multikey_function_()
@@ -62,7 +62,7 @@ class Node(Callable, QueryTree):
             if '+syntax' not in data['+this'] and hasattr(self, '_syntax_'):
                 data['+this']['+syntax'] = self._syntax_
             pattrs = Aspects(data['+this'])
-            self._set_method_(parent_kw, None, pattrs)
+            self._set_method_(keyword, None, pattrs)
             del data['+this']
 
         if '+key' not in data and '+expected_value' not in data:
@@ -73,30 +73,30 @@ class Node(Callable, QueryTree):
 
             if '+http_method' in data:
                 param = ResourceMethod(parent=self,
-                                       name=parent_kw,
+                                       name=keyword,
                                        baseurl=self._baseurl_,
                                        data_dict=data)
             else:
                 param = Property(parent=self,
-                                 name=parent_kw,
+                                 name=keyword,
                                  data_dict=data)
             if '+children' in data:
-                for keyword, pdata in data['+children'].items():
-                    if keyword in Node._reserved_:
+                for child_kw, child_data in data['+children'].items():
+                    if child_kw in Node._reserved_:
                         continue
-                    param._add_(keyword, None, deepcopy(pdata))
-                    if hasattr(self, parent_kw):
-                        parent = getattr(self, parent_kw)
-                        new_property = getattr(param, keyword)
-                        setattr(parent, keyword, new_property)
-                if not hasattr(self, parent_kw):
-                    setattr(self, parent_kw, param)
+                    param._add_child_(child_kw, deepcopy(child_data))
+                    if hasattr(self, keyword):
+                        parent = getattr(self, keyword)
+                        child = getattr(param, child_kw)
+                        setattr(parent, child_kw, child)
+                if not hasattr(self, keyword):
+                    setattr(self, keyword, param)
             return
 
         if '+syntax' not in data and hasattr(self, '_syntax_'):
             data['+syntax'] = self._syntax_
         pattrs = Aspects(data)
-        self._set_method_(parent_kw, child_kw, pattrs)
+        self._set_method_(keyword, None, pattrs)
 
     def _set_method_(self, parent_kw, child_kw, pattrs):
         """Set child function as attribute"""
@@ -113,7 +113,7 @@ class Node(Callable, QueryTree):
             method = self._get_method_(parent_kw, child_kw, pattrs)
             setattr(child_instance, child_kw, method)
 
-    def _get_method_(self, parameter, child_kw, pattrs):
+    def _get_method_(self, parent_kw, child_kw, pattrs):
         """Create child function"""
         def function(*args):
             value = subproperty = None
@@ -139,21 +139,21 @@ class Node(Callable, QueryTree):
 
             if hasattr(function, '_value_'):
                 if function._value_ is not None:
-                    f = self._get_method_(parameter, child_kw, pattrs)
+                    f = self._get_method_(parent_kw, child_kw, pattrs)
                     f(value)
                     return
             setattr(function, '_value_', value)
 
             self._set_scope_()
-            if parameter != 'multikey':
-                state = self._get_state_(parameter, function)
-                self._add_query_object_(parameter, child_kw,
-                                        function, {parameter: state})
+            if parent_kw != 'multikey':
+                state = self._get_state_(parent_kw, function)
+                self._add_query_object_(parent_kw, child_kw,
+                                        function, {parent_kw: state})
 
         function.__name__ = 'parameter.Property'
         function.__doc__ = pattrs.__doc__
         function._parent_ = self
-        function._name_ = parameter
+        function._name_ = parent_kw
         function._prefix_ = pattrs._prefix_
         function._syntax_ = pattrs._syntax_
         function._scope_ = pattrs._scope_
@@ -165,16 +165,16 @@ class Node(Callable, QueryTree):
         setattr(function, 'help', types.MethodType(self.help, self._name_))
         return function
 
-    def _validate_input_(self, child_kw, value, expected_value):
+    def _validate_input_(self, keyword, value, expected_value):
         """Check input value against expected value"""
         if type(expected_value).__name__ == 'SRE_Pattern':
             if not expected_value.match( str(value) ):
-                raise TypeError('"' + child_kw + '" matches pattern "'
+                raise TypeError('"' + keyword + '" matches pattern "'
                                 + expected_value.pattern + '", "'
                                 + str(value) + '" given.' )
         elif isinstance(expected_value, dict):
             for k,v in expected_value.items():
-                self._validate_input_(child_kw, value, v)
+                self._validate_input_(keyword, value, v)
                 value = str(k) + str(value)
         elif isinstance(expected_value, tuple):
             exceptions = set()
@@ -201,19 +201,19 @@ class Node(Callable, QueryTree):
                         exceptions = []
                         match = True
             if exceptions:
-                raise TypeError('"' + child_kw + '" expects ' +
+                raise TypeError('"' + keyword + '" expects ' +
                                 '"' + str(expected_value) + '", ' +
                                 ', '.join(exceptions) + ' given.' )
         else:
             if not isinstance(value, expected_value):
-                raise TypeError('"' + child_kw + '" expects ' +
+                raise TypeError('"' + keyword + '" expects ' +
                                 '"' + str(expected_value) + '", '
                                 + str(type(value)) + ' given.' )
         return value
 
-    def _get_state_(self, parameter, function):
-        subobj = getattr(self, parameter)
-        state = {'parameter': parameter,
+    def _get_state_(self, keyword, function):
+        subobj = getattr(self, keyword)
+        state = {'parameter': keyword,
                  'zfunctions': []}
         params = ['scope',
                   'mode',
@@ -284,14 +284,14 @@ class Node(Callable, QueryTree):
         elif isinstance(self._parent_, Node):
             self._parent_._set_scope_()
 
-    def _assign_scope_(self, parameter):
-        if not hasattr(self, parameter):
+    def _assign_scope_(self, keyword):
+        if not hasattr(self, keyword):
             return
         if self._has_scope_ is None:
-            self._has_scope_ = parameter
-        elif self._has_scope_ != parameter:
+            self._has_scope_ = keyword
+        elif self._has_scope_ != keyword:
             raise ValueError('Scope is already set to "'+
-                             self._scope_+'", given "'+parameter+'".')
+                             self._scope_+'", given "'+keyword+'".')
 
     def _get_instance_(self, kw):
         _class = type(kw, (object,), {})
@@ -325,21 +325,22 @@ class Source(Parameter, Node):
         Parameter.__init__(self, **kwargs)
         Node.__init__(self, **kwargs)
 
-    def _add_api_(self, name, api_data, obj=None):
-        """Create API object(s) and set as attributes"""
+    def _add_api_(self, keyword, data_dict, obj=None):
+        """Create and attach API objects"""
         new_api = API(parent=self,
-                      name=name,
+                      name=keyword,
                       baseurl=self._baseurl_,
-                      data_dict=api_data)
-        for parameter, data in api_data['+children'].items():
+                      data_dict=data_dict,
+                      is_root=True)
+        for kw, data in data_dict['+children'].items():
             if self._is_api_(data):
-                self._add_api_(parameter, data, new_api)
+                self._add_api_(kw, data, new_api)
             else:
-                new_api._add_(parameter, None, data)
+                new_api._add_child_(kw, data)
         if not obj:
-            setattr(self, name, new_api)
+            setattr(self, keyword, new_api)
         else:
-            setattr(obj, name, new_api)
+            setattr(obj, keyword, new_api)
 
     def _is_api_(self, data):
         if not '+children' in data:
@@ -353,7 +354,6 @@ class Source(Parameter, Node):
 class API(Parameter, Node):
     """Collections of ResourceMethods."""
     def __init__(self, **kwargs):
-        kwargs['is_root'] = True
         Parameter.__init__(self, **kwargs)
         Node.__init__(self, **kwargs)
 
