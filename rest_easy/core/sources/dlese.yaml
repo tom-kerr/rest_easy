@@ -26,15 +26,16 @@ import dlese.def
     Documentation:
       http://www.dlese.org/dds/services/ddsws1-1/index.jsp
 
-+baseurl:
-  'http://www.dlese.org/dds/services'
++hostname: 'dlese.org'
++protocol: http
++port: 80
 
 +children:
   ddsws:
     +children:
       v1.1:
         +http_method: GET
-        +path: '/ddsws1-1?{0}'
+        +path: '/dds/services/ddsws1-1?{0}'
         +input_format: key_value
         +output_format: xml
         +children:    

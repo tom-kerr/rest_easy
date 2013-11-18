@@ -15,23 +15,29 @@ def print_function_name(func):
 @print_function_name
 def dlese():
     dlese = RestEasy.get_wrappers('dlese').ddsws('v1.1')
-    dlese.Search.query('blah')
-    dlese.Search.startingOffset(5)
+    dlese.Search.query('earth')
+    dlese.Search.startingOffset(1)
     dlese.Search.numReturned(5)
-    dlese.Search.dateField('dsdsa')
-    dlese.Search.fromDate('dsdsa')
-    print (dlese.get_query_string(reset=True))
-
+    #dlese.Search.dateField('2013')
+    #dlese.Search.fromDate('2013')
+    print (dlese.get_query_string())
+    #results = dlese.GET(return_format='json')
 
 @print_function_name
 def dpla():
     dpla = RestEasy.get_wrappers('dpla').v2
-    dpla.apiKey('45c8abc4a364304df1f9db9f9fcfb659')
+    dpla.apiKey('xxxx')
     dpla.Items.searchIn.title('Dead Souls')
     dpla.Items.searchIn.spatial.city('Boston')
     dpla.Items.facets.spatial.coordinates('-10:70')
-    print (dpla.Items.get_query_string(reset=True))
-    #dpla.Items.GET(pretty_print=True)
+    print (dpla.Items.get_query_string())
+
+    dpla.new_query()
+    dpla.Items.searchIn.title('Mark Twain')
+    print (dpla.Items.get_query_string())
+
+    #results = dpla.Items.GET()
+
     #dpla.Collections.searchIn.title('blah')
     #dpla.Collections.pageSize()
     #print (dpla.Collections.get_query_string(reset=True))
@@ -41,7 +47,9 @@ def europeana():
     europeana = RestEasy.get_wrappers('europeana')
     europeana('v2').apiKey('xxxx')
     europeana('v2').Search.query('Mark Twain')
-    print (europeana('v2').Search.get_query_string(reset=True))
+    print (europeana('v2').Search.get_query_string())
+    #results = europeana('v2').Search.GET()
+
 
 @print_function_name
 def googlebooks():
@@ -52,23 +60,25 @@ def googlebooks():
     googlebooks.pagination.startIndex(2)
     googlebooks.pagination.maxResults(4)
     googlebooks.fields('items')
-    print (googlebooks.get_query_string(reset=True))
-    #results = googlebooks('v1').Volumes.GET()
+    print (googlebooks.get_query_string())
+    #results = googlebooks.GET()
 
 @print_function_name
 def washpost():
     washpost = RestEasy.get_wrappers('washpost').trove('v1')
-    washpost.apiKey('xxxxx')
+    washpost.apiKey('xxxx')
     washpost.Resources.variant('Mark Twain')
     washpost.Resources.includeVariants(1)
-    print (washpost.Resources.get_query_string(reset=True))
+    print (washpost.Resources.get_query_string())
+    #results = washpost.Resources.GET()
 
 @print_function_name
 def loc():
     loc = RestEasy.get_wrappers('loc').sru('v1.1')
     loc.query('dc.author any "Gogol"')
     loc.maximumRecords(1)
-    print (loc.get_query_string(reset=True))
+    print (loc.get_query_string())
+    #results = loc.GET()
 
 @print_function_name
 def nytimes():
@@ -78,29 +88,28 @@ def nytimes():
     nytimes.filteredQuery('Terror')
     nytimes.filteredQuery.body('blah')
     nytimes.facetField.section_name()
-    print (nytimes.get_query_string(reset=True))
+    print (nytimes.get_query_string())
+    #results = nytimes.GET()
 
 @print_function_name
 def bhl():
     bhl = RestEasy.get_wrappers('bhl').v2
     bhl.apiKey('xxxx')
     bhl.bookSearch.title('Japanese Journal of Infectious Diseases')
-    print (bhl.get_query_string(reset=True))
-    #results = bhl('v2').Query.GET(pretty_print=True)
+    print (bhl.get_query_string())
+    #results = bhl.GET()
 
 @print_function_name
 def openlibrary():
     openlib = RestEasy.get_wrappers('openlibrary')
-    openlib.Query.edition.tableOfContents.pagenum(2)
+    openlib.Query.edition.tableOfContents.pagenum("10")
     print (openlib.Query.get_query_string(reset=True))
-
-    #results = openlib.RESTful.Query.GET(pretty_print=True)
+    #results = openlib.Query.GET()
 
     openlib.MultiVolumesBrief.id.multikey([('oclc', '0030110408'),
                                            ('oclc', 424023),
                                            ('isbn', 3434343)])
     print (openlib.MultiVolumesBrief.get_query_string(reset=True))
-
 
     openlib.Books.id.ISBN(123456789)
     openlib.Books.callback('blah')
@@ -112,8 +121,8 @@ def librarything():
     librarything = RestEasy.get_wrappers('librarything').webservices('v1.1')
     librarything.apiKey('xxxx')
     librarything.getAuthor.name('Mark Twain')
-    print (librarything.get_query_string(reset=True))
-
+    print (librarything.get_query_string())
+    #results = librarything.GET()
 
 @print_function_name
 def hathitrust():
@@ -122,26 +131,26 @@ def hathitrust():
     hathitrust.VolumesBrief.id.isbn(1234567890)
     hathitrust.VolumesBrief.callback('shite')
     print (hathitrust.VolumesBrief.get_query_string(reset=True))
+    #results = hathitrust.VolumesBrief.GET()
 
     hathitrust.MultiVolumesBrief.id.isbn(1234567890)
     hathitrust.MultiVolumesBrief.callback('blah')
     print(hathitrust.MultiVolumesBrief.get_query_string(reset=True))
-
+    #results = hathitrust.MultiVolumesBrief.GET()
 
 @print_function_name
 def inline():
-
     print (RestEasy.get_query_string('dpla', 'v2',
-                                     'apiKey->xxx:Items->searchIn->title->Dead Souls',
+                                     'apiKey->xxxx:Items->searchIn->title->Dead Souls',
                                      reset=True))
-
+    
     print (RestEasy.get_query_string('dpla', 'v2', {'apiKey': 'xxxx',
                                                     'Items': {'searchIn':
                                                               {'title': 'Dead Souls'}}},
                                      reset=True))
 
     print (RestEasy.get_query_string('washpost', 'trove',
-                                     'v1->apiKey->1234:v1->Resources->variant->Mark Twain:'+
+                                     'v1->apiKey->xxxx:v1->Resources->variant->Mark Twain:'+
                                      'v1->Resources->includeVariants->1',
                                      reset=True))
 
@@ -177,8 +186,8 @@ sources = [dlese,
 
 def test(sources):
     for source in sources:
-        #if source is not inline:
-        #    continue
+        if source is not dlese:
+            continue
         #try:
         source()
 

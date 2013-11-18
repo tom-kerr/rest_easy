@@ -35,9 +35,10 @@ import europeana.def
     Documentation:
       http://europeana.eu/portal/api-introduction.html
 
-+baseurl:
-  'http://europeana.eu/api'
-  
++hostname: 'europeana.eu'
++protocol: http
++port: 80
+
 +children:
   v2:
     +requirements:
@@ -47,7 +48,7 @@ import europeana.def
 
       Search: 
         +http_method: GET
-        +path: '/v2/search.json?{0}'
+        +path: '/api/v2/search.json?{0}'
         +input_format: key_value
         +output_format: json
         +requirements: 

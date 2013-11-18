@@ -7,15 +7,16 @@ import nytimes.def
     Documentation:
       http://http://developer.nytimes.com/docs/read
 
-+baseurl:
-  'http://api.nytimes.com/svc'
++hostname: 'api.nytimes.com'
++protocol: http
++port: 80
 
 +children:
   articles:
     +children:
       v2:                    
         +http_method: GET
-        +path: '/search/v2/articlesearch{responseFormat}?{0}'
+        +path: '/svc/search/v2/articlesearch{responseFormat}?{0}'
         +input_format: key_value
         +output_format: json
         +requirements:

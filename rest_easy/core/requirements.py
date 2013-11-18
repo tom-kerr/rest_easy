@@ -49,10 +49,10 @@ class EnforceRequirements(object):
 
     def _check_requirements_(self):
         self._check_mandatory_()
-        #self._check_all_or_none_()
-        #self._check_at_least_one_()
-        #self._check_either_or_()
-        #self._check_mutually_exclusive_()
+        self._check_all_or_none_()
+        self._check_at_least_one_()
+        self._check_either_or_()
+        self._check_mutually_exclusive_()
 
     def _check_mandatory_(self):
         for num, req_set in enumerate(self._requirements_['+mandatory']):
@@ -66,7 +66,7 @@ class EnforceRequirements(object):
             diff = req_set.difference(self._submitted_['+all_or_none'][num])
             if diff and len(diff) != len(req_set):
                 missing = list(self._submitted_['+all_or_none'][num])
-                raise Exception(self._parameter_ + ' -- missing "all_or_none" fields ' +
+                raise Exception('missing "all_or_none" fields ' +
                                 str(missing))
 
     def _check_at_least_one_(self):
@@ -74,14 +74,14 @@ class EnforceRequirements(object):
             diff = req_set.difference(self._submitted_['+at_least_one'][num])
             if len(diff) < 1:
                 missing = list(self._submitted_['+at_least_one'][num])
-                raise Exception(self._parameter_ + ' -- missing "at_least_one" fields ' +
+                raise Exception('missing "at_least_one" fields ' +
                                 str(missing))
 
     def _check_either_or_(self):
         for num, req_set in enumerate(self._requirements_['+either_or']):
             diff = req_set.difference(self._submitted_['+either_or'][num])
             if len(self._submitted_['+either_or'][num]) != len(req_set)-1:
-                raise Exception(self._parameter_ + ' -- invalid number of "either_or" fields given: ' +
+                raise Exception('invalid number of "either_or" fields given: ' +
                                 str( list(diff)) + ' of ' + str( list(req_set) ) )
 
     def _check_mutually_exclusive_(self):
@@ -89,6 +89,5 @@ class EnforceRequirements(object):
             diff = req_set.difference(self._submitted_['+mutually_exclusive'][num])
             if (len(self._submitted_['+mutually_exclusive'][num])
                 not in ( len(req_set)-1, len(req_set) )):
-                raise Exception(self._parameter_ +
-                                ' -- invalid number of "mutually_exclusive" fields given: ' +
+                raise Exception('invalid number of "mutually_exclusive" fields given: ' +
                                 str( list(diff)) + ' of ' + str( list(req_set) ) )

@@ -19,8 +19,9 @@ import bhl.def
     Documentation:
       http://www.biodiversitylibrary.org/api2/docs/docs.html
 
-+baseurl:
-  'http://biodiversitylibrary.org'
++hostname: 'biodiversitylibrary.org'
++protocol: http
++port: 80
 
 +children:
   v2:

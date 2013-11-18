@@ -7,8 +7,9 @@ import washpost.def
     Documentation:
       https://developer.washingtonpost.com
 
-+baseurl:
-  'http://api.washingtonpost.com'
++hostname: 'api.washingtonpost.com'
++protocol: http
++port: 80
 
 +children:
   trove:

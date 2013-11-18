@@ -10,9 +10,10 @@ import openlibrary.def
     Documentation:
       http://openlibrary.org/developers/api
 
-+baseurl: 
-  'https://openlibrary.org'
-   
++hostname: 'openlibrary.org'
++protocol: https
++port: 443
+
 +children:  
   Query:
     +http_method: GET

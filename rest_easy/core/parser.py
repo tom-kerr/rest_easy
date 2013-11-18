@@ -32,19 +32,23 @@ from .requirements import Requirements, EnforceRequirements
 
 class Parser(EnforceRequirements):
     """Turns a QueryTree into a URL"""
-    def __init__(self):
+    def __init__(self, obj):
+        self.parent = obj
         self._init_format_tokens_()
-        self._query_requirements_ = Requirements()
-        self._submitted_ = []
 
-    def _parse_(self, tree, reset_values=True):
-        self._reset_values_ = reset_values
-        if hasattr(self._parent_, '_requirements_') and self._parent_._requirements_:
-            self._query_requirements_.add_requirements(self._parent_._requirements_)
-        if self._input_format_ == 'key_value':
-            return str(self._parse_key_value_(tree))[:-1]
-        elif self._input_format_ == 'json':
-            return str(self._parse_json_(tree)).replace("'", '"').replace(' ', '')
+    def _parse_(self, tree):
+        self._requirements_ = Requirements()
+        for r in self.parent._raise_requirements_():
+            if r and r.required:
+                self._requirements_.add_requirements(r)
+        self._submitted_ = self.parent._root_getattr_('_submitted_')
+        if self.parent._input_format_ == 'key_value':
+            string = str(self._parse_key_value_(tree))[:-1]
+        elif self.parent._input_format_ == 'json':
+            string = str(self._parse_json_(tree)).replace("'", '"').replace(' ', '')
+        self._enforce_requirements_()
+        self._clean_path_string_()
+        return string
 
     def _get_query_elements_(self, string):
         source = api = detail = None
@@ -63,7 +67,7 @@ class Parser(EnforceRequirements):
 
     def _init_format_tokens_(self):
         formatter = string.Formatter()
-        tokensgen = formatter.parse(self._path_)
+        tokensgen = formatter.parse(self.parent._path_)
         self._tokens_ = []
         for tokens in tokensgen:
             if tokens[1] != '0':
@@ -73,14 +77,14 @@ class Parser(EnforceRequirements):
         if self._tokens_:
             for token in self._tokens_:
                 if token != '0':
-                    self._path_ = self._path_.replace('{'+token+'}', '')
-            self._path_ = self._path_[:-1]
+                    self.parent._path_ = self.parent._path_.replace('{'+token+'}', '')
+            self.parent._path_ = self.parent._path_[:-1]
 
     def _parse_json_(self, tree, has_scope=False, has_prefix=False):
         json = {}
         for k, item in tree.items():
             requirements = self._retrieve_requirements_(item)
-            self._query_requirements_.add_requirements(requirements)
+            self._requirements_.add_requirements(requirements)
             scope = self._format_scope_(item)
             if scope:
                 if isinstance(scope, dict):
@@ -122,10 +126,11 @@ class Parser(EnforceRequirements):
         string = ''
         for k, item in tree.items():
             if type(item).__name__ == 'function':
-                item = self._get_state_(k, item)
+                #might be able to remove this, and this the parent reference
+                item = self.parent._get_state_(k, item)
             item_string = ''
             requirements = self._retrieve_requirements_(item)
-            self._query_requirements_.add_requirements(requirements)
+            self._requirements_.add_requirements(requirements)
             scope = self._format_scope_(item)
             if scope:
                 item_string += scope
@@ -155,22 +160,24 @@ class Parser(EnforceRequirements):
                     syntax = f._syntax_
 
                     item_string += self._parse_func_(num, fcount, func, syntax,
-                                                     item['mode'], has_scope, has_prefix)
+                                                     item['mode'], has_scope,
+                                                     has_prefix)
                 else:
-                    raise Exception('Invalid item found in ' + str(k) + '\'s zfunction list')
+                    raise Exception('Invalid item found in ' + str(k) +
+                                    '\'s zfunction list')
             if k in self._tokens_:
-                self._path_ = self._path_.replace('{'+k+'}', item_string)
+                self.parent._path_ = self.parent._path_.replace('{'+k+'}', item_string)
                 self._tokens_.remove(k)
                 if not self._tokens_:
-                    if self._path_[-1:] != '}':
-                        self._path_ = self._path_[:-1]
+                    if self.parent._path_[-1:] != '}':
+                        self.parent._path_ = self.parent._path_[:-1]
             else:
                 string += item_string
         return string
 
     def _parse_func_(self, num, fcount, func, syntax, mode,
                     has_scope=False, has_prefix=False):
-        if self._input_format_ == 'key_value':
+        if self.parent._input_format_ == 'key_value':
             string = ''
             bind = syntax['+bind']
             chain = syntax['+chain']
@@ -186,7 +193,7 @@ class Parser(EnforceRequirements):
                         #syntax = {'+bind': bind, '+chain': chain}
                     elif num != fcount-1:
                         chain = syntax['+multi']
-        elif self._input_format_ == 'json':
+        elif self.parent._input_format_ == 'json':
             if isinstance(has_scope, dict):
                 json = has_scope
             elif isinstance(has_prefix, dict):
@@ -196,21 +203,18 @@ class Parser(EnforceRequirements):
 
         if isinstance(func, tuple):
             for n, f in enumerate(func):
-                self._submitted_.append(f._name_)
-                if self._input_format_ == 'key_value':
+                self._submitted_.add(f)
+                if self.parent._input_format_ == 'key_value':
                     string += self._parse_func_(n, len(func), f, syntax, mode,
                                                has_scope, has_prefix)
-                elif self._input_format_ == 'json':
+                elif self.parent._input_format_ == 'json':
                     for k,v in self._parse_func_(n, len(func), f, syntax, mode,
                                                 has_scope, has_prefix).items():
                         json[k] = v
-                        
-                if self._reset_values_:
-                    f._value_ = None
         else:
-            self._submitted_.append(func._name_)
+            self._submitted_.add(func)
             if func._value_:
-                if self._input_format_ == 'key_value':
+                if self.parent._input_format_ == 'key_value':
                     if 'K' not in mode.flags and 'MK' not in mode.flags:
                         if 'MV' in mode.flags and chain == syntax['+multi']:
                             string += '{}{}'.format(quote( str(func._value_) ), chain)
@@ -220,20 +224,17 @@ class Parser(EnforceRequirements):
                         string += '{}{}{}{}'.format(func._key_, bind,
                                                     quote( str(func._value_)), chain)
 
-                elif self._input_format_ == 'json':
+                elif self.parent._input_format_ == 'json':
                     json[func._key_] = func._value_#quote( str(func._value_))
             elif not func._value_ and not has_scope:
-                if self._input_format_ == 'key_value':
+                if self.parent._input_format_ == 'key_value':
                     string += '{}{}'.format(func._key_, chain)
-                elif self._input_format_ == 'json':
+                elif self.parent._input_format_ == 'json':
                     pass
 
-            if self._reset_values_:
-                func._value_ = None
-
-        if self._input_format_ == 'key_value':
+        if self.parent._input_format_ == 'key_value':
             return string
-        elif self._input_format_ == 'json':
+        elif self.parent._input_format_ == 'json':
             return json
 
     def _retrieve_requirements_(self, item):
@@ -246,7 +247,7 @@ class Parser(EnforceRequirements):
         prefix = None
         if 'prefix' in parameter and parameter['prefix']:
             prefix = parameter['prefix']
-            if self._input_format_ == 'key_value':
+            if self.parent._input_format_ == 'key_value':
                 syntax = parameter['syntax']
                 prefix = self._format_prefix_(prefix, syntax)
         return prefix
@@ -255,7 +256,7 @@ class Parser(EnforceRequirements):
         prefix = None
         if func._prefix_:
             prefix = func._prefix_
-            if self._input_format_ == 'key_value':
+            if self.parent._input_format_ == 'key_value':
                 syntax = func._syntax_
                 prefix = self._format_prefix_(prefix, syntax)
         return prefix
@@ -275,7 +276,7 @@ class Parser(EnforceRequirements):
         scope = None
         if 'scope' in item and item['scope']:
             scope = item['scope']
-            if self._input_format_ == 'key_value':
+            if self.parent._input_format_ == 'key_value':
                 syntax = item['syntax']
                 if isinstance(scope, dict):
                     s = ''
@@ -285,17 +286,18 @@ class Parser(EnforceRequirements):
                     scope = s
         return scope
 
-    def _enforce_requirements_(self, submitted):
-        e = EnforceRequirements(self._query_requirements_, submitted)
+    def _enforce_requirements_(self):
+        submitted = self._find_in_requirements_()
+        e = EnforceRequirements(self._requirements_, submitted)
         e()
 
     def _find_in_requirements_(self):
-        submitted = deepcopy(self._query_requirements_)
+        submitted = deepcopy(self._requirements_)
         for k,v in submitted.required.items():
             for rset in v:
                 for item in self._submitted_:
-                    if item in rset:
-                        rset.remove(item)
+                    if item._name_ in rset:
+                        rset.remove(item._name_)
         return submitted
 
     def _parse_query_string_(self, query, mode='query'):

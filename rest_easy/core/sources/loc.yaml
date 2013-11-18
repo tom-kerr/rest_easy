@@ -12,8 +12,9 @@ import loc.def
     Documentation:
       http://www.loc.gov/standards
 
-+baseurl:
-  'http://z3950.loc.gov:7090'
++hostname: 'z3950.loc.gov'
++protocol: http
++port: 7090
 
 +children:
   sru:

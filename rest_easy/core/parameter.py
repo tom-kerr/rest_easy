@@ -32,22 +32,70 @@ class Node(Callable, QueryTree):
                   '+expected_value', '+doc')
 
     def __init__(self, **kwargs):
-        if 'is_root' in kwargs:
-            self._is_root_ = kwargs['is_root']
+        self._has_scope_ = None
+        if 'is_root' in kwargs and kwargs['is_root']:
+            self._is_root_ = True
+            self._init_query_structs_()
         else:
             self._is_root_ = False
-        self._has_scope_ = None
-        self._query_objects_ = {}
+
+    def _init_query_structs_(self):
+        self._current_tree_ = 0
+        self._query_trees_ = [{}]
+        self._global_tree_ = {}
+        self._query_requirements_ = [Requirements()]
+        self._submitted_ = set()
 
     def help(self, path=''):
         path = self._name_ + '->' + path
         self._parent_.help(path)
 
+    def new_query(self):
+        if self._is_root_:
+            self._current_tree_ += 1
+            self._query_trees_.append(self._global_tree_)
+            self._query_requirements_.append(Requirements())
+        else:
+            self._parent_.new_query()
+
     def reset_query(self):
         if self._is_root_:
-            self._query_objects_ = {}
+            self._current_tree_ = 0
+            self._query_trees_ = [{}]
+            self._query_requirements_ = [Requirements()]
+            for item in self._submitted_:
+                item._value_ = None
+            self._submitted_ = set()
         else:
             self._parent_.reset_query()
+
+    def _super_getattr_(self, keyword):
+        if hasattr(self, keyword):
+            return getattr(self, keyword)
+        elif not hasattr(self._parent_, '_super_getattr_'):
+            if hasattr(self._parent_, keyword):
+                return getattr(self._parent_, keyword)
+            else:
+                raise AttributeError('No such attribute "'+keyword+'"')
+        else:
+            return self._parent_._super_getattr_(keyword)
+
+    def _root_getattr_(self, keyword):
+        if self._is_root_ and hasattr(self, keyword):
+            return getattr(self, keyword)
+        elif not hasattr(self._parent_, '_root_getattr_'):
+            raise AttributeError('No such attribute "'+keyword+'"')
+        else:
+            return self._parent_._root_getattr_(keyword)
+
+    def _raise_requirements_(self, requirements=None):
+        if not requirements:
+            requirements = []
+        requirements.append(self._requirements_)
+        if self._is_root_:
+            return requirements
+        else:
+            return self._parent_._raise_requirements_(requirements)
 
     def _add_child_(self, keyword, data=None):
         if 'MK' in self._mode_.flags:
@@ -74,7 +122,6 @@ class Node(Callable, QueryTree):
             if '+http_method' in data:
                 param = ResourceMethod(parent=self,
                                        name=keyword,
-                                       baseurl=self._baseurl_,
                                        data_dict=data)
             else:
                 param = Property(parent=self,
@@ -137,18 +184,27 @@ class Node(Callable, QueryTree):
             else:
                 value = self._validate_input_(child_kw, value, pattrs._expected_value_)
 
+            """
             if hasattr(function, '_value_'):
+                print ('try', value)
                 if function._value_ is not None:
+                    print ('setting', value)
                     f = self._get_method_(parent_kw, child_kw, pattrs)
                     f(value)
                     return
+                    """
             setattr(function, '_value_', value)
 
             self._set_scope_()
             if parent_kw != 'multikey':
                 state = self._get_state_(parent_kw, function)
-                self._add_query_object_(parent_kw, child_kw,
-                                        function, {parent_kw: state})
+                if self._is_root_:
+                    make_global = True
+                else:
+                    make_global = False
+                self._add_to_query_tree_(parent_kw, child_kw,
+                                         function, {parent_kw: state},
+                                         None, make_global)
 
         function.__name__ = 'parameter.Property'
         function.__doc__ = pattrs.__doc__
@@ -227,9 +283,26 @@ class Node(Callable, QueryTree):
         if function:
             if not isinstance(function, list):
                 function = [function, ]
-            for f in function:
-                state['zfunctions'].append(f)
+            for func in function:
+                if isinstance(func, tuple):
+                    f_copy = []
+                    for f in func:
+                        f_copy.append(self._get_function_copy_(f))
+                    f_copy = tuple(f_copy)
+                else:
+                    f_copy = self._get_function_copy_(func)
+                state['zfunctions'].append(f_copy)
         return state
+    
+    #why not just pass the data to the query tree?
+    def _get_function_copy_(self, func):
+        f_copy = types.FunctionType(func.__code__,
+                                    func.__globals__,
+                                    name = func.__name__,
+                                    argdefs = func.__defaults__,
+                                    closure = func.__closure__)
+        f_copy.__dict__.update(func.__dict__)
+        return f_copy
 
     def _create_multikey_function_(self):
         def function(args):
@@ -262,10 +335,10 @@ class Node(Callable, QueryTree):
                 else:
                     raise LookupError('no such attribute, "'+ key +'".')
 
-            self._add_query_object_('multikey', 'multikey',
-                                    function, {'multikey':
-                                               self._get_state_('multikey',
-                                                                [tuple(func_list)])})
+            self._add_to_query_tree_('multikey', 'multikey',
+                                     function, {'multikey':
+                                                self._get_state_('multikey',
+                                                                 [tuple(func_list)])})
         function.__name__ = 'parameter.Property'
         function._parent_ = self
         function._name_ = 'multikey'
@@ -300,7 +373,7 @@ class Node(Callable, QueryTree):
 
 class Parameter(BaseAttributes, Aspects):
     """ """
-    _attrs_ = ('parent', 'name', 'baseurl', 'data_dict', )
+    _attrs_ = ('parent', 'name', 'data_dict', )
 
     def __init__(self, **kwargs):
         for attr in self._attrs_:
@@ -318,7 +391,7 @@ class Parameter(BaseAttributes, Aspects):
 
 class Source(Parameter, Node):
     """Root object of a wrapper."""
-    _attr_add_ = ('+baseurl', )
+    _attr_add_ = ('+hostname', '+protocol', '+port')
     _attr_check_ = ('+children', )
 
     def __init__(self, **kwargs):
@@ -329,7 +402,6 @@ class Source(Parameter, Node):
         """Create and attach API objects"""
         new_api = API(parent=self,
                       name=keyword,
-                      baseurl=self._baseurl_,
                       data_dict=data_dict,
                       is_root=True)
         for kw, data in data_dict['+children'].items():

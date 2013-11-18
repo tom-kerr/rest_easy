@@ -52,16 +52,18 @@ class AlternateInterface(Parser):
                                    'Items': {'searchIn':
                                              {'title': 'Dead Souls'}}})
     """
-    def GET(self, source, api, query,
-            return_format='', inherit_from=None, pretty_print=False):
+    def GET(self, source, api, query, return_format='', inherit_from=None,
+            pretty_print=False, reset=True):
         self._resource_method_ = None
         source_apis = self.get_wrappers(source)
         query_elements = self._parse_query_string_(query)
         api_object = self._get_api_object_(source_apis, api)
         self._submit_elements_(source, api, api_object, query_elements)
         if not self._resource_method_:
-            raise Exception('Insufficient arguments -- you must supply a Resource Method.')
-        return self._method_.GET(return_format, inherit_from, pretty_print)
+            raise Exception('Insufficient arguments -- '+
+                            'you must supply a Resource Method.')
+        return self._resource_method_.GET(return_format, inherit_from,
+                                          pretty_print, reset=reset)
 
     def get_query_string(self, source, api, input_strings, reset=False):
         self._resource_method_ = None
@@ -70,8 +72,9 @@ class AlternateInterface(Parser):
         api_object = self._get_api_object_(source_apis, api)
         self._submit_elements_(source, api, api_object, query_elements)
         if not self._resource_method_:
-            raise Exception('Insufficient arguments -- you must supply a Resource Method.')
-        return self._resource_method_.get_query_string(reset)
+            raise Exception('Insufficient arguments -- '+
+                            'you must supply a Resource Method.')
+        return self._resource_method_.get_query_string(reset=reset)
 
     def _get_api_object_(self, source_object, api):
         try:

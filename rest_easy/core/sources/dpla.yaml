@@ -12,8 +12,9 @@ import dpla.def
     Documentation:
       http://dp.la/info/developers/codex/
 
-+baseurl:
-  'http://api.dp.la'
++hostname: 'api.dp.la'
++protocol: http
++port: 80
 
 +children: 
   v2:  

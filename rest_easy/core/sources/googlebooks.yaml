@@ -9,9 +9,10 @@ import googlebooks.def
     Documentation:
       https://developers.google.com/books/docs/
 
-+baseurl:
-  'https://www.googleapis.com'
-  
++hostname: 'www.googleapis.com'
++protocol: https
++port: 443
+
 +children:
   v1:
     +children:
@@ -24,7 +25,7 @@ import googlebooks.def
           query: 
             +mode: K+MV+A
             +syntax:
-              +bind: ':'
+              +bind: '='
               +chain: '+'
             +this: *q
             +children:            

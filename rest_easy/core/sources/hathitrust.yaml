@@ -12,8 +12,9 @@ import hathitrust.def
     Documentation:
       http://www.hathitrust.org/bib_api
 
-+baseurl:
-  'http://catalog.hathitrust.org'
++hostname: 'catalog.hathitrust.org'
++protocol: http
++port: 80
 
 +children: 
   VolumesBrief:
