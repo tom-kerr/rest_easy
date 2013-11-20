@@ -53,7 +53,7 @@ class Node(Callable, QueryTree):
     def new_query(self):
         if self._is_root_:
             self._current_tree_ += 1
-            self._query_trees_.append(self._global_tree_)
+            self._query_trees_.append(deepcopy(self._global_tree_))
             self._query_requirements_.append(Requirements())
         else:
             self._parent_.new_query()
@@ -63,8 +63,8 @@ class Node(Callable, QueryTree):
             self._current_tree_ = 0
             self._query_trees_ = [{}]
             self._query_requirements_ = [Requirements()]
-            for item in self._submitted_:
-                item._value_ = None
+            #for item in self._submitted_:
+            #    item._value_ = None
             self._submitted_ = set()
         else:
             self._parent_.reset_query()
@@ -218,7 +218,8 @@ class Node(Callable, QueryTree):
         function._value_ = None
         function._key_ = pattrs._key_
         function._expected_value_ = pattrs._expected_value_
-        setattr(function, 'help', types.MethodType(self.help, self._name_))
+        setattr(function, 'help', types.MethodType(Node.help, function))
+
         return function
 
     def _validate_input_(self, keyword, value, expected_value):
@@ -287,14 +288,15 @@ class Node(Callable, QueryTree):
                 if isinstance(func, tuple):
                     f_copy = []
                     for f in func:
+                        #f_copy.append(f)
                         f_copy.append(self._get_function_copy_(f))
                     f_copy = tuple(f_copy)
                 else:
+                    #f_copy = func
                     f_copy = self._get_function_copy_(func)
                 state['zfunctions'].append(f_copy)
         return state
-    
-    #why not just pass the data to the query tree?
+
     def _get_function_copy_(self, func):
         f_copy = types.FunctionType(func.__code__,
                                     func.__globals__,

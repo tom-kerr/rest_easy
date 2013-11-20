@@ -31,7 +31,7 @@ def GET(self, return_format='', inherit_from=None,
         pretty_print=False, reset=True):
     qtrees = self._root_getattr_('_query_trees_')
     num_trees = len(qtrees)
-    responses = 0    
+    responses = 0
     connections = [None] * num_trees
     results = [None] * num_trees
     q = Queue()
@@ -152,16 +152,22 @@ class QueryTree(object):
                                               function, state, rset)
             return
 
+    #holy shit, refactor this unintelligible nonsense.
     def _create_entry_(self, rset, tree, state, root):
         _rset = copy(rset)
         for num, item in enumerate(_rset):
-
-            #ALREADY ENTRY
             if item == root or item in tree:
                 rset.remove(item)
                 if item in tree:
+                    replaced = False
                     for f in state[item]['zfunctions']:
-                        tree[item]['zfunctions'].append(f)
+                        for n, _f in enumerate(tree[item]['zfunctions']):
+                            if (_f._name_ == f._name_ and
+                                _f._parent_ == f._parent_):
+                                tree[item]['zfunctions'][n] = f
+                                replaced = True
+                        if not replaced:
+                            tree[item]['zfunctions'].append(f)
 
                 elif item == root:
                     if 'zfunctions' in tree:
@@ -177,7 +183,6 @@ class QueryTree(object):
                     else:
                         tree[item] = state[item]
 
-            #NEW ENTRY
             else:
                 found = False
                 for tree_f in tree[root]['zfunctions']:
@@ -186,10 +191,20 @@ class QueryTree(object):
                             if item in rset:
                                 rset.remove(item)
                                 found = True
-                                for f in state[item]['zfunctions']:
-                                    tree_f['zfunctions'].append(f)
+                                if state[item]['zfunctions']:
+                                    replaced = False
+                                    for f in state[item]['zfunctions']:
+                                        for n, _f in enumerate(tree_f['zfunctions']):
+                                            if (_f._name_ == f._name_ and
+                                                _f._parent_ == f._parent_):
+                                                tree_f['zfunctions'][n] = f
+                                                replaced = True
+                                        if not replaced:
+                                            tree_f['zfunctions'].append(f)
+                                else:
+                                    self._create_entry_(rset, {item: tree_f}, state, item)
                                 break
-                if not found:
+                if not found and rset:
                     self._create_entry_(rset, tree[root], state, item)
                     return
         return tree
