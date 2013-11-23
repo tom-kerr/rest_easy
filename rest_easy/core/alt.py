@@ -55,7 +55,7 @@ class AlternateInterface(Parser):
     def GET(self, source, api, query, return_format='', inherit_from=None,
             pretty_print=False, reset=True):
         self._resource_method_ = None
-        source_apis = self.get_wrappers(source)
+        source_apis = self.get_wrappers(source, keep_track=False)
         query_elements = self._parse_query_string_(query)
         api_object = self._get_api_object_(source_apis, api)
         self._submit_elements_(source, api, api_object, query_elements)
@@ -67,7 +67,7 @@ class AlternateInterface(Parser):
 
     def get_query_string(self, source, api, input_strings, reset=False):
         self._resource_method_ = None
-        source_apis = self.get_wrappers(source)
+        source_apis = self.get_wrappers(source, keep_track=False)
         query_elements = self._parse_query_string_(input_strings)
         api_object = self._get_api_object_(source_apis, api)
         self._submit_elements_(source, api, api_object, query_elements)

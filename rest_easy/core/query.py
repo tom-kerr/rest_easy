@@ -27,51 +27,121 @@ from .convert import Convert
 import types
 
 
-def GET(self, return_format='', inherit_from=None,
-        pretty_print=False, reset=True):
-    qtrees = self._root_getattr_('_query_trees_')
-    num_trees = len(qtrees)
-    responses = 0
-    connections = [None] * num_trees
-    results = [None] * num_trees
-    q = Queue()
-    for num, tree in enumerate(qtrees):
-        host, protocol, port, path = self._get_query_components_(tree)
-        connections[num] = Process(target=connect, name=num,
-                                   args=(num, host, protocol, port, path, q))
-        connections[num].start()
-    while responses < num_trees:
-        try:
-            item = q.get_nowait()
-        except:
-            sleep(1)
-            continue
+class TemplateGET(object):
+    def __init__(self, parent):
+        self.parent = parent
+        self.q = Queue()
+        self.threads = {}
+        self.proc_count = 0
+        self.finished = 0
+
+    def proc_spawn_loop(self):
+        pass
+
+    def collect_results(self):
+        pass
+
+    def __call__(self, return_format='', inherit_from=None,
+                 pretty_print=False, reset=True,
+                 pid=None, queue=None, timeout=10):
+        self.return_format = return_format
+        self.inherit_from =  inherit_from
+        self.pretty_print = pretty_print
+        self.reset = reset
+        self.timeout = timeout
+        self.proc_spawn_loop()
+        results =  self.collect_results(timeout)
+        if queue:
+            queue.put((pid, results))
         else:
-            num, response = item
-            responses += 1
-        response = response.decode('utf-8')
-        if not response:
-            message = ''
-        else:
-            header, message = response.split('\r\n\r\n', 1)
-            status = header.split('\r\n', 1)[0]
-            if not 'OK' in status:
-                raise Exception(status)
-            message = self._convert_results_(message, self._output_format_,
-                                             return_format, inherit_from)
-        results[num] = message
-        if pretty_print:
+            return results
+
+
+class GET_QueryTrees(TemplateGET):
+    def proc_spawn_loop(self):
+        qtrees = self.parent._root_getattr_('_query_trees_')[self.parent._name_]
+        self.proc_count = len(qtrees)
+        for num, tree in enumerate(qtrees):
+            host, protocol, port, path = self.parent._get_query_components_(tree)
+            self.threads[num] = Process(target=connect, name=num,
+                                        args=(num, host, protocol, port, path,
+                                              self.q, self.timeout))
+            self.threads[num].start()
+
+    def collect_results(self, timeout):
+        results = [None] * self.proc_count
+        slept = 0
+        while self.finished < self.proc_count:
+            if slept > timeout:
+                break
+            try:
+                item = self.q.get_nowait()
+            except:
+                sleep(1)
+                slept += 1
+                continue
+            else:
+                num, response = item
+                self.finished += 1
+                del self.threads[num]
+            response = response.decode('utf-8')
+            if not response:
+                message = ''
+            else:
+                header, message = response.split('\r\n\r\n', 1)
+                status = header.split('\r\n', 1)[0]
+                if not 'OK' in status:
+                    raise Exception(status)
+                message = self.parent._convert_results_(message, self.parent._output_format_,
+                                                        self.return_format, self.inherit_from)
+                results[num] = message
+        if self.pretty_print:
             pprint.pprint(message)
-    if reset:
-        self.reset_query()
-    return results
+        if self.reset:
+            self.parent.reset_query()
+        return results
 
 
-def POST(self):
-    pass
+class GET_ResourceMethods(TemplateGET):
+    def proc_spawn_loop(self):
+        for source in self.parent.source_objects:
+            src_name = source._name_
+            self.threads[src_name] = {}
+            root = source._get_root_object_()
+            active_methods = root._active_resource_methods_
+            self.proc_count += len(active_methods)
+            for method in active_methods:
+                m_name = method._name_
+                self.threads[src_name][m_name] = \
+                  Process(target=method.GET, name=m_name,
+                          args=(self.return_format, self.inherit_from,
+                                self.pretty_print, self.reset, (src_name, m_name), self.q))
+                self.threads[src_name][m_name].start()
+
+    def collect_results(self, timeout):
+        results = {}
+        slept = 0
+        while self.finished < self.proc_count:
+            if slept > timeout:
+                break
+            try:
+                item = self.q.get_nowait()
+            except:
+                sleep(1)
+                slept += 1
+                continue
+            else:
+                pid, responses = item
+                src_name, m_name = pid
+                self.finished += 1
+                if not src_name in results:
+                    results[src_name] = {}
+                results[src_name][m_name] = responses
+        return results
 
 
-def connect(connection_num, host, protocol, port, path, queue, timeout=10):
+
+def connect(conn_id, host, protocol, port, path, queue, timeout=10):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     if protocol == 'https':
         sock = ssl.wrap_socket(sock)
@@ -94,7 +164,8 @@ def connect(connection_num, host, protocol, port, path, queue, timeout=10):
         else:
             break
     sock.close()
-    queue.put((connection_num, response))
+    print (response)
+    queue.put((conn_id, response))
 
 
 class HTTPMethods(Convert):
@@ -102,7 +173,7 @@ class HTTPMethods(Convert):
     def __init__(self, *args, **kwargs):
         for method in ('GET', 'POST'):
             if method in self._http_method_:
-                setattr(self, method, types.MethodType(globals()[method], self))
+                setattr(self, 'GET', GET_QueryTrees(self))
 
     def _get_query_components_(self, tree):
         parser = Parser(self)
@@ -115,9 +186,10 @@ class HTTPMethods(Convert):
 
     def get_query_string(self, treenum=None, reset=False):
         if not treenum:
-            treenum = self._root_getattr_('_current_tree_')
+            treenum = self._root_getattr_('_current_tree_')[self._name_]
         qtrees = self._root_getattr_('_query_trees_')
-        tree = qtrees[treenum]
+        tree = qtrees[self._name_][treenum]
+        #pprint.pprint(qtrees)
         host, protocol, port, path = self._get_query_components_(tree)
         qstring = host + ':' + str(port) + path
         if reset:
@@ -127,7 +199,7 @@ class HTTPMethods(Convert):
 
 class QueryTree(object):
 
-    def _add_to_query_tree_(self, parent_kw, child_kw,
+    def _add_to_query_tree_(self, r_method, parent_kw, child_kw,
                             function, state, rset=None,
                             make_global=False):
         if not rset:
@@ -140,15 +212,28 @@ class QueryTree(object):
         state = new_state
         if self._is_root_:
             rset.reverse()
-            tree = self._query_trees_[self._current_tree_]
-            tree = self._create_entry_(copy(rset), tree,
-                                       state, parent_kw)
             if make_global:
+                for method in self._active_resource_methods_:
+                    ctree = self._current_tree_[method]
+                    tree = self._query_trees_[method][ctree]
+                    tree = self._create_entry_(copy(rset), tree,
+                                               state, parent_kw)
                 gtree = self._global_tree_
                 gtree = self._create_entry_(copy(rset), gtree,
                                             state, parent_kw)
+            else:
+                ctree = self._current_tree_[r_method]
+                tree = self._query_trees_[r_method]
+                self._create_entry_(copy(rset), tree[ctree],
+                                           state, parent_kw)
+                if self._global_tree_:
+                    for k, v in self._global_tree_.items():
+                        for t in tree:
+                            if k not in t:
+                                t[k] = v
+
         else:
-            self._parent_._add_to_query_tree_(self._name_, child_kw,
+            self._parent_._add_to_query_tree_(r_method, self._name_, child_kw,
                                               function, state, rset)
             return
 

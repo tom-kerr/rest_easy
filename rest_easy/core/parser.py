@@ -34,6 +34,7 @@ class Parser(EnforceRequirements):
     """Turns a QueryTree into a URL"""
     def __init__(self, obj):
         self.parent = obj
+        self.p_name = obj._name_
         self._init_format_tokens_()
 
     def _parse_(self, tree):
@@ -41,7 +42,7 @@ class Parser(EnforceRequirements):
         for r in self.parent._raise_requirements_():
             if r and r.required:
                 self._requirements_.add_requirements(r)
-        self._submitted_ = self.parent._root_getattr_('_submitted_')
+        self._submitted_ = self.parent._root_getattr_('_submitted_')[self.p_name]
         if self.parent._input_format_ == 'key_value':
             string = str(self._parse_key_value_(tree))[:-1]
         elif self.parent._input_format_ == 'json':
@@ -76,7 +77,7 @@ class Parser(EnforceRequirements):
     def _clean_path_string_(self):
         if self._tokens_:
             for token in self._tokens_:
-                if token != '0':
+                if token and token != '0':
                     self.parent._path_ = self.parent._path_.replace('{'+token+'}', '')
             self.parent._path_ = self.parent._path_[:-1]
 

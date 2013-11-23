@@ -15,14 +15,16 @@
 from __future__ import print_function
 
 import os
+from time import sleep
+from multiprocessing import Process, Queue
 
 from .source import SourceBuilder
 from .alt import AlternateInterface
+from .query import GET_ResourceMethods
 
 class RestEasy(SourceBuilder, AlternateInterface):
 
     def __init__(self):
         self.source_dir = os.path.abspath(os.path.dirname(__file__))+'/sources'
         super(RestEasy, self).__init__()
-
-
+        setattr(self, 'GET', GET_ResourceMethods(self))

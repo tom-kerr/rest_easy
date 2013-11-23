@@ -40,34 +40,61 @@ class Node(Callable, QueryTree):
             self._is_root_ = False
 
     def _init_query_structs_(self):
-        self._current_tree_ = 0
-        self._query_trees_ = [{}]
+        self._current_tree_ = {}
+        self._query_trees_ = {}#[{}]
         self._global_tree_ = {}
-        self._query_requirements_ = [Requirements()]
-        self._submitted_ = set()
+        self._query_requirements_ = {}#[Requirements()]
+        self._submitted_ = {}#set()
+        self._active_resource_methods_ = set()
+
+    def _add_query_struct_entry_(self, r_method):
+        if self._is_root_:
+            if not r_method in self._current_tree_:
+                self._current_tree_[r_method] = 0
+                self._query_trees_[r_method] = [{}]
+                self._query_requirements_[r_method] = [Requirements()]
+                self._submitted_[r_method] = set()
+        else:
+            self._parent_._add_query_struct_entry_(r_method)
 
     def help(self, path=''):
         path = self._name_ + '->' + path
         self._parent_.help(path)
 
-    def new_query(self):
+    def new_query(self, r_method=None):
         if self._is_root_:
-            self._current_tree_ += 1
-            self._query_trees_.append(deepcopy(self._global_tree_))
-            self._query_requirements_.append(Requirements())
+            self._current_tree_[r_method] += 1
+            self._query_trees_[r_method].append(deepcopy(self._global_tree_))
+            self._query_requirements_[r_method].append(Requirements())
         else:
-            self._parent_.new_query()
+            if isinstance(self, ResourceMethod):
+                r_method = self._name_
+            self._parent_.new_query(r_method)
 
     def reset_query(self):
         if self._is_root_:
-            self._current_tree_ = 0
-            self._query_trees_ = [{}]
-            self._query_requirements_ = [Requirements()]
+            self._current_tree_ = {}
+            self._query_trees_ = {}
+            self._query_requirements_ = {}
             #for item in self._submitted_:
             #    item._value_ = None
-            self._submitted_ = set()
+            self._submitted_ = {}
+            self._active_resource_methods_ = set()
         else:
             self._parent_.reset_query()
+
+    def _add_active_resource_method_(self, method=None):
+        if self._is_root_:
+            if method:
+                self._active_resource_methods_.add(method)
+                return method._name_
+            else:
+                return None
+        else:
+            if not method:
+                if isinstance(self, ResourceMethod):
+                    method = self
+            return self._parent_._add_active_resource_method_(method)
 
     def _super_getattr_(self, keyword):
         if hasattr(self, keyword):
@@ -200,11 +227,15 @@ class Node(Callable, QueryTree):
                 state = self._get_state_(parent_kw, function)
                 if self._is_root_:
                     make_global = True
+                    r_method = None
                 else:
                     make_global = False
-                self._add_to_query_tree_(parent_kw, child_kw,
+                    r_method = self._add_active_resource_method_()
+                    self._add_query_struct_entry_(r_method)
+                self._add_to_query_tree_(r_method, parent_kw, child_kw,
                                          function, {parent_kw: state},
                                          None, make_global)
+
 
         function.__name__ = 'parameter.Property'
         function.__doc__ = pattrs.__doc__
@@ -336,8 +367,9 @@ class Node(Callable, QueryTree):
                     func_list.append(f)
                 else:
                     raise LookupError('no such attribute, "'+ key +'".')
-
-            self._add_to_query_tree_('multikey', 'multikey',
+            r_method = self._add_active_resource_method_()
+            self._add_query_struct_entry_(r_method)
+            self._add_to_query_tree_(r_method, 'multikey', 'multikey',
                                      function, {'multikey':
                                                 self._get_state_('multikey',
                                                                  [tuple(func_list)])})
@@ -423,6 +455,33 @@ class Source(Parameter, Node):
             if '+http_method' in data:
                 return False
         return True
+    """
+    def _get_active_resource_method_(self, obj=None):
+        if not obj:
+            obj = self
+        if isinstance(obj, ResourceMethod):
+            return obj
+        for attr in dir(obj):
+            attr_obj = getattr(obj, attr)
+            if isinstance(attr_obj, ResourceMethod):
+                return attr_obj
+            elif isinstance(attr_obj, (API)):
+                return self._get_active_resource_method_(attr_obj)
+                """
+
+    def _get_root_object_(self, obj=None):
+        if not obj:
+            obj = self
+        if obj._is_root_:
+            return obj
+        else:
+            for attr in dir(obj):
+                attr_obj = getattr(obj, attr)
+                if isinstance(attr_obj, (Source, API, ResourceMethod)):
+                    if  attr_obj._is_root_:
+                        return attr_obj
+                    else:
+                        return self._get_root_object_(attr_obj)
 
 
 class API(Parameter, Node):
