@@ -422,7 +422,7 @@ class Parameter(BaseAttributes, Aspects):
                                 self._attr_check_, self._data_dict_)
         Aspects.__init__(self, self._data_dict_)
 
-
+        
 class Source(Parameter, Node):
     """Root object of a wrapper."""
     _attr_add_ = ('+hostname', '+protocol', '+port')
@@ -455,19 +455,6 @@ class Source(Parameter, Node):
             if '+http_method' in data:
                 return False
         return True
-    """
-    def _get_active_resource_method_(self, obj=None):
-        if not obj:
-            obj = self
-        if isinstance(obj, ResourceMethod):
-            return obj
-        for attr in dir(obj):
-            attr_obj = getattr(obj, attr)
-            if isinstance(attr_obj, ResourceMethod):
-                return attr_obj
-            elif isinstance(attr_obj, (API)):
-                return self._get_active_resource_method_(attr_obj)
-                """
 
     def _get_root_object_(self, obj=None):
         if not obj:

@@ -43,7 +43,7 @@ class TemplateGET(object):
 
     def __call__(self, return_format='', inherit_from=None,
                  pretty_print=False, reset=True,
-                 pid=None, queue=None, timeout=10):
+                 pid=None, queue=None, timeout=30):
         self.return_format = return_format
         self.inherit_from =  inherit_from
         self.pretty_print = pretty_print
@@ -58,6 +58,7 @@ class TemplateGET(object):
 
 
 class GET_QueryTrees(TemplateGET):
+    """Creates a thread for each branch of a query tree."""
     def proc_spawn_loop(self):
         qtrees = self.parent._root_getattr_('_query_trees_')[self.parent._name_]
         self.proc_count = len(qtrees)
@@ -91,9 +92,11 @@ class GET_QueryTrees(TemplateGET):
                 header, message = response.split('\r\n\r\n', 1)
                 status = header.split('\r\n', 1)[0]
                 if not 'OK' in status:
-                    raise Exception(status)
-                message = self.parent._convert_results_(message, self.parent._output_format_,
-                                                        self.return_format, self.inherit_from)
+                    message = Exception(status)
+                else:
+                    message = self.parent._convert_results_(message, \
+                                        self.parent._output_format_,
+                                        self.return_format, self.inherit_from)
                 results[num] = message
         if self.pretty_print:
             pprint.pprint(message)
@@ -103,9 +106,10 @@ class GET_QueryTrees(TemplateGET):
 
 
 class GET_ResourceMethods(TemplateGET):
+    """Creates a thread for each ResourceMethod, which in turn will spawn a
+    thread for each branch of its query tree."""
     def proc_spawn_loop(self):
-        for source in self.parent.source_objects:
-            src_name = source._name_
+        for src_name, source  in self.parent.source_objects.items():
             self.threads[src_name] = {}
             root = source._get_root_object_()
             active_methods = root._active_resource_methods_
@@ -164,7 +168,6 @@ def connect(conn_id, host, protocol, port, path, queue, timeout=10):
         else:
             break
     sock.close()
-    print (response)
     queue.put((conn_id, response))
 
 
@@ -213,7 +216,8 @@ class QueryTree(object):
         if self._is_root_:
             rset.reverse()
             if make_global:
-                for method in self._active_resource_methods_:
+                for active_method in self._active_resource_methods_:
+                    method = active_method._name_
                     ctree = self._current_tree_[method]
                     tree = self._query_trees_[method][ctree]
                     tree = self._create_entry_(copy(rset), tree,

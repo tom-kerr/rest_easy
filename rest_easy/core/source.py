@@ -29,7 +29,7 @@ class SourceBuilder(Helper):
     """Fetch source files and create Source objects"""
     def __init__(self):
         self.sources = {}
-        self.source_objects = set()
+        self.source_objects = {}
         self._find_sources_()
 
     def _find_sources_(self):
@@ -62,12 +62,13 @@ class SourceBuilder(Helper):
                 return deepcopy(y)
         raise Exception('Invalid Source.')
 
-    def get_wrappers(self, source, keep_track=True):
+    def get_wrappers(self, source):
         """Return API wrapper(s) for a given source."""
+        if source in self.source_objects:
+            return self.source_objects[source]
         source_data = self._get_source_(source)
         source_obj = SourceBuilder._parse_data_(self, source, source_data)
-        if keep_track:
-            self.source_objects.add(source_obj)
+        self.source_objects[source] = source_obj
         return source_obj
 
     @staticmethod

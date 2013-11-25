@@ -44,73 +44,81 @@ class AlternateInterface(Parser):
 
     Example:
 
-       RestEasy.GET('dpla', 'v2', 'apikey->xxxx:Items->searchIn->title->Dead Souls')
+       RestEasy.submit('dpla', 'v2', 'apikey->xxxx:Items->searchIn->title->Dead Souls')
 
     or,
 
-       RestEasy.GET('dpla', 'v2', {'apiKey': 'xxxx',
-                                   'Items': {'searchIn':
-                                             {'title': 'Dead Souls'}}})
-    """
-    def GET(self, source, api, query, return_format='', inherit_from=None,
-            pretty_print=False, reset=True):
-        self._resource_method_ = None
-        source_apis = self.get_wrappers(source, keep_track=False)
-        query_elements = self._parse_query_string_(query)
-        api_object = self._get_api_object_(source_apis, api)
-        self._submit_elements_(source, api, api_object, query_elements)
-        if not self._resource_method_:
-            raise Exception('Insufficient arguments -- '+
-                            'you must supply a Resource Method.')
-        return self._resource_method_.GET(return_format, inherit_from,
-                                          pretty_print, reset=reset)
+       RestEasy.submit('dpla', 'v2', {'apiKey': 'xxxx',
+                                       'Items': {'searchIn':
+                                                 {'title': 'Dead Souls'}}})
+    then,
 
-    def get_query_string(self, source, api, input_strings, reset=False):
-        self._resource_method_ = None
-        source_apis = self.get_wrappers(source, keep_track=False)
-        query_elements = self._parse_query_string_(input_strings)
-        api_object = self._get_api_object_(source_apis, api)
-        self._submit_elements_(source, api, api_object, query_elements)
+       results = RestEasy.GET()
+    """
+    _resource_method_ = None
+
+    def _get_query_components_(self, source, api, query):
+        source_obj = self.get_wrappers(source)
+        root_obj = source_obj._get_root_object_()
+        api_obj = self._get_api_object_(source_obj, api)
+        query_elements = self._parse_query_string_(query)
+        return root_obj, api_obj, query_elements
+
+    def get_query_string(self, source=None, api=None, query=None, reset=False):
+        if not self._resource_method_:
+            root_obj, api_obj, query_elements = \
+              self._get_query_components_(source, api, query)
+            self._submit_elements_(source, api, api_obj, query_elements)
+            if not self._resource_method_:
+                raise Exception('Insufficient arguments -- '+
+                                'you must supply a Resource Method.')
+        return self._resource_method_.get_query_string(reset=reset)
+
+    def submit(self, source, api, query):
+        root_obj, api_obj, query_elements = \
+          self._get_query_components_(source, api, query)
+        self._submit_elements_(source, api, root_obj, api_obj, query_elements)
         if not self._resource_method_:
             raise Exception('Insufficient arguments -- '+
                             'you must supply a Resource Method.')
-        return self._resource_method_.get_query_string(reset=reset)
 
     def _get_api_object_(self, source_object, api):
         try:
-            api_object = getattr(source_object, api)
+            api_obj = getattr(source_object, api)
         except:
             raise LookupError('Invalid API "' + str(api) + '"')
-        return api_object
+        return api_obj
 
-    def _assign_resource_method_(self, method_obj):
+    def _assign_resource_method_(self, root_obj, method_obj):
         if self._resource_method_ is None:
             self._resource_method_ = method_obj
+            if self._resource_method_ in root_obj._active_resource_methods_:
+                self._resource_method_.new_query()
         else:
             if self._resource_method_ != method_obj:
                 raise Exception('Invalid query -- conflicting Resource Methods '+
                                 '"'+self._resource_method_+'" and "'+method_obj+'"')
 
-    def _submit_elements_(self, source, api, api_object, query_elements):
+    def _submit_elements_(self, source, api, root_obj, api_obj, query_elements):
         if not isinstance(query_elements, list):
             query_elements = [query_elements, ]
         for element in query_elements:
             if isinstance(element, dict):
                 for k, v in element.items():
-                    param = self._get_parameter_(source, api, api_object, k)
+                    param = self._get_parameter_(source, api, api_obj, k)
                     if hasattr(param, '_http_method_'):
-                        self._assign_resource_method_( getattr(api_object, k) )
+                        self._assign_resource_method_(root_obj, getattr(api_obj, k) )
                     if isinstance(v, dict):
-                        self._submit_elements_(source, api, param, v)
+                        self._submit_elements_(source, api, root_obj, param, v)
                     else:
                         if hasattr(param, '__call__'):
                             if not v:
                                 v = None
                             param(v)
 
-    def _get_parameter_(self, source, api, api_object, keyword):
+    def _get_parameter_(self, source, api, api_obj, keyword):
         try:
-            param = getattr(api_object, keyword)
+            param = getattr(api_obj, keyword)
         except:
             raise LookupError('Could not find "' + str(keyword) + '"'+
                               ' in "'+ str(source)+ '" API "' +
