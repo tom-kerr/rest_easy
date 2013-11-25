@@ -27,9 +27,10 @@ from .convert import Convert
 import types
 
 
-class TemplateGET(object):
-    def __init__(self, parent):
+class RESTfulAsyncTemplate(object):
+    def __init__(self, parent, http_method):
         self.parent = parent
+        self.http_method = http_method
         self.q = Queue()
         self.threads = {}
         self.proc_count = 0
@@ -57,16 +58,16 @@ class TemplateGET(object):
             return results
 
 
-class GET_QueryTrees(TemplateGET):
-    """Creates a thread for each branch of a query tree."""
+class AsyncQueryTrees(RESTfulAsyncTemplate):
+    """Creates a thread for each query tree."""
     def proc_spawn_loop(self):
         qtrees = self.parent._root_getattr_('_query_trees_')[self.parent._name_]
         self.proc_count = len(qtrees)
         for num, tree in enumerate(qtrees):
             host, protocol, port, path = self.parent._get_query_components_(tree)
-            self.threads[num] = Process(target=connect, name=num,
-                                        args=(num, host, protocol, port, path,
-                                              self.q, self.timeout))
+            sock = GET_Socket(host, protocol, port, path)
+            self.threads[num] = Process(target=sock.connect, name=num,
+                                        args=(num, self.q, self.timeout))
             self.threads[num].start()
 
     def collect_results(self, timeout):
@@ -105,7 +106,7 @@ class GET_QueryTrees(TemplateGET):
         return results
 
 
-class GET_ResourceMethods(TemplateGET):
+class AsyncResourceMethods(RESTfulAsyncTemplate):
     """Creates a thread for each ResourceMethod, which in turn will spawn a
     thread for each of its query trees."""
     def proc_spawn_loop(self):
@@ -116,10 +117,15 @@ class GET_ResourceMethods(TemplateGET):
             self.proc_count += len(active_methods)
             for method in active_methods:
                 m_name = method._name_
+                try:
+                    target = getattr(method, self.http_method)
+                except:
+                    continue
                 self.threads[src_name][m_name] = \
-                  Process(target=method.GET, name=m_name,
+                  Process(target=target, name=m_name,
                           args=(self.return_format, self.inherit_from,
-                                self.pretty_print, self.reset, (src_name, m_name), self.q))
+                                self.pretty_print, self.reset,
+                                (src_name, m_name), self.q))
                 self.threads[src_name][m_name].start()
 
     def collect_results(self, timeout):
@@ -145,39 +151,62 @@ class GET_ResourceMethods(TemplateGET):
         return results
 
 
+class SocketTemplate(object):
+    def __init__(self, host, protocol, port, path):
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if protocol == 'https':
+            self.sock = ssl.wrap_socket(self.sock)
+        self.host = host
+        self.protocol = protocol
+        self.port = port
+        self.path = path
 
-def connect(conn_id, host, protocol, port, path, queue, timeout=10):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    if protocol == 'https':
-        sock = ssl.wrap_socket(sock)
-    sock.connect((host, port))
-    msg = bytes("GET {0} HTTP/1.0\r\nHost: {1}\r\n\r\n".\
-            format(path, host), 'ascii')
-    sock.sendall(msg)
-    response = b''
-    slept = 0
-    while True:
-        if slept > timeout:
-            response = None
-            break
-        data = sock.recv(1024)
-        if data:
-            response += data
-        elif not data and not response and slept <= timeout:
-            slept += 1
-            sleep(1)
-        else:
-            break
-    sock.close()
-    queue.put((conn_id, response))
+    def connect(self, pid, queue, timeout=30):
+        pass
+
+    def recv(self):
+        pass
+
+    def send(self):
+        pass
+
+
+class GET_Socket(SocketTemplate):
+    def connect(self, pid, queue, timeout=30):
+        self.pid = pid
+        self.queue = queue
+        self.timeout = timeout
+        self.sock.connect((self.host, self.port))
+        msg = bytes("GET {0} HTTP/1.0\r\nHost: {1}\r\n\r\n".\
+          format(self.path, self.host), 'ascii')
+        self.sock.sendall(msg)
+        self.recv()
+
+    def recv(self):
+        response = b''
+        slept = 0
+        while True:
+            if slept > self.timeout:
+                response = None
+                break
+            data = self.sock.recv(1024)
+            if data:
+                response += data
+            elif not data and not response and slept <= self.timeout:
+                slept += 1
+                sleep(1)
+            else:
+                break
+        self.sock.close()
+        self.queue.put((self.pid, response))
 
 
 class HTTPMethods(Convert):
     """Request methods for querying APIs."""
     def __init__(self, *args, **kwargs):
-        for method in ('GET', 'POST'):
-            if method in self._http_method_:
-                setattr(self, 'GET', GET_QueryTrees(self))
+        for http_method in ('GET', ):
+            if http_method in self._http_method_:
+                setattr(self, http_method, AsyncQueryTrees(self, http_method))
 
     def _get_query_components_(self, tree):
         parser = Parser(self)
