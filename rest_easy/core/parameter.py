@@ -236,7 +236,6 @@ class Node(Callable, QueryTree):
                                          function, {parent_kw: state},
                                          None, make_global)
 
-
         function.__name__ = 'parameter.Property'
         function.__doc__ = pattrs.__doc__
         function._parent_ = self
@@ -422,7 +421,7 @@ class Parameter(BaseAttributes, Aspects):
                                 self._attr_check_, self._data_dict_)
         Aspects.__init__(self, self._data_dict_)
 
-        
+
 class Source(Parameter, Node):
     """Root object of a wrapper."""
     _attr_add_ = ('+hostname', '+protocol', '+port')
@@ -436,10 +435,13 @@ class Source(Parameter, Node):
         """Create and attach API objects"""
         new_api = API(parent=self,
                       name=keyword,
-                      data_dict=data_dict,
-                      is_root=True)
+                      data_dict=data_dict)
         for kw, data in data_dict['+children'].items():
-            if self._is_api_(data):
+            if '+http_method' in data:
+                new_api._is_root_ = True
+                new_api._init_query_structs_()
+                new_api._add_child_(kw, data)
+            elif self._is_api_(data):
                 self._add_api_(kw, data, new_api)
             else:
                 new_api._add_child_(kw, data)
@@ -463,6 +465,8 @@ class Source(Parameter, Node):
             return obj
         else:
             for attr in dir(obj):
+                if attr == '_parent_':
+                    continue
                 attr_obj = getattr(obj, attr)
                 if isinstance(attr_obj, (Source, API, ResourceMethod)):
                     if  attr_obj._is_root_:
@@ -470,7 +474,7 @@ class Source(Parameter, Node):
                     else:
                         return self._get_root_object_(attr_obj)
 
-
+                    
 class API(Parameter, Node):
     """Collections of ResourceMethods."""
     def __init__(self, **kwargs):

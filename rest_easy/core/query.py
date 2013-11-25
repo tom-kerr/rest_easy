@@ -84,7 +84,6 @@ class GET_QueryTrees(TemplateGET):
             else:
                 num, response = item
                 self.finished += 1
-                del self.threads[num]
             response = response.decode('utf-8')
             if not response:
                 message = ''
@@ -102,12 +101,13 @@ class GET_QueryTrees(TemplateGET):
             pprint.pprint(message)
         if self.reset:
             self.parent.reset_query()
+        self.threads = {}
         return results
 
 
 class GET_ResourceMethods(TemplateGET):
     """Creates a thread for each ResourceMethod, which in turn will spawn a
-    thread for each branch of its query tree."""
+    thread for each of its query trees."""
     def proc_spawn_loop(self):
         for src_name, source  in self.parent.source_objects.items():
             self.threads[src_name] = {}
@@ -141,6 +141,7 @@ class GET_ResourceMethods(TemplateGET):
                 if not src_name in results:
                     results[src_name] = {}
                 results[src_name][m_name] = responses
+        self.threads = {}
         return results
 
 

@@ -53,7 +53,7 @@ class Parser(EnforceRequirements):
 
     def _get_query_elements_(self, string):
         source = api = detail = None
-        elems = self._parse_query_string_(string, mode='lookup')[0]
+        elems = Parser._parse_query_string_(string, mode='lookup')[0]
         for k, v in elems.items():
             source = k
             if isinstance(v, dict):
@@ -301,7 +301,8 @@ class Parser(EnforceRequirements):
                         rset.remove(item._name_)
         return submitted
 
-    def _parse_query_string_(self, query, mode='query'):
+    @staticmethod
+    def _parse_query_string_(query, mode='query'):
         """For alternate interfaces"""
         if isinstance(query, dict):
             return query
@@ -310,7 +311,7 @@ class Parser(EnforceRequirements):
         new_elements = []
         for num, element in enumerate(strings):
             element = re.sub('\\\\:', ':', element)
-            multi_e = self._try_multi_split_(element)
+            multi_e = Parser._try_multi_split_(element)
             if multi_e:
                  new_elements.append(multi_e)
             else:
@@ -342,7 +343,8 @@ class Parser(EnforceRequirements):
                 new_elements.append(subelement)
         return new_elements
 
-    def _try_multi_split_(self, element):
+    @staticmethod
+    def _try_multi_split_(element):
         """For alternate interfaces"""
         elements = re.split('(?<!\\\\)\|', element)
         if elements == [element,]:

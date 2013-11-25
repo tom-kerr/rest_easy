@@ -39,7 +39,7 @@ import yaml
 
 from .parser import Parser
 
-class AlternateInterface(Parser):
+class AlternateInterface(object):
     """Interface for querying with strings/dicts.
 
     Example:
@@ -61,7 +61,7 @@ class AlternateInterface(Parser):
         source_obj = self.get_wrappers(source)
         root_obj = source_obj._get_root_object_()
         api_obj = self._get_api_object_(source_obj, api)
-        query_elements = self._parse_query_string_(query)
+        query_elements = Parser._parse_query_string_(query)
         return root_obj, api_obj, query_elements
 
     def get_query_string(self, source=None, api=None, query=None, reset=False):
@@ -75,6 +75,8 @@ class AlternateInterface(Parser):
         return self._resource_method_.get_query_string(reset=reset)
 
     def submit(self, source, api, query):
+        if self._resource_method_:
+            self._resource_method_ = None
         root_obj, api_obj, query_elements = \
           self._get_query_components_(source, api, query)
         self._submit_elements_(source, api, root_obj, api_obj, query_elements)
@@ -97,7 +99,8 @@ class AlternateInterface(Parser):
         else:
             if self._resource_method_ != method_obj:
                 raise Exception('Invalid query -- conflicting Resource Methods '+
-                                '"'+self._resource_method_+'" and "'+method_obj+'"')
+                                '"'+self._resource_method_._name_+'" and '+
+                                '"'+method_obj._name_+'"')
 
     def _submit_elements_(self, source, api, root_obj, api_obj, query_elements):
         if not isinstance(query_elements, list):
