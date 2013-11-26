@@ -31,7 +31,7 @@ class RESTfulAsyncTemplate(object):
     def __init__(self, parent, http_method):
         self.parent = parent
         self.http_method = http_method
-        self.q = Queue()
+        self.queue = Queue()
         self.threads = {}
         self.proc_count = 0
         self.finished = 0
@@ -65,9 +65,8 @@ class AsyncQueryTrees(RESTfulAsyncTemplate):
         self.proc_count = len(qtrees)
         for num, tree in enumerate(qtrees):
             host, protocol, port, path = self.parent._get_query_components_(tree)
-            sock = GET_Socket(host, protocol, port, path)
-            self.threads[num] = Process(target=sock.connect, name=num,
-                                        args=(num, self.q, self.timeout))
+            sock = GET_Socket(host, protocol, port, path, num, self.queue, self.timeout)
+            self.threads[num] = Process(target=sock, name=num)
             self.threads[num].start()
 
     def collect_results(self, timeout):
@@ -77,7 +76,7 @@ class AsyncQueryTrees(RESTfulAsyncTemplate):
             if slept > timeout:
                 break
             try:
-                item = self.q.get_nowait()
+                item = self.queue.get_nowait()
             except:
                 sleep(1)
                 slept += 1
@@ -125,7 +124,7 @@ class AsyncResourceMethods(RESTfulAsyncTemplate):
                   Process(target=target, name=m_name,
                           args=(self.return_format, self.inherit_from,
                                 self.pretty_print, self.reset,
-                                (src_name, m_name), self.q))
+                                (src_name, m_name), self.queue))
                 self.threads[src_name][m_name].start()
 
     def collect_results(self, timeout):
@@ -135,7 +134,7 @@ class AsyncResourceMethods(RESTfulAsyncTemplate):
             if slept > timeout:
                 break
             try:
-                item = self.q.get_nowait()
+                item = self.queue.get_nowait()
             except:
                 sleep(1)
                 slept += 1
@@ -152,7 +151,8 @@ class AsyncResourceMethods(RESTfulAsyncTemplate):
 
 
 class SocketTemplate(object):
-    def __init__(self, host, protocol, port, path):
+    def __init__(self, host, protocol, port, path,
+                 pid=None, queue=None, timeout=30):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if protocol == 'https':
             self.sock = ssl.wrap_socket(self.sock)
@@ -160,8 +160,11 @@ class SocketTemplate(object):
         self.protocol = protocol
         self.port = port
         self.path = path
+        self.pid = pid
+        self.queue = queue
+        self.timeout = timeout
 
-    def connect(self, pid, queue, timeout=30):
+    def connect(self):
         pass
 
     def recv(self):
@@ -170,17 +173,24 @@ class SocketTemplate(object):
     def send(self):
         pass
 
+    def __call__(self):
+        self.connect()
+        self.send()
+        response = self.recv()
+        if self.queue:
+            self.queue.put((self.pid, response))
+        else:
+            return response
+
 
 class GET_Socket(SocketTemplate):
-    def connect(self, pid, queue, timeout=30):
-        self.pid = pid
-        self.queue = queue
-        self.timeout = timeout
+    def connect(self):
         self.sock.connect((self.host, self.port))
+
+    def send(self):
         msg = bytes("GET {0} HTTP/1.0\r\nHost: {1}\r\n\r\n".\
           format(self.path, self.host), 'ascii')
         self.sock.sendall(msg)
-        self.recv()
 
     def recv(self):
         response = b''
@@ -198,7 +208,7 @@ class GET_Socket(SocketTemplate):
             else:
                 break
         self.sock.close()
-        self.queue.put((self.pid, response))
+        return response
 
 
 class HTTPMethods(Convert):
