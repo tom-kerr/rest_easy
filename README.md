@@ -56,9 +56,16 @@ To query using setters, one must first retrieve the Source object:
 ```python
 dpla = RestEasy.get_wrappers('dpla')
 ```
-*dpla* is now an object with DPLA API wrappers as attributes. A wrapper in a nutshell is a heirarchy of objects. The root object of a wrapper is the **API**, which is always written in lowercase and contains parameters of two types, **Methods** and **Properties**. **Properties**, always in mixedCase, are setters which validate our input and build our query strings, while **Methods**, always Capitalized, handle HTTP requests and act as collections of Properties (and may also behave like Properties themselves). 
+*dpla* is now an object with DPLA API wrappers as attributes. A wrapper in a nutshell is a heirarchy of **API**, **ResourceMethod**, and **Property** objects, where **API** objects are always written in lowercase, **ResourceMethods** are always Capitalized, and **Properties** are always in mixedCase. 
 
-These parameters can be accessed either with the dot operator or by passing keys and values as arguments to the parent object:
+An **API** simply serves as the parent for other objects, while a **ResourceMethod** or a **Property** are what actually do work.
+
+A **ResourceMethod** handles HTTP requests and acts as the parent of one of more **Properties** (and may also behave like a **Property** itself (more on this later)). 
+
+
+A **Property** is a setter that validates our input and adds to a query tree which will be parsed into our query string when we call the parent **ResourceMethod**'s appropriate HTTP Method (GET, POST, PUT, etc). 
+
+Parameters can be accessed either with the dot operator or by passing keys and values as arguments to the parent object:
 
 ```python
 # passing as args
@@ -74,12 +81,18 @@ Once our parameters are set, we can query by calling the Method object's HTTP re
 results = dpla('v2').Items.GET()
 ```
 
-Calling Method Items' attribute GET will construct a url string from the parameters we set, query the server, and return the results. One can pass the argument **return_format** to GET to convert your results to a format not supported by the API. Accepted values are **json**, **xml**, or **object**. **object** will either return an object of class 'QueryObject' or a list of such, depending on the nature of the data being converted. **pretty_print** is another optional argument which when set to **True** will pretty print your results, in addition to returning them. 
+This will construct a url string from the parameters we set, query the server, reset our parameters, and return the results. 
 
-Or, if we just want the url string:
+If we just want the url string (parameters are not reset, unless one passes reset=True):
 ```python
 query_string = dpla('v2').Items.get_query_string()
 ```
+
+One can pass the argument **return_format** to GET to convert your results, for example, to a format not supported by the API. Accepted values are **json**, **xml**, or **object**. **object** will convert to json and return a **DynamicAccessor** object, which contains *get* and *getBy* methods for accessing the contents of the results. These methods are created on the fly based on the contents themselves. 
+
+**pretty_print** is another optional argument which when set to **True** will pretty print your results, in addition to returning them. 
+
+
 
 <h3>Strings</h3>
 
