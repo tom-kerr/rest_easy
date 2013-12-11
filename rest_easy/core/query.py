@@ -52,6 +52,8 @@ class RESTfulAsyncTemplate(object):
         self.timeout = timeout
         self.proc_spawn_loop()
         results =  self.collect_results(timeout)
+        self.proc_count = 0
+        self.finished = 0
         if queue:
             queue.put((pid, results))
         else:

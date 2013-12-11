@@ -22,6 +22,7 @@ elif major == 3:
     from urllib.parse import quote
 
 import re
+import json
 import pprint
 import string
 from copy import copy, deepcopy
@@ -46,12 +47,13 @@ class Parser(EnforceRequirements):
         if self.parent._input_format_ == 'key_value':
             string = str(self._parse_key_value_(tree))[:-1]
         elif self.parent._input_format_ == 'json':
-            string = str(self._parse_json_(tree)).replace("'", '"').replace(' ', '')
+            string = str(json.dumps(self._parse_json_(tree))).replace(' ', '')
         self._enforce_requirements_()
         self._clean_path_string_()
         return string
 
-    def _get_query_elements_(self, string):
+    @staticmethod
+    def _get_query_elements_(string):
         source = api = detail = None
         elems = Parser._parse_query_string_(string, mode='lookup')[0]
         for k, v in elems.items():
@@ -211,10 +213,10 @@ class Parser(EnforceRequirements):
                 elif self.parent._input_format_ == 'json':
                     for k,v in self._parse_func_(n, len(func), f, syntax, mode,
                                                 has_scope, has_prefix).items():
-                        json[k] = v
+                        json[k] = str(v)
         else:
             self._submitted_.add(func)
-            if func._value_:
+            if func._value_ or True:
                 if self.parent._input_format_ == 'key_value':
                     if 'K' not in mode.flags and 'MK' not in mode.flags:
                         if 'MV' in mode.flags and chain == syntax['+multi']:
@@ -224,9 +226,12 @@ class Parser(EnforceRequirements):
                     else:
                         string += '{}{}{}{}'.format(func._key_, bind,
                                                     quote( str(func._value_)), chain)
-
                 elif self.parent._input_format_ == 'json':
-                    json[func._key_] = func._value_#quote( str(func._value_))
+                    if func._value_ in ( True, False, None):
+                        json[func._key_] = func._value_
+                    else:
+                        json[func._key_] = str(func._value_)
+
             elif not func._value_ and not has_scope:
                 if self.parent._input_format_ == 'key_value':
                     string += '{}{}'.format(func._key_, chain)

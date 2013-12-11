@@ -27,10 +27,8 @@ from colorama import init as colorama_init
 from colorama import Fore, Back, Style
 colorama_init()
 
-#from .parser import Parser
+from .parser import Parser
 from .alt import AlternateInterface
-#from .source import SourceBuilder
-#from .api import API
 from .parameter import API, ResourceMethod, Property
 
 
@@ -56,7 +54,7 @@ class Helper(object):
         if string is None:
             self._print_sources_()
         else:
-            source, api, detail = self._get_query_elements_(string)
+            source, api, detail = Parser._get_query_elements_(string)
             source_obj = self.get_wrappers(source)
             if not api:
                 self._print_source_details_(source_obj)
@@ -182,7 +180,7 @@ class Helper(object):
         self._buffer_ += '\n'
 
     def _print_detail_(self, api, detail):
-        elements = self._parse_query_string_(detail, mode='lookup')
+        elements = Parser._parse_query_string_(detail, mode='lookup')
         self._find_detail_(api, [elements,])
 
     def _find_detail_(self, root, elements):

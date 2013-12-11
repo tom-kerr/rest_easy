@@ -154,7 +154,7 @@ import openlibrary.def
         +expected_value: '[0-9]+'
       return_all: 
         +key: "*"
-        +expected_value: Null        
+        +expected_value: Null
 
   Search:
     +http_method: GET

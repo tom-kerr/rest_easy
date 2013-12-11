@@ -71,7 +71,7 @@ enumeration: &enumeration
   
 title: &title
   +key: 'title'
-  +expected_value: str
+  +expected_value: [str, Null]
     
 alternateNames: &alternatenames
   +key: 'alternate_names'
