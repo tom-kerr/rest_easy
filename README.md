@@ -56,22 +56,23 @@ To query using setters, one must first retrieve the Source object:
 ```python
 dpla = RestEasy.get_wrappers('dpla')
 ```
-*dpla* is now an object with DPLA API wrappers as attributes. A wrapper in a nutshell is a heirarchy of **API**, **ResourceMethod**, and **Property** objects, where **API** objects are always written in lowercase, **ResourceMethods** are always Capitalized, and **Properties** are always in mixedCase. 
+*dpla* is now an object with DPLA API wrappers as attributes. These wrappers in a nutshell are a heirarchies of **API**, **ResourceMethod**, and **Property** objects that mirror the structure of the API.
 
-An **API** simply serves as the parent for other objects, while a **ResourceMethod** or a **Property** are what actually do work.
+An **API** simply serves as the parent for other objects, while a **ResourceMethod** or a **Property** are what actually do work. **API** objects are always lowercase.
 
-A **ResourceMethod** handles HTTP requests and acts as the parent of one of more **Properties** (and may also behave like a **Property** itself (more on this later)). 
+A **ResourceMethod** handles HTTP requests and acts as the parent of one of more **Properties** (and may also behave like a **Property** itself (more on this later)). **ResourceMethods** are always Capitalized.
 
-
-A **Property** is a setter that validates our input and adds to a query tree which will be parsed into our query string when we call the parent **ResourceMethod**'s appropriate HTTP Method (*GET*, *POST*, *PUT*, etc). 
+A **Property** is a setter that validates our input and adds data to a query tree which will be parsed into our query string when we call the parent **ResourceMethod**'s appropriate HTTP Method (*GET*, *POST*, *PUT*, etc). A **Property** is always in mixedCase.
 
 Parameters can be accessed either with the dot operator or by passing keys and values as arguments to the parent object:
 
 ```python
 # passing as args
+dpla('v2').apiKey('xxxx')
 dpla('v2').Items.searchIn('title', 'Tom Sawyer')
 
 # dot operator
+dpla.v2.apiKey('xxxx')
 dpla.v2.Items.searchIn.title('Tom Sawyer')
 ```
 
@@ -83,20 +84,20 @@ results = dpla('v2').Items.GET()
 
 This will construct a url string from the parameters we set, query the server, reset our parameters, and return the results. 
 
-If we just want the url string (parameters are not reset, unless one passes reset=True):
+Or, if we just want the url string (parameters are not reset, unless one passes reset=True):
 ```python
 query_string = dpla('v2').Items.get_query_string()
 ```
 
-One can pass the argument **return_format** to GET to convert your results, for example, to a format not supported by the API. Accepted values are **json**, **xml**, or **object**. **object** will convert to json and return a **DynamicAccessor** object, which contains *get* and *getBy* methods for accessing the contents of the results. These methods are created on the fly based on the contents themselves. 
+One can pass the argument **return_format** to GET to convert your results, for example, to a format not supported by the API. Accepted values are **json**, **xml**, or **object**. **object** will convert to json and return a **DynamicAccessor**, which contains *get* and *getBy* methods for accessing the contents of the results. These methods are created on the fly, deriving from the contents themselves. 
 
 **pretty_print** is another optional argument which when set to **True** will pretty print your results, in addition to returning them. 
 
 
-Now what if we have a bunch of queries we want to make? Do we have to do send one request at a time? No! We can simply
-build a queue, and send them asynchronously:
+Now what if we have a bunch of queries we want to make? Do we have to do send one request at a time? No! We can build a queue, and send them asynchronously:
 
 ```python
+dpla('v2').apiKey('xxxx')
 dpla('v2').Items.searchIn.title('Tom Sawyer')
 dpla('v2').Items.new_query()
 dpla('v2').Items.searchIn.title('Huckleberry Finn')
@@ -104,7 +105,7 @@ results = dpla('v2').Items.GET()
 
 ```
 
-Here we simply call *new_query* on our **ResourceMethod**, which creates a fresh entry in our tree for us to add parameters and thus issue a separate query. When we call *GET*, each request and optional conversion happens on a new thread, and all results are joined and returned in a list in the order in which they were defined.
+Here we call *new_query* on our **ResourceMethod**, which creates a fresh entry in our tree for us to add parameters and thus issue a separate query. When we call *GET*, each request (and optional format conversion) happens on a new thread, and all results are joined and returned in a list in the order in which they were defined.
 
 We can even make asynchronous calls across multiple *Sources*:
 
@@ -121,7 +122,7 @@ results = RestEasy.GET()
 
 ```
 
-Here we simply set our parameters, and instead of calling each **ResourceMethod**'s *GET* directly, we call our **RestEasy** object's *GET*, which will in turn asynchronously call each query's *GET*. The results this time are a dict, the keys being the source names ('dpla', 'openlibrary'), and the values lists of json, xml, or objects (**DynamicAccessors**). 
+Here we set our parameters, and instead of calling each **ResourceMethod**'s *GET* directly, we call our **RestEasy** object's *GET*, which will in turn asynchronously call each query's *GET*. The results this time are a dict, the keys being the source names ('dpla', 'openlibrary'), and the values lists of json, xml, or **DynamicAccessors**. 
 
 
 
