@@ -39,16 +39,18 @@ dpla('v2').Items.searchIn.title('Tom Sawyer')
 results = dpla('v2').Items.GET()
 
 #strings
-results = RestEasy.GET('dpla', 'v2', 'apiKey->xxxx:Items->searchIn->title->Tom Sawyer')
+RestEasy.submit('dpla', 'v2', 'apiKey->xxxx:Items->searchIn->title->Tom Sawyer')
+results = RestEasy.GET()
 
 #dicts
-results = RestEasy.GET('dpla', 'v2', {'apiKey': 'xxxx',
-                                      'Items': {
-                                          'searchIn': {
-                                              'title': 'Tom Sawyer'
-                                              }
-                                          }  
-                                       })
+RestEasy.submit('dpla', 'v2', {'apiKey': 'xxxx',
+                                 'Items': {
+                                     'searchIn': {
+                                          'title': 'Tom Sawyer'
+                                          }
+                                      }  
+                                  })
+results = RestEasy.GET()
 ```
 
 <h3>Setters</h3>
