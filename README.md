@@ -26,11 +26,7 @@ from rest_easy.core.main import RestEasy
 RestEasy = RestEasy()
 ```
 
-
-There are three ways to make queries -- with setters, strings, or dicts.
-
-Each of these queries are equivalent:
-
+There are three ways to form queries -- with setters, strings, or dicts. For example, each of the following are equivalent:
 ```python
 #setters
 dpla = RestEasy.get_wrappers('dpla')
@@ -58,9 +54,9 @@ To query using setters, one must first retrieve the Source object:
 ```python
 dpla = RestEasy.get_wrappers('dpla')
 ```
-*dpla* is now an object with DPLA API wrappers as attributes. These wrappers in a nutshell are a heirarchies of **API**, **ResourceMethod**, and **Property** objects that mirror the structure of the API.
+*dpla* is now an object with DPLA API wrappers as attributes. These wrappers are a hierarchies of **API**, **ResourceMethod**, and **Property** objects that mirror the structure of the API.
 
-An **API** simply serves as the parent for other objects, while a **ResourceMethod** or a **Property** are what actually do work. **API** objects are always lowercase.
+An **API** mostly just serves as the parent for other objects, while a **ResourceMethod** or a **Property** are what actually do work. **API** objects are always lowercase.
 
 A **ResourceMethod** handles HTTP requests and acts as the parent of one of more **Properties** (and may also behave like a **Property** itself (more on this later)). **ResourceMethods** are always Capitalized.
 
