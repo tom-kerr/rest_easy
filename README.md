@@ -35,12 +35,12 @@ dpla('v2').Items.searchIn.title('Tom Sawyer')
 results = dpla('v2').Items.GET()
 
 #strings
-RestEasy.submit('dpla', 'v2', 'apiKey->xxxx:Items->searchIn->title->Tom Sawyer')
+RestEasy.new_query('dpla', 'v2', 'apiKey->xxxx:Items->searchIn->title->Tom Sawyer')
 results = RestEasy.GET()
 
 #dicts
-RestEasy.submit('dpla', 'v2', {'apiKey': 'xxxx',
-                                 'Items': {
+RestEasy.new_query('dpla', 'v2', {'apiKey': 'xxxx',
+                                   'Items': {
                                      'searchIn': {
                                           'title': 'Tom Sawyer'
                                           }
@@ -87,7 +87,7 @@ Or, if we just want the url string (parameters are not reset, unless one passes 
 query_string = dpla('v2').Items.get_query_string()
 ```
 
-One can pass the argument **return_format** to GET to convert your results, for example, to a format not supported by the API. Accepted values are **json**, **xml**, or **object**. **object** will convert to json and return a **DynamicAccessor**, which contains *get* and *getBy* methods for accessing the contents of the results. These methods are created on the fly, deriving from the contents themselves. 
+One can pass the argument **return_format** to GET to convert your results, for example, to a format not supported by the API. Accepted values are **json**, **xml**, or **obj**. **obj** will convert to json and return a **DynamicAccessor**, which contains *get* and *getBy* methods for accessing the contents of the results. These methods are created on the fly, deriving from the contents themselves. 
 
 **pretty_print** is another optional argument which when set to **True** will pretty print your results, in addition to returning them. 
 

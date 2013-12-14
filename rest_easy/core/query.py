@@ -42,11 +42,10 @@ class RESTfulAsyncTemplate(object):
     def collect_results(self):
         pass
 
-    def __call__(self, return_format='', inherit_from=None,
+    def __call__(self, return_format='',
                  pretty_print=False, reset=True,
                  pid=None, queue=None, timeout=30):
         self.return_format = return_format
-        self.inherit_from =  inherit_from
         self.pretty_print = pretty_print
         self.reset = reset
         self.timeout = timeout
@@ -97,7 +96,7 @@ class AsyncQueryTrees(RESTfulAsyncTemplate):
                 else:
                     message = self.parent._convert_results_(message, \
                                         self.parent._output_format_,
-                                        self.return_format, self.inherit_from)
+                                        self.return_format)
                 results[num] = message
         if self.pretty_print:
             pprint.pprint(message)
@@ -124,7 +123,7 @@ class AsyncResourceMethods(RESTfulAsyncTemplate):
                     continue
                 self.threads[src_name][m_name] = \
                   Process(target=target, name=m_name,
-                          args=(self.return_format, self.inherit_from,
+                          args=(self.return_format,
                                 self.pretty_print, self.reset,
                                 (src_name, m_name), self.queue))
                 self.threads[src_name][m_name].start()

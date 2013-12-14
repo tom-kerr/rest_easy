@@ -26,23 +26,22 @@ from lxml import etree
 
 class Convert(object):
 
-    def _convert_results_(self, results, output_format,
-                          return_format, inherit_from):
+    def _convert_results_(self, results, output_format, return_format):
         if output_format == 'json':
             if return_format.lower() == 'xml':
                 results = dicttoxml(json.loads(results))
-            elif return_format.lower() == 'object':
+            elif return_format.lower() == 'obj':
                 results = DynamicAccessor(json.loads(results))
             else:
                 results = json.loads(results)
         elif output_format == 'xml':
             if return_format.lower() == 'json':
                 results = json.loads(json.dumps(xmltodict.parse(results)))
-            elif return_format.lower() == 'object':
+            elif return_format.lower() == 'obj':
                 jsonresults = json.loads(json.dumps(xmltodict.parse(results)))
                 results = DynamicAccessor(jsonresults)
         elif output_format == 'javascript':
-            if return_format.lower() in ('json', 'xml', 'object'):
+            if return_format.lower() in ('json', 'xml', 'obj'):
                 print ('Cannot Convert \'JavaScript\' response to \'' +
                        return_format.lower() +'\'...returning \'JavaScript\'')
             pass
@@ -57,16 +56,16 @@ class DynamicAccessor(object):
 
     def _build_accessors_(self):
         if not isinstance(self._data_, list):
-            getby=False
+            hasgetby=False
             self._data_ = [self._data_,]
         else:
-            getby=True
+            hasgetby=True
             self._add_getby_func_('', self._data_)
         for d in self._data_:
             if isinstance(d, dict):
                 for item in d.items():
                     attr, data = item
-                    if not getby and isinstance(data, list) and \
+                    if not hasgetby and isinstance(data, list) and \
                       data and isinstance(data[0], dict):
                         self._add_getby_func_(attr, data)
                     self._add_get_func_(attr, data)
@@ -85,7 +84,7 @@ class DynamicAccessor(object):
                 return l
             elif isinstance(fdata, dict) and not self._is_flat_(fdata):
                 if len(fdata.keys()) == 1:
-                    for k,v in fdata.items():
+                    for v in fdata.values():
                         return v
                 else:
                     return DynamicAccessor(fdata)
@@ -110,7 +109,9 @@ class DynamicAccessor(object):
             instance._data_ = [instance._data_, ]
         if isinstance(data, list) and len (data) == 1:
             data = data[0]
-        if isinstance(data, dict):
+        if not isinstance(data, dict):
+            instance._data_.append(data)
+        else:
             newdata = {}
             for k,v in data.items():
                 for item in instance._data_:
@@ -127,8 +128,6 @@ class DynamicAccessor(object):
                             newdata[k].append(v)
             if newdata:
                 instance._data_ = newdata
-        else:
-            instance._data_.append(data)
         if hasattr(self, 'get'+attr):
             newinstance = deepcopy(instance)
             delattr(self, 'get'+attr)
@@ -138,11 +137,6 @@ class DynamicAccessor(object):
     def _add_getby_func_(self, attr, data):
         for item in data:
             for chattr, chdata in item.items():
-                if isinstance(chdata, dict):
-                    #print ('skip dict', chattr)
-                    continue
-                #elif isinstance(chdata, list):
-                #    continue
                 function = self._get_match_func_(chattr, data)
                 parent = self._format_attr_name_(attr)
                 child = self._format_attr_name_(chattr)
@@ -152,23 +146,52 @@ class DynamicAccessor(object):
         def function(value):
             matches = []
             for item in data:
-                if isinstance(item, dict):
-                    if attr in item:
-                        if value == item[attr]:
-                            matches.append(item)
-                        elif isinstance(item[attr], list):
-                            if value in item[attr]:
-                                matches.append(item)
-                            else:
-                                for i in item[attr]:
-                                    if isinstance(i, dict) and \
-                                      len(i.keys())==1:
-                                      for v in i.values():
-                                          if value == v or \
-                                            isinstance(v, list) and value in v:
-                                              matches.append(item)
+                if attr not in item:
+                    continue
+                if isinstance(item[attr], str):
+                    if self._match_str_(item[attr], value):
+                        matches.append(item)
+                elif isinstance(item[attr], list):
+                    if self._match_list_(item[attr], value):
+                        matches.append(item)
+                    else:
+                        for i in item[attr]:
+                            if isinstance(i, dict):
+                                if self._match_dict_(i, value):
+                                    matches.append(item)
+                elif isinstance(item[attr], dict):
+                    if self._match_dict_(item[attr], value):
+                        matches.append(item)
             return matches
         return function
+
+    def _match_str_(self, string, value):
+        if string == value:
+            return True
+        else:
+            return False
+
+    def _match_list_(self, lst, value):
+        if value in lst:
+            return True
+        else:
+            return False
+
+    def _match_dict_(self, dct, value):
+        if isinstance(value, dict):
+            for k,v in value.items():
+                if k in dct:
+                    if v == dct[k] or \
+                      isinstance(dct[k], list) and v in dct[k]:
+                        return True
+        else:
+            if len(dct.keys()) != 1:
+                raise LookupError('Too many fields; cannot disambiguate.')
+            for v in dct.values():
+                if value == v or \
+                  isinstance(v, list) and value in v:
+                    return True
+        return False
 
     def _format_attr_name_(self, attr):
         for num, i in enumerate(attr):

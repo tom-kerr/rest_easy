@@ -44,13 +44,13 @@ class AlternateInterface(object):
 
     Example:
 
-       RestEasy.submit('dpla', 'v2', 'apikey->xxxx:Items->searchIn->title->Dead Souls')
+       RestEasy.new_query('dpla', 'v2', 'apikey->xxxx:Items->searchIn->title->Dead Souls')
 
     or,
 
-       RestEasy.submit('dpla', 'v2', {'apiKey': 'xxxx',
-                                       'Items': {'searchIn':
-                                                 {'title': 'Dead Souls'}}})
+       RestEasy.new_query('dpla', 'v2', {'apiKey': 'xxxx',
+                                          'Items': {'searchIn':
+                                                    {'title': 'Dead Souls'}}})
     then,
 
        results = RestEasy.GET()
@@ -74,7 +74,7 @@ class AlternateInterface(object):
                                 'you must supply a Resource Method.')
         return self._resource_method_.get_query_string(reset=reset)
 
-    def submit(self, source, api, query):
+    def new_query(self, source, api, query):
         if self._resource_method_:
             self._resource_method_ = None
         root_obj, api_obj, query_elements = \
