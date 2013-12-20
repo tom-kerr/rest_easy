@@ -56,11 +56,17 @@ class DynamicAccessor(object):
 
     def _build_accessors_(self):
         if not isinstance(self._data_, list):
+            parent = False
             hasgetby=False
-            self._data_ = [self._data_,]
+            self._data_ = [self._data_, ]
+        elif isinstance(self._data_, list) and len(self._data_)==1:
+            parent=False
+            hasgetby=False
         else:
+            parent=True
             hasgetby=True
             self._add_getby_func_('', self._data_)
+
         for d in self._data_:
             if isinstance(d, dict):
                 for item in d.items():
@@ -68,35 +74,52 @@ class DynamicAccessor(object):
                     if not hasgetby and isinstance(data, list) and \
                       data and isinstance(data[0], dict):
                         self._add_getby_func_(attr, data)
-                    self._add_get_func_(attr, data)
+                        self._add_get_func_(attr, data, parent)
+                    else:
+                        self._add_get_func_(attr, data, parent)
             else:
-                raise NotImplemented()
+                raise NotImplementedError()
 
-    def _add_get_func_(self, attr, data):
+    def _add_get_func_(self, attr, data, parent=True):
         def function(raw=False):
             fdata = function._data_
             if raw:
                 return fdata
-            if isinstance(fdata, list) and not self._is_flat_(fdata):
-                l = []
-                for item in fdata:
-                    l.append(DynamicAccessor(item))
-                return l
-            elif isinstance(fdata, dict) and not self._is_flat_(fdata):
-                if len(fdata.keys()) == 1:
-                    for v in fdata.values():
-                        return v
-                else:
-                    return DynamicAccessor(fdata)
-            else:
-                return fdata
+            return self._get_formatted_data_(fdata)
         attr = self._format_attr_name_(attr)
         plural_attr = self._make_plural_(attr)
         if hasattr(self, 'get'+attr) or hasattr(self, 'get'+plural_attr):
             self._append_get_func_(attr, data)
         else:
+            if parent:
+                self._add_child_get_func_(data)
             function._data_ = data
             setattr(self, 'get'+attr, function)
+
+    def _get_formatted_data_(self, data):
+        if isinstance(data, list) and not self._is_flat_(data):
+            l = []
+            for item in data:
+                l.append(DynamicAccessor(item))
+            return l
+        elif isinstance(data, dict) and not self._is_flat_(data):
+            if len(data.keys()) == 1:
+                for v in data.values():
+                    return v
+            else:
+                return DynamicAccessor(data)
+        else:
+            return data
+
+    def _add_child_get_func_(self, data):
+        if isinstance(data, list):
+            for i in data:
+                if isinstance(i, dict):
+                    for a,d in i.items():
+                        self._add_get_func_(a,d, parent=False)
+        elif isinstance(data, dict):
+            for a,d in data.items():
+                self._add_get_func_(a,d, parent=False)
 
     def _append_get_func_(self, attr, data):
         try:
@@ -115,7 +138,12 @@ class DynamicAccessor(object):
             newdata = {}
             for k,v in data.items():
                 for item in instance._data_:
-                    if k in item:
+                    if k not in item:
+                        if not k in newdata:
+                            newdata[k] = [v,]
+                        else:
+                            newdata[k].append(v)
+                    elif k in item:
                         if not k in newdata:
                             newdata[k] = []
                         if not isinstance(item[k], list):
@@ -128,6 +156,7 @@ class DynamicAccessor(object):
                             newdata[k].append(v)
             if newdata:
                 instance._data_ = newdata
+
         if hasattr(self, 'get'+attr):
             newinstance = deepcopy(instance)
             delattr(self, 'get'+attr)
@@ -143,12 +172,12 @@ class DynamicAccessor(object):
                 setattr(self, 'get'+parent+'By'+child, deepcopy(function))
 
     def _get_match_func_(self, attr, data):
-        def function(value):
+        def function(value, raw=False):
             matches = []
             for item in data:
                 if attr not in item:
                     continue
-                if isinstance(item[attr], str):
+                if isinstance(item[attr], (str, int, float, bool)):
                     if self._match_str_(item[attr], value):
                         matches.append(item)
                 elif isinstance(item[attr], list):
@@ -162,7 +191,11 @@ class DynamicAccessor(object):
                 elif isinstance(item[attr], dict):
                     if self._match_dict_(item[attr], value):
                         matches.append(item)
-            return matches
+            #if not raw:
+            #matches = [self._get_formatted_data_(item) for item in matches]
+            if raw:
+                return matches
+            return DynamicAccessor(matches)
         return function
 
     def _match_str_(self, string, value):
@@ -207,6 +240,7 @@ class DynamicAccessor(object):
                 else:
                     attr += s[0].upper() + s[1:]
         attr = attr.replace('@', 'Arobase')
+        attr = attr.replace('#', 'Hash')
         return attr
 
     def _make_plural_(self, attr):
