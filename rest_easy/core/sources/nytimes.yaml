@@ -145,7 +145,7 @@ import nytimes.def
 
           facetField:
             +mode: P+K+V
-            +prefix:: 'facet_field'
+            +prefix: 'facet_field'
             +syntax:
               +multi: ','
             +children: 

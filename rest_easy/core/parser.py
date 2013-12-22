@@ -216,7 +216,7 @@ class Parser(EnforceRequirements):
                         json[k] = str(v)
         else:
             self._submitted_.add(func)
-            if func._value_ or True:
+            if func._value_:
                 if self.parent._input_format_ == 'key_value':
                     if 'K' not in mode.flags and 'MK' not in mode.flags:
                         if 'MV' in mode.flags and chain == syntax['+multi']:
@@ -236,7 +236,7 @@ class Parser(EnforceRequirements):
                 if self.parent._input_format_ == 'key_value':
                     string += '{}{}'.format(func._key_, chain)
                 elif self.parent._input_format_ == 'json':
-                    pass
+                    json[func._key_] = func._value_
 
         if self.parent._input_format_ == 'key_value':
             return string
