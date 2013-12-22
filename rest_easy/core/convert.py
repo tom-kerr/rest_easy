@@ -55,6 +55,7 @@ class DynamicAccessor(object):
         self._build_accessors_()
 
     def _build_accessors_(self):
+        _data = self._data_
         if isinstance(self._data_, list):
             parent = False
         elif isinstance(self._data_, dict):
@@ -62,14 +63,14 @@ class DynamicAccessor(object):
 
         if not isinstance(self._data_, list):
             hasgetby=False
-            self._data_ = [self._data_, ]
+            _data = [_data, ]
         elif isinstance(self._data_, list) and len(self._data_)==1:
             hasgetby=False
         else:
             hasgetby=True
-            self._add_getby_func_('', self._data_)
+            self._add_getby_func_('', _data)
 
-        for d in self._data_:
+        for d in _data:
             if isinstance(d, dict):
                 for item in d.items():
                     attr, data = item
@@ -99,7 +100,10 @@ class DynamicAccessor(object):
             if parent:
                 self._add_child_get_func_(data)
             function._data_ = data
-            setattr(self, 'get'+attr, function)
+            if isinstance(self._data_, list):
+                setattr(self, 'aggr'+plural_attr, function)
+            else:
+                setattr(self, 'get'+attr, function)
 
     def _get_formatted_data_(self, data):
         if isinstance(data, list):
