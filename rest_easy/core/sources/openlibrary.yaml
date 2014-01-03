@@ -51,7 +51,7 @@ import openlibrary.def
 
       #author_role:
       #  +mode: S+K+V
-      #  +prefix:: 'type=/type/author_role'
+      #  +prefix: 'type=/type/author_role'
       #  +children:
       #    author: *author
       #    role: *role

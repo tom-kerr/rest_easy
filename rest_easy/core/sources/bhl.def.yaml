@@ -9,61 +9,61 @@ barcode: &barcode
   
 ia: &ia
   <<: *std-ia
-  +prefix:: 
+  +prefix: 
     type: 'ia'
   +key: 'value'
 
 doi: &doi
   <<: *std-doi
-  +prefix:: 
+  +prefix: 
     type: 'doi'
   +key: 'value'
   
 oclc: &oclc
   <<: *std-oclc
-  +prefix:: 
+  +prefix: 
     type: 'oclc'
   +key: 'value'
   
 issn: &issn
   <<: *std-issn
-  +prefix:: 
+  +prefix: 
     type: 'issn'
   +key: 'value'
   
 isbn: &isbn
   <<: *std-isbn
-  +prefix:: 
+  +prefix: 
     type: 'isbn'
   +key: 'value'
 
 lccn: &lccn
   <<: *std-lccn
-  +prefix:: 
+  +prefix: 
     type: 'lccn'
   +key: 'value'
 
 ddc: &ddc
   <<: *std-ddc
-  +prefix:: 
+  +prefix: 
     type: 'ddc'
   +key: 'value'
 
 nal: &nal
   <<: *std-nal
-  +prefix:: 
+  +prefix: 
     type: 'nal'
   +key: 'value'
     
 nlm: &nlm
   <<: *std-nlm
-  +prefix:: 
+  +prefix: 
     type: 'nlm'
   +key: 'value'
 
 coden: &coden
   <<: *std-coden
-  +prefix:: 
+  +prefix: 
     type: 'coden'
   +key: 'value'
   
