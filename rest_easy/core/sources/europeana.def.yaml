@@ -48,5 +48,22 @@ rows: &rows
   +expected_value: *stdregex-int
 
 start: &start
-  +key: start
+  +key: 'start'
   +expected_value: *stdregex-int
+
+startIndex: &startindex
+  +key: 'startIndex'
+  +expected_value: '[1-9]+'
+
+count: &count
+  +key: 'count' 
+  +expected_value: *stdregex-int
+
+searchTerms: &searchterms
+  <<: *std-query
+  +key: 'searchTerms'
+
+recordId: &recordid
+  +mode: V
+  +key: Null
+  +expected_value: '^\/[0-9]+\/[A-Za-z0-9_]+$'

@@ -57,7 +57,6 @@ import europeana.def
           query: *std-query
           callback: *std-callback 
           profile: *profile
-
           qf:
             +mode: P+K+V
             +prefix: 'qf'
@@ -72,6 +71,44 @@ import europeana.def
               rights: *rights
               provider: *provider
               ugc: *ugc
-
           rows: *rows
           start: *start
+
+      Record: 
+        +http_method: GET
+        +path: '/api/v2/record{recordId}.json?{0}'
+        +input_format: key_value
+        +output_format: json
+        +requirements: 
+          +mandatory: [recordId]
+        +children:    
+          recordId: *recordid
+          callback: *std-callback 
+          profile: *profile
+
+      Suggestions: 
+        +http_method: GET
+        +path: '/api/v2/suggestions.json?{0}'
+        +input_format: key_value
+        +output_format: json
+        +requirements: 
+          +mandatory: [query]
+        +children:    
+          query: *std-query
+          callback: *std-callback 
+          profile: *profile
+
+      OpenSearch: 
+        +http_method: GET
+        +path: '/api/v2/opensearch.rss?{0}'
+        +input_format: key_value
+        +output_format: xml
+        +requirements: 
+          +mandatory: [searchTerms]
+        +children:    
+          searchTerms: *searchterms
+          count: *count          
+          #sort: not yet implemented by europeana
+          startIndex: *startindex
+
+
