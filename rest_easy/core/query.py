@@ -19,6 +19,7 @@ import pprint
 from copy import copy, deepcopy
 from time import sleep
 from multiprocessing import Process, Queue
+from queue import Empty
 import socket
 import ssl
 
@@ -78,7 +79,7 @@ class AsyncQueryTrees(RESTfulAsyncTemplate):
                 break
             try:
                 item = self.queue.get_nowait()
-            except:
+            except Empty:
                 sleep(1)
                 slept += 1
                 continue
@@ -119,7 +120,7 @@ class AsyncResourceMethods(RESTfulAsyncTemplate):
                 m_name = method._name_
                 try:
                     target = getattr(method, self.http_method)
-                except:
+                except Exception:
                     continue
                 self.threads[src_name][m_name] = \
                   Process(target=target, name=m_name,
@@ -136,7 +137,7 @@ class AsyncResourceMethods(RESTfulAsyncTemplate):
                 break
             try:
                 item = self.queue.get_nowait()
-            except:
+            except Empty:
                 sleep(1)
                 slept += 1
                 continue
