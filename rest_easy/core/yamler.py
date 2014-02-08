@@ -81,7 +81,7 @@ class Yamler(object):
             return yaml.load(total)
 
     def get_lines(self, source_file):
-        with open(source_file, 'r') as yamlfile:
+        with open(source_file, encoding='utf-8', mode='r') as yamlfile:
             lines = yamlfile.readlines()
             yamlfile.close()
         return lines

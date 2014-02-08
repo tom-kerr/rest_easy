@@ -29,16 +29,18 @@ class Convert(object):
     def _convert_results_(self, results, output_format, return_format):
         if output_format == 'json':
             if return_format.lower() == 'xml':
-                results = dicttoxml(json.loads(results))
+                results = dicttoxml(json.loads(results, encoding='utf-8'))
             elif return_format.lower() == 'obj':
-                results = DynamicAccessor(json.loads(results))
+                results = DynamicAccessor(json.loads(results, encoding='utf-8'))
             else:
-                results = json.loads(results)
+                results = json.loads(results, encoding='utf-8')
         elif output_format == 'xml':
             if return_format.lower() == 'json':
-                results = json.loads(json.dumps(xmltodict.parse(results)))
+                results = json.loads(json.dumps(xmltodict.parse(results)),
+                                     encoding='utf-8')
             elif return_format.lower() == 'obj':
-                jsonresults = json.loads(json.dumps(xmltodict.parse(results)))
+                jsonresults = json.loads(json.dumps(xmltodict.parse(results)),
+                                         encoding='utf-8')
                 results = DynamicAccessor(jsonresults)
         elif output_format == 'javascript':
             if return_format.lower() in ('json', 'xml', 'obj'):
