@@ -220,12 +220,11 @@ class HTTPMethods(Convert):
                 setattr(self, http_method, AsyncQueryTrees(self, http_method))
 
     def _get_query_components_(self, tree):
-        parser = Parser(self)
-        string = parser._parse_(tree)
+        parser = Parser(self)        
         host = self._super_getattr_('_hostname_')
         protocol = self._super_getattr_('_protocol_')
         port = self._super_getattr_('_port_')
-        path = self._path_.format(string)
+        path = parser._parse_(tree)
         return (host, protocol, port, path)
 
     def get_query_string(self, treenum=None, reset=False):

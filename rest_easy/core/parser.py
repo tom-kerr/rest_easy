@@ -45,12 +45,12 @@ class Parser(EnforceRequirements):
                 self._requirements_.add_requirements(r)
         self._submitted_ = self.parent._root_getattr_('_submitted_')[self.p_name]
         if self.parent._input_format_ == 'key_value':
-            string = str(self._parse_key_value_(tree))[:-1]
+            strings = self._parse_key_value_(tree)
+            path = self._format_with_path_(strings)
         elif self.parent._input_format_ == 'json':
-            string = str(json.dumps(self._parse_json_(tree))).replace(' ', '')
-        self._enforce_requirements_()
-        self._clean_path_string_()
-        return string
+            path = str(json.dumps(self._parse_json_(tree))).replace(' ', '')
+        self._enforce_requirements_()        
+        return path
 
     @staticmethod
     def _get_query_elements_(string):
@@ -76,12 +76,28 @@ class Parser(EnforceRequirements):
             if tokens[1] != '0':
                 self._tokens_.append(tokens[1])
 
-    def _clean_path_string_(self):
+    def _get_clean_path_string_(self):
+        path = self.parent._path_
         if self._tokens_:
             for token in self._tokens_:
                 if token and token != '0':
-                    self.parent._path_ = self.parent._path_.replace('{'+token+'}', '')
-            self.parent._path_ = self.parent._path_[:-1]
+                    path = path.replace('{'+token+'}', '')
+            path = path[:-1]
+        return path
+
+    def _format_with_path_(self, strings_dict):        
+        path = self._get_clean_path_string_()
+        for k,v in strings_dict.items():
+            strings_dict[k] = ''.join(v)
+        main = strings_dict['0']
+        del strings_dict['0']
+        if strings_dict:
+            path = path.format(main, **strings_dict)              
+        else:
+            path = path.format(main)
+        if not re.search('[a-zA-Z0-9]$', path):
+            path = path[:-1]
+        return path
 
     def _parse_json_(self, tree, has_scope=False, has_prefix=False):
         json = {}
@@ -126,7 +142,7 @@ class Parser(EnforceRequirements):
         return json
 
     def _parse_key_value_(self, tree, has_scope=False, has_prefix=False):
-        string = ''
+        strings = {'0': []}
         for k, item in tree.items():
             if type(item).__name__ == 'function':
                 #might be able to remove this, and this the parent reference
@@ -145,10 +161,16 @@ class Parser(EnforceRequirements):
             for num, func in enumerate(item['zfunctions']):
                 fcount = len(item['zfunctions'])
                 if isinstance(func, dict):
-                    item_string += self._parse_key_value_({func['parameter']: func},
-                                                          has_scope, has_prefix)
+                    for t, v in self._parse_key_value_({func['parameter']: func},
+                                                       has_scope, has_prefix).items():
+                        if t != '0':
+                            if t not in strings:
+                                strings[t] = v
+                            else:
+                                strings[t].extend(v)
+                        else:
+                            item_string += ''.join(v)
                 elif isinstance(func, tuple) or hasattr(func, '__call__'):
-
                     #hack
                     if isinstance(func, tuple):
                         f = func[0]
@@ -168,15 +190,16 @@ class Parser(EnforceRequirements):
                 else:
                     raise Exception('Invalid item found in ' + str(k) +
                                     '\'s zfunction list')
-            if k in self._tokens_:
-                self.parent._path_ = self.parent._path_.replace('{'+k+'}', item_string)
-                self._tokens_.remove(k)
-                if not self._tokens_:
-                    if self.parent._path_[-1:] != '}':
-                        self.parent._path_ = self.parent._path_[:-1]
-            else:
-                string += item_string
-        return string
+            if item_string:
+                if k in self._tokens_:
+                    if k not in strings:
+                        strings[k] = [item_string, ]
+                    else:
+                        strings[k].append(item_string)
+                    self._tokens_.remove(k)
+                else:
+                    strings['0'].append(item_string)
+        return strings
 
     def _parse_func_(self, num, fcount, func, syntax, mode,
                     has_scope=False, has_prefix=False):
