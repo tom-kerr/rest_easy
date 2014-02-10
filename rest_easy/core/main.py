@@ -15,8 +15,6 @@
 from __future__ import print_function
 
 import os
-from time import sleep
-from multiprocessing import Process, Queue
 
 from .source import SourceBuilder
 from .alt import AlternateInterface
