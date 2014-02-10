@@ -149,7 +149,7 @@ class DynamicAccessor(object):
         try:
             instance = getattr(self, 'get'+attr)
             nattr = attr
-        except:
+        except AttributeError:
             nattr = self._make_plural_(attr)
             instance = getattr(self, 'aggr'+nattr)
         if not isinstance(instance._data_, list):
