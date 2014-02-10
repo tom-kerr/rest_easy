@@ -87,8 +87,8 @@ class AlternateInterface(object):
     def _get_api_object_(self, source_object, api):
         try:
             api_obj = getattr(source_object, api)
-        except:
-            raise LookupError('Invalid API "' + str(api) + '"')
+        except AttributeError:
+            raise AttributeError('Invalid API "' + str(api) + '"')
         return api_obj
 
     def _assign_resource_method_(self, root_obj, method_obj):
@@ -122,8 +122,8 @@ class AlternateInterface(object):
     def _get_parameter_(self, source, api, api_obj, keyword):
         try:
             param = getattr(api_obj, keyword)
-        except:
-            raise LookupError('Could not find "' + str(keyword) + '"'+
-                              ' in "'+ str(source)+ '" API "' +
-                              str(api)+ '"')
+        except AttributeError:
+            raise AttributeError('Could not find "' + str(keyword) + '"'+
+                                 ' in "'+ str(source)+ '" API "' +
+                                 str(api)+ '"')
         return param
