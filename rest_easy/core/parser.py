@@ -94,8 +94,8 @@ class Parser(EnforceRequirements):
         if strings_dict:
             path = path.format(main, **strings_dict)              
         else:
-            path = path.format(main)
-        if not re.search('[a-zA-Z0-9]$', path):
+            path = path.format(main)    
+        while not re.search('[a-zA-Z0-9]$', path):
             path = path[:-1]
         return path
 
