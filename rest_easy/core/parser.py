@@ -36,6 +36,7 @@ class Parser(EnforceRequirements):
     def __init__(self, obj):
         self.parent = obj
         self.p_name = obj._name_
+        self.path = self.parent._path_        
         self._init_format_tokens_()
 
     def _parse_(self, tree):
@@ -74,15 +75,24 @@ class Parser(EnforceRequirements):
         self._tokens_ = []
         for tokens in tokensgen:
             if tokens[1] != '0':
-                self._tokens_.append(tokens[1])
+                if not re.search('[a-zA-Z0-9]$', tokens[1]):
+                    token = tokens[1][:-1]
+                    chain = tokens[1][-1]
+                    self.path = self.path.replace('{'+tokens[1]+'}', 
+                                                  '{'+token+'}')
+                else:
+                    token = tokens[1]
+                    chain = None
+                token_tuple = (token, chain)
+                self._tokens_.append(token_tuple)
 
     def _get_clean_path_string_(self):
-        path = self.parent._path_
+        path = self.path
         if self._tokens_:
-            for token in self._tokens_:
+            for token_tuple in self._tokens_:
+                token, chain = token_tuple
                 if token and token != '0':
                     path = path.replace('{'+token+'}', '')
-            path = path[:-1]
         return path
 
     def _format_with_path_(self, strings_dict):        
@@ -92,7 +102,7 @@ class Parser(EnforceRequirements):
         main = strings_dict['0']
         del strings_dict['0']
         if strings_dict:
-            path = path.format(main, **strings_dict)              
+            path = path.format(main, **strings_dict)
         else:
             path = path.format(main)    
         while not re.search('[a-zA-Z0-9]$', path):
@@ -190,15 +200,23 @@ class Parser(EnforceRequirements):
                 else:
                     raise Exception('Invalid item found in ' + str(k) +
                                     '\'s zfunction list')
+            rm_token = None
             if item_string:
-                if k in self._tokens_:
-                    if k not in strings:
-                        strings[k] = [item_string, ]
-                    else:
-                        strings[k].append(item_string)
-                    self._tokens_.remove(k)
-                else:
+                for tnum, token_tuple in enumerate(self._tokens_):
+                    token, chain = token_tuple
+                    if k == token:
+                        if chain:
+                            item_string += chain
+                        if k not in strings:
+                            strings[k] = [item_string, ]
+                        else:
+                            strings[k].append(item_string)
+                        rm_token = tnum
+                        break
+                if not rm_token and k not in strings:
                     strings['0'].append(item_string)
+                if rm_token is not None:
+                    del self._tokens_[rm_token]
         return strings
 
     def _parse_func_(self, num, fcount, func, syntax, mode,
