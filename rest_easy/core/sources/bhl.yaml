@@ -25,28 +25,27 @@ import bhl.def
 
 +children:
   v2:
-    +http_method: GET
-    +path: '/api2/httpquery.ashx?{0}'
-    +input_format: key_value
-    +output_format: xml
-    +requirements:
-      +mandatory: [apiKey]
-    +children:         
+    +children:
+      +requirements:
+        +mandatory: [apiKey]
+        
       apiKey: *apikey
 
-      authorSearch:
-        +mode: S+K+V
-        +scope: 
-          op: 'AuthorSearch'          
-        +children:
+      AuthorSearch:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=AuthorSearch&{0}'
+        +input_format: key_value
+        +output_format: xml
+        +children:         
           name: *name
 
-      bookSearch:
-        +mode: S+K+V
+      BookSearch:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=BookSearch&{0}'
+        +input_format: key_value
+        +output_format: xml
         +requirements: 
           +at_least_one: [title, lname, collectionid]
-        +scope: 
-          op: 'BookSearch'          
         +children:
           title: *title
           lname: *lname
@@ -57,24 +56,27 @@ import bhl.def
           language: *language
           collectionId: *collectionid
 
-      getAuthorParts:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetAuthorParts'          
+      GetAuthorParts:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetAuthorParts&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           creatorId: *creatorid
 
-      getAuthorTitles:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetAuthorTitles'          
+      GetAuthorTitles:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetAuthorTitles&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           creatorId: *creatorid  
 
-      getCollections: 
-        +mode: S+K+V
-        +scope: 
-          op: 'GetCollections'          
+      GetCollections: 
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetCollections&{0}'
+        +input_format: key_value
+        +output_format: xml
         +this: *getcollections
 
       getItemByIdentifier:
