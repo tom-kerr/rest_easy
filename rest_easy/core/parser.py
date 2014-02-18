@@ -154,9 +154,9 @@ class Parser(EnforceRequirements):
     def _parse_key_value_(self, tree, has_scope=False, has_prefix=False):
         strings = {'0': []}
         for k, item in tree.items():
-            if type(item).__name__ == 'function':
+            #if type(item).__name__ == 'function':
                 #might be able to remove this, and this the parent reference
-                item = self.parent._get_state_(k, item)
+            #    item = self.parent._get_state_(k, item)
             item_string = ''
             requirements = self._retrieve_requirements_(item)
             self._requirements_.add_requirements(requirements)

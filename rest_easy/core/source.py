@@ -22,7 +22,7 @@ from copy import deepcopy
 
 from .help import Helper
 from .yamler import Yamler
-from .parameter import Source
+from .parameter import Source, CreateNode
 
 
 class SourceBuilder(Helper):
@@ -74,14 +74,8 @@ class SourceBuilder(Helper):
     @staticmethod
     def _parse_data_(parent_obj, source, source_data):
         """Create and return a Source instance."""
-        new_source = Source(parent=parent_obj,
-                            name=source,
-                            data_dict=source_data)
-        for kw, data in source_data['+children'].items():
-            if '+http_method' in data:
-                new_source._is_root_ = True
-                new_source._init_query_structs_()
-                new_source._add_child_(kw, data)
-            else:
-                new_source._add_api_(kw, data)
+        dct = {'parent': parent_obj,
+               'name': source,
+               'data_dict': source_data}
+        new_source = CreateNode('Source', (Source, ), dct)(**dct)
         return new_source

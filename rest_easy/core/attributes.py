@@ -20,8 +20,8 @@ import pprint
 from .requirements import Requirements
 
 class BaseAttributes(object):
-    """Verify the existence of and/or add attributes from
-    source/api/method/property data.
+    """ Verify the existence of and/or add attributes from
+        source/api/method/property data.
     """
     def __init__(self, attr_add=None, attr_check=None, data=None):
         if attr_add:
@@ -32,37 +32,16 @@ class BaseAttributes(object):
     def __add_attributes(self, attributes, data):
         for attr in attributes:
             if attr not in data:
-                raise LookupError('Failed to find required attribute "'+attr+'".')
+                raise LookupError('Failed to find required attribute "'+attr+
+                                  '" for object ' + self._name_)
             else:
                 setattr(self, '_'+attr.lstrip('+')+'_', data[attr])
 
     def __check_attributes(self, attributes, data):
         for attr in attributes:
             if attr not in data:
-                raise LookupError('Failed to find required attribute "'+attr+'".')
-
-
-class Callable(object):
-    """When inherited, allows the object's children to be accessed by calling
-    it with a child's name.
-
-    For example, the two are equivelent:
-
-        dpla.v2
-        dpla('v2') #using __call__
-    """
-    def __call__(self, *args):
-        if not args:
-            raise Exception('Too few arguments.')
-        if len(args) == 1:
-            kw = args[0]
-            return getattr(self, kw)
-        elif len(args) == 2:
-            kw, value = args
-            attr = getattr(self, kw)
-            attr(value)
-        else:
-            raise Exception('Too many arguments.')
+                raise LookupError('Failed to find required attribute "'+attr+
+                                  '" for object ' + self._name_)
 
 
 class Aspects(object):
@@ -168,12 +147,12 @@ class Aspects(object):
             return None
 
     def _parse_mode_(self, data):
-        if not data:
+        if data is None:
             return 'K+V'
-        if '+mode' in data:
+        elif '+mode' in data:
             mode_string = data['+mode']
         else:
-            mode_string = 'K+V'
+            data['+mode'] = mode_string = 'K+V'
         mode_flags = mode_string.split('+')
         return type('mode', (), {'string': mode_string,
                                  'flags': mode_flags})()

@@ -276,10 +276,9 @@ class QueryTree(object):
                         for t in tree:
                             if k not in t:
                                 t[k] = v
-
         else:
             self._parent_._add_to_query_tree_(r_method, self._name_, child_kw,
-                                              function, state, rset)
+                                              function, state, rset, make_global)
             return
 
     #holy shit, refactor this unintelligible nonsense.
