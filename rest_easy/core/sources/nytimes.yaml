@@ -166,4 +166,23 @@ import nytimes.def
               facetFilter: *facetfilter 
               callback: *std-callback
 
+      bestsellers:        
+        +requirements:
+          +mandatory: [apiKey]
+        +children:
+          apiKey: *apikey
+
+          Lists:
+            +http_method: GET
+            +path: '/svc/books/v2/lists/{date/}{listName}{responseFormat}?{0}'
+            +input_format: key_value
+            +output_format: json
+            +requirements:
+              +mandatory: [listName, responseFormat]
+            +children:
+              listName: *listname
+              date: *date
+              responseFormat: *responseformat
+              sortBy: *sortby
+              sortOrder: *sortorder
               

@@ -150,6 +150,14 @@ sort: &sort
   +key: 'sort'
   +expected_value: '^(newest|oldest)$' 
 
+lists_sort_by: &sortby
+  +key: 'sort-by'
+  +expected_value: '^(bestsellers-date|date|isbn|list|list-name|published-date|rank|rank-last-week|weeks-on-list)$'
+
+sort_order: &sortorder
+  +key: 'sort-order'
+  +expected_value: '^(ASC|DESC)$'
+
 snippet: &snippet
   +key: 'snippet'
   +expected_value: Null
@@ -193,4 +201,14 @@ hl: &hl
 facet_filter: &facetfilter
   +key: 'facet_filter'
   +expected_value: '^(true|false)$'
+
+listName: &listname
+  +mode: V
+  +key: Null
+  +expected_value: str
+
+date: &date
+  +mode: V
+  +key: Null
+  +expected_value: *stdregex-yyyymmdd
 
