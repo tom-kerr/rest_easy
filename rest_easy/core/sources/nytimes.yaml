@@ -12,158 +12,158 @@ import nytimes.def
 +port: 80
 
 +children:
-  articles:
+  v2: 
     +children:
-      v2:                    
-        +http_method: GET
-        +path: '/svc/search/v2/articlesearch{responseFormat}?{0}'
-        +input_format: key_value
-        +output_format: json
-        +requirements:
-          +mandatory: [apiKey, responseFormat]
+      articles:
         +children:
-          apiKey: *apikey
-
-          responseFormat:
-            +mode: V
-            +this: *responseformat
-
-          query: *std-q
-
-          filteredQuery:
-            +mode: P+MK+V
-            +prefix: 'fq'          
-            +syntax: 
-              +args: ':'
-            +this: *filteredquery
+          Search:
+            +http_method: GET
+            +path: '/svc/search/v2/articlesearch{responseFormat}?{0}'
+            +input_format: key_value
+            +output_format: json
+            +requirements:
+              +mandatory: [apiKey, responseFormat]
             +children:
-              body: 
-                <<: *body
-                +children:
-                  search: *body-search 
-              creative_works: 
-                <<: *creativeworks
-                +children:
-                  contains: *creativeworks-contains       
-              day_of_week: *dayofweek
-              document_type: *documenttype 
-              glocations: 
-                <<: *glocations
-                +children:
-                  contains: *glocations-contains     
-              headline: 
-                <<: *headline
-                +children:
-                  search: *headline-search 
-              kicker: 
-                <<: *kicker
-                +children:
-                  contains: *kicker-contains 
-              news_desk: 
-                <<: *newsdesk
-                +children:
-                  contains: *newsdesk-contains
-              organizations:
-                +this: *organizations
-                +children:
-                  contains: *organizations-contains
-              persons:
-                +this: *persons
-                +children:
-                  contains: *persons-contains
-              pub_date: *pubdate
-              pub_year: *pubyear
-              secpg: *secpg
-              source:
-                +this: *source
-                +children:
-                  contains: *source-contains 
-              subject:
-                +this: *subject
-                +children:
-                  contains: *subject-contains
-              section_name:
-                +this: *sectionname
-                +children:
-                  contains: *sectionname-contains
-              type_of_material:
-                +this: *typeofmaterial
-                +children:
-                  contains: *typeofmaterial-contains
-              web_url: *weburl
-              word_count: *wordcount
+              apiKey: *apikey
+              responseFormat: *responseformat
+              query: *std-q
 
-          date: 
-            +children:
-              begin: *begindate
-              end: *enddate
+              filteredQuery:
+                +mode: P+MK+V
+                +prefix: 'fq'          
+                +syntax: 
+                  +args: ':'
+                +this: *filteredquery
+                +children:
+                  body: 
+                    <<: *body
+                    +children:
+                      search: *body-search 
+                  creativeWorks: 
+                    <<: *creativeworks
+                    +children:
+                      contains: *creativeworks-contains       
+                  dayOfWeek: *dayofweek
+                  documentType: *documenttype 
+                  glocations: 
+                    <<: *glocations
+                    +children:
+                      contains: *glocations-contains     
+                  headline: 
+                    <<: *headline
+                    +children:
+                      search: *headline-search 
+                  kicker: 
+                    <<: *kicker
+                    +children:
+                      contains: *kicker-contains 
+                  newsDesk: 
+                    <<: *newsdesk
+                    +children:
+                      contains: *newsdesk-contains
+                  organizations:
+                    +this: *organizations
+                    +children:
+                      contains: *organizations-contains
+                  persons:
+                    +this: *persons
+                    +children:
+                      contains: *persons-contains
+                  pubDate: *pubdate
+                  pubYear: *pubyear
+                  secpg: *secpg
+                  source:
+                    +this: *source
+                    +children:
+                      contains: *source-contains 
+                  subject:
+                    +this: *subject
+                    +children:
+                      contains: *subject-contains
+                  sectionName:
+                    +this: *sectionname
+                    +children:
+                      contains: *sectionname-contains
+                  typeOfMaterial:
+                    +this: *typeofmaterial
+                    +children:
+                      contains: *typeofmaterial-contains
+                  webUrl: *weburl
+                  wordCount: *wordcount
 
-          sort: *sort
+              date: 
+                +children:
+                  begin: *begindate
+                  end: *enddate
 
-          fl: 
-            +mode: P+MK
-            +prefix: 'fl'
-            +syntax:
-              +multi: ','
-            +children: 
-              web_url: 
-                <<: *weburl
-                +expected_value: Null
-              snippet: *snippet
-              lead_paragraph: *leadparagraph
-              abstract: *abstract
-              print_page: *printpage
-              blog: *blog
-              source:
-                <<: *source
-                +expected_value: Null
-              multimedia: *multimedia
-              headline: 
-                <<: *headline
-                +expected_value: Null
-              keywords: *keywords
-              pub_date: 
-                <<: *pubdate
-                +expected_value: Null
-              document_type: 
-                <<: *documenttype
-                +expected_value: Null
-              news_desk: 
-                <<: *newsdesk
-                +expected_value: Null
-              byline: *byline
-              type_of_material:
-                <<: *typeofmaterial
-                +expected_value: Null
-              '@id': *-id
-              word_count: 
-                <<: *wordcount
-                +expected_value: Null
+              sort: *sort
 
-          hl: *hl
-          page: *std-page
+              fl: 
+                +mode: P+MK
+                +prefix: 'fl'
+                +syntax:
+                  +multi: ','
+                +children: 
+                  webUrl: 
+                    <<: *weburl
+                    +expected_value: Null
+                  snippet: *snippet
+                  leadParagraph: *leadparagraph
+                  abstract: *abstract
+                  printPage: *printpage
+                  blog: *blog
+                  source:
+                    <<: *source
+                    +expected_value: Null
+                  multimedia: *multimedia
+                  headline: 
+                    <<: *headline
+                    +expected_value: Null
+                  keywords: *keywords
+                  pubDate: 
+                    <<: *pubdate
+                    +expected_value: Null
+                  documentType: 
+                    <<: *documenttype
+                    +expected_value: Null
+                  newsDesk: 
+                    <<: *newsdesk
+                    +expected_value: Null
+                  byline: *byline
+                  typeOfMaterial:
+                    <<: *typeofmaterial
+                    +expected_value: Null
+                  '@id': *-id
+                  wordCount: 
+                    <<: *wordcount
+                    +expected_value: Null
 
-          facetField:
-            +mode: P+K+V
-            +prefix: 'facet_field'
-            +syntax:
-              +multi: ','
-            +children: 
-              section_name: 
-                <<: *sectionname
-                +expected_value: Null
-              document_type:
-                <<: *documenttype
-                +expected_value: Null
-              type_of_material:
-                <<: *typeofmaterial
-                +expected_value: Null
-              source: 
-                <<: *source
-                +expected_value: Null
-              day_of_week: 
-                <<: *dayofweek
-                +expected_value: Null
+              hl: *hl
+              page: *std-page
 
-          facetFilter: *facetfilter 
-          callback: *std-callback
+              facetField:
+                +mode: P+K+V
+                +prefix: 'facet_field'
+                +syntax:
+                  +multi: ','
+                +children: 
+                  sectionName: 
+                    <<: *sectionname
+                    +expected_value: Null
+                  documentType:
+                    <<: *documenttype
+                    +expected_value: Null
+                  typeOfMaterial:
+                    <<: *typeofmaterial
+                    +expected_value: Null
+                  source: 
+                    <<: *source
+                    +expected_value: Null
+                  dayOfWeek: 
+                    <<: *dayofweek
+                    +expected_value: Null
+
+              facetFilter: *facetfilter 
+              callback: *std-callback
+
+              

@@ -7,6 +7,7 @@ api+key: &apikey
 responseformat: &responseformat
   +key: Null
   +expected_value: '(.json|.jsonp)'
+  +mode: V
 
 filtered_query: &filteredquery
   +key: ''
