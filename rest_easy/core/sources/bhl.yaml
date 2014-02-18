@@ -79,83 +79,93 @@ import bhl.def
         +output_format: xml
         +this: *getcollections
 
-      getItemByIdentifier:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetItemByIdentifier'          
+      GetItemByIdentifier:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetItemByIdentifier&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:                
           barcode: *barcode
           ia: *ia
 
-      getItemMetadata:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetItemMetadata'          
+      GetItemMetadata:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetItemMetadata&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           itemId: *itemid
           pages: *pages
           ocr: *ocr
           parts: *parts            
 
-      getItemPages:
-        +mode: S+K+V
+      GetItemPages:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetItemPages&{0}'
+        +input_format: key_value
+        +output_format: xml
         +requirements:
-          +mandatory: [itemId]              
-        +scope: 
-          op: 'GetItemPages'          
+          +mandatory: [itemId] 
         +children:
           itemId: *itemid
           ocr: *ocr
 
-      getItemParts:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetItemParts'          
+      GetItemParts:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetItemParts&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           itemId: *itemid
 
-      getLanguages:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetLanguages'          
+      GetLanguages:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetLanguages&{0}'
+        +input_format: key_value
+        +output_format: xml
         +this: *getlanguages
 
-      getPageMetadata:
-        +mode: S+K+V
+      GetPageMetadata:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetPageMetadata&{0}'
+        +input_format: key_value
+        +output_format: xml
         +requirements: 
           +mandatory: [pageId]
-        +scope: 
-          op: 'GetPageMetadata'          
         +children:
           pageId: *pageid
           ocr: *ocr
           names: *names  
 
-      getPageNames:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetPageNames'          
+      GetPageNames:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetPageNames&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           pageId: *pageid
 
-      getPageOcrText:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetPageOcrText'          
+      GetPageOcrText:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetPageOcrText&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           pageId: *pageid
 
-      getPartBibTeX:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetPartBibTeX'          
+      GetPartBibTeX:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetPartBibTeX&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           partId: *partid
 
-      getPartByIdentifier:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetPartByIdentifier'          
+      GetPartByIdentifier:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetPartByIdentifier&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           doi: *doi
           oclc: *oclc
@@ -167,52 +177,59 @@ import bhl.def
           nlm: *nlm
           coden: *coden
 
-      getPartEndNote:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetPartEndNote'          
+      GetPartEndNote:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetPartEndNote&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           partId: *partid
 
-      getPartMetadata:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetPartMetadata'          
+      GetPartMetadata:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetPartMetadata&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           partId: *partid
 
-      getPartNames:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetPartNames'          
+      GetPartNames:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetPartNames&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           partId: *partid
 
-      getSubjectParts:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetSubjectParts'          
+      GetSubjectParts:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetSubjectParts&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           subject: *subject
 
-      getSubjectTitles:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetSubjectTitles'          
+      GetSubjectTitles:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetSubjectTitles&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           subject: *subject
 
-      getTitleBibTex:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetTitleBibTex'          
+      GetTitleBibTex:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetTitleBibTeX&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           titleId: *titleid
 
-      getTitleByIdentifier:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetTitleByIdentifier'          
+      GetTitleByIdentifier:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetTitleByIdentifier&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           doi: *doi
           oclc: *oclc
@@ -224,76 +241,86 @@ import bhl.def
           nlm: *nlm
           coden: *coden
 
-      getTitleEndNote:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetTitleEndNote'          
+      GetTitleEndNote:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetTitleEndNote&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           titleId: *titleid
 
-      getTitleItems:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetTitleItems'          
+      GetTitleItems:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetTitleItems&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           titleId: *titleid
 
-      getTitleMetadata:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetTitleMetadata'          
+      GetTitleMetadata:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetTitleMetadata&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           titleId: *titleid
           items: *items
 
-      getUnpublishedItems:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetUnpublishedItems'          
+      GetUnpublishedItems:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetUnpublishedItems&{0}'
+        +input_format: key_value
+        +output_format: xml
         +this: *getunpublisheditems
 
-      getUnpublishedParts:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetUnpublishedParts'          
+      GetUnpublishedParts:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetUnpublishedParts&{0}'
+        +input_format: key_value
+        +output_format: xml
         +this: *getunpublishedparts
 
-      getUnpublishedTitles:
-        +mode: S+K+V
-        +scope: 
-          op: 'GetUnpublishedTitles'          
+      GetUnpublishedTitles:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=GetUnpublishedTitles&{0}'
+        +input_format: key_value
+        +output_format: xml
         +this: *getunpublishedtitles
 
-      nameCount:
-        +mode: S+K+V
-        +scope: 
-          op: 'NameCount'          
+      NameCount:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=NameCount&{0}'
+        +input_format: key_value
+        +output_format: xml
         +this: *namecount
         +children:
           startDate: *startdate
           endDate: *enddate
 
-      nameList:
-        +mode: S+K+V
-        +scope: 
-          op: 'NameList'          
+      NameList:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=NameList&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           startRow: *startrow
           batchSize: *batchsize
           startDate: *startdate
           endDate: *enddate
 
-      nameSearch:
-        +mode: S+K+V
-        +scope: 
-          op: 'NameSearch'          
+      NameSearch:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=NameSearch&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           name: *name
 
-      partSearch:
-        +mode: S+K+V
-        +scope: 
-          op: 'PartSearch'          
+      PartSearch:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=PartSearch&{0}'
+        +input_format: key_value
+        +output_format: xml
         +requirements:
           +at_least_one: [title, author]
         +children:
@@ -305,17 +332,19 @@ import bhl.def
           series: *series
           issue: *issue
 
-      subjectSearch:
-        +mode: S+K+V
-        +scope: 
-          op: 'SubjectSearch'          
+      SubjectSearch:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=SubjectSearch&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           subject: *subject
 
-      titleSearchSimple:
-        +mode: S+K+V
-        +scope: 
-          op: 'TitleSearchSimple'
+      TitleSearchSimple:
+        +http_method: GET
+        +path: '/api2/httpquery.ashx?op=TitleSearchSimple&{0}'
+        +input_format: key_value
+        +output_format: xml
         +children:
           title: *title
 
