@@ -15,7 +15,11 @@ import nytimes.def
   v2: 
     +children:
       articles:
+        +requirements:
+          +mandatory: [apiKey]
         +children:
+          apiKey: *apikey
+
           Search:
             +http_method: GET
             +path: '/svc/search/v2/articlesearch{responseFormat}?{0}'
@@ -24,7 +28,6 @@ import nytimes.def
             +requirements:
               +mandatory: [apiKey, responseFormat]
             +children:
-              apiKey: *apikey
               responseFormat: *responseformat
               query: *std-q
 
@@ -164,7 +167,7 @@ import nytimes.def
                     +expected_value: Null
 
               facetFilter: *facetfilter 
-              callback: *std-callback
+              callback: *callback
 
       bestsellers:        
         +requirements:

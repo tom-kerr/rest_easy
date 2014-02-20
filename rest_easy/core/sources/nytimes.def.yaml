@@ -202,6 +202,10 @@ facet_filter: &facetfilter
   +key: 'facet_filter'
   +expected_value: '^(true|false)$'
 
+callback: &callback
+  +key: 'callback=svc_search_v2_articlesearch'
+  +expected_value: Null
+
 listName: &listname
   +mode: V
   +key: Null
