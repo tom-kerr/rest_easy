@@ -20,19 +20,16 @@ import librarything.def
   webservices:
     +children:
       v1.1:
-        +http_method: GET
-        +path: '/services/rest/1.1/?{0}'
-        +input_format: key_value
-        +output_format: xml
         +requirements:
           +mandatory: [apiKey]
         +children: 
           apiKey: *apikey
 
-          getWork: 
-            +mode: S+K+V
-            +scope: 
-              method: 'librarything.ck.getwork'
+          GetWork: 
+            +http_method: GET
+            +path: '/services/rest/1.1/?method=librarything.ck.getwork&{0}'
+            +input_format: key_value
+            +output_format: xml
             +requirements:
               +at_least_one: [id, isbn, lccn, oclc, name]
             +children:
@@ -42,10 +39,11 @@ import librarything.def
               oclc: *oclc
               name: *name
 
-          getAuthor:
-            +mode: S+K+V
-            +scope: 
-              method: 'librarything.ck.getauthor'
+          GetAuthor:
+            +http_method: GET
+            +path: '/services/rest/1.1/?method=librarything.ck.getauthor&{0}'
+            +input_format: key_value
+            +output_format: xml
             +requirements:
               +at_least_one: [id, authorCode, name]
             +children:
@@ -53,19 +51,21 @@ import librarything.def
               authorCode: *authorcode
               name: *name
 
-          getVenue:
-            +mode: S+K+V
-            +scope: 
-              method: 'librarything.local.getvenue'
+          GetVenue:
+            +http_method: GET
+            +path: '/services/rest/1.1/?method=librarything.local.getvenue&{0}'
+            +input_format: key_value
+            +output_format: xml
             +requirements:
               +mandatory: [id]
             +children:
               id: *id
 
-          getVenuesNear:
-            +mode: S+K+V
-            +scope: 
-              method: 'librarything.local.getvenuesnear'
+          GetVenuesNear:
+            +http_method: GET
+            +path: '/services/rest/1.1/?method=librarything.local.getvenuesnear&{0}'
+            +input_format: key_value
+            +output_format: xml
             +requirements: 
               +at_least_one: [latlon, lat, lon, id , place]
             +children:
@@ -78,10 +78,11 @@ import librarything.def
               measure: *measure
               venueType: *venuetype
 
-          searchVenues:
-            +mode: S+K+V
-            +scope: 
-              method: 'librarything.local.searchvenues'
+          SearchVenues:
+            +http_method: GET
+            +path: '/services/rest/1.1/?method=librarything.local.searchvenues&{0}'
+            +input_format: key_value
+            +output_format: xml
             +requirements:
               +mandatory: [q]
             +children:
@@ -92,10 +93,11 @@ import librarything.def
               centeronq: *centeronq
               measure: *measure
 
-          getEventsNear:
-            +mode: S+K+V
-            +scope: 
-              method: 'librarything.local.geteventsnear'
+          GetEventsNear:
+            +http_method: GET
+            +path: '/services/rest/1.1/?method=librarything.local.geteventsnear&{0}'
+            +input_format: key_value
+            +output_format: xml
             +requirements:
               +mandatory: [timestamp]
               +at_least_one: [latlon, lat, lon, venue, place, 
@@ -112,10 +114,11 @@ import librarything.def
               days: *days
               limit: *limit
               
-          searchEvents:
-            +mode: S+K+V
-            +scope: 
-              method: 'librarything.local.searchevents'
+          SearchEvents:
+            +http_method: GET
+            +path: '/services/rest/1.1/?method=librarything.local.searchevents&{0}'
+            +input_format: key_value
+            +output_format: xml
             +requirements:
               +mandatory: [q]
             +children:
