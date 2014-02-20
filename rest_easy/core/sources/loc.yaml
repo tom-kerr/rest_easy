@@ -20,21 +20,24 @@ import loc.def
   sru:
     +children:
       v1.1:
-        +http_method: GET
-        +path: '/voyager?version=1.1&operation=searchRetrieve&{0}'
-        +input_format: key_value
-        +output_format: xml
-        +requirements: 
-          +mandatory: [query]
         +children:
-          query: *query               
-          startRecord: *startrecord               
-          maximumRecords: *maximumrecords
-          recordPacking: *recordpacking
-          recordSchema: *recordschema               
-          recordXPath: *recordxpath               
-          sortKeys: *sortkeys               
-          resultSetTTL: *resultsetttl               
-          stylesheet: *stylesheet               
-          extraRequestData: *extrarequestdata
+
+          SearchRetrieve:
+            +http_method: GET
+            +path: '/voyager?version=1.1&operation=searchRetrieve&{0}'
+            +input_format: key_value
+            +output_format: xml
+            +requirements: 
+              +mandatory: [query]
+            +children:
+              query: *query               
+              startRecord: *startrecord               
+              maximumRecords: *maximumrecords
+              recordPacking: *recordpacking
+              recordSchema: *recordschema               
+              recordXPath: *recordxpath               
+              sortKeys: *sortkeys               
+              resultSetTTL: *resultsetttl               
+              stylesheet: *stylesheet               
+              extraRequestData: *extrarequestdata
 
