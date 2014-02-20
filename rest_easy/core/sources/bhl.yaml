@@ -74,7 +74,7 @@ import bhl.def
 
       GetCollections: 
         +http_method: GET
-        +path: '/api2/httpquery.ashx?op=GetCollections&{0}'
+        +path: '/api2/httpquery.ashx?op={GetCollections}{0}'
         +input_format: key_value
         +output_format: xml
         +this: *getcollections
@@ -120,7 +120,7 @@ import bhl.def
 
       GetLanguages:
         +http_method: GET
-        +path: '/api2/httpquery.ashx?op=GetLanguages&{0}'
+        +path: '/api2/httpquery.ashx?op={GetLanguages}{0}'
         +input_format: key_value
         +output_format: xml
         +this: *getlanguages
@@ -268,28 +268,28 @@ import bhl.def
 
       GetUnpublishedItems:
         +http_method: GET
-        +path: '/api2/httpquery.ashx?op=GetUnpublishedItems&{0}'
+        +path: '/api2/httpquery.ashx?op={GetUnpublishedItems}{0}'
         +input_format: key_value
         +output_format: xml
         +this: *getunpublisheditems
 
       GetUnpublishedParts:
         +http_method: GET
-        +path: '/api2/httpquery.ashx?op=GetUnpublishedParts&{0}'
+        +path: '/api2/httpquery.ashx?op={GetUnpublishedParts}{0}'
         +input_format: key_value
         +output_format: xml
         +this: *getunpublishedparts
 
       GetUnpublishedTitles:
         +http_method: GET
-        +path: '/api2/httpquery.ashx?op=GetUnpublishedTitles&{0}'
+        +path: '/api2/httpquery.ashx?op={GetUnpublishedTitles}{0}'
         +input_format: key_value
         +output_format: xml
         +this: *getunpublishedtitles
 
       NameCount:
         +http_method: GET
-        +path: '/api2/httpquery.ashx?op=NameCount&{0}'
+        +path: '/api2/httpquery.ashx?op={NameCount}{0}'
         +input_format: key_value
         +output_format: xml
         +this: *namecount
