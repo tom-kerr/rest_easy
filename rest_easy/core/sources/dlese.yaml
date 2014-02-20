@@ -34,15 +34,13 @@ import dlese.def
   ddsws:
     +children:
       v1.1:
-        +http_method: GET
-        +path: '/dds/services/ddsws1-1?{0}'
-        +input_format: key_value
-        +output_format: xml
         +children:    
+
           Search:
-            +mode: S+K+V
-            +scope:
-              verb: 'Search'
+            +http_method: GET
+            +path: '/dds/services/ddsws1-1?verb=Search&{0}'
+            +input_format: key_value
+            +output_format: xml
             +requirements:
               +mandatory: 
                 [startingOffset,
@@ -82,9 +80,10 @@ import dlese.def
               sortDescendingBy: *sortdescby
 
           UserSearch:
-            +mode: S+K+V
-            +scope: 
-              verb: 'UserSearch'
+            +http_method: GET
+            +path: '/dds/services/ddsws1-1?verb=UserSearch&{0}'
+            +input_format: key_value
+            +output_format: xml
             +requirements:
               +mandatory: [s,n]
               +all_or_none:
@@ -112,9 +111,10 @@ import dlese.def
               client: *client
 
           GetRecord:
-            +mode: S+K+V
-            +scope: 
-              verb: 'GetRecord'
+            +http_method: GET
+            +path: '/dds/services/ddsws1-1?verb=GetRecord&{0}'
+            +input_format: key_value
+            +output_format: xml
             +requirements:
               +mandatory: [id]
             +children:
@@ -124,70 +124,80 @@ import dlese.def
               so: *so
 
           ListFields:
-            +mode: S+K+V
-            +scope: 
-              verb: 'ListFields'
+            +http_method: GET
+            +path: '/dds/services/ddsws1-1?verb={ListFields}{0}'
+            +input_format: key_value
+            +output_format: xml
             +this: *listfields
 
           ListTerms:
-            +mode: S+K+V
-            +scope: 
-              verb: 'ListTerms'
+            +http_method: GET
+            +path: '/dds/services/ddsws1-1?verb=ListTerms&{0}'
+            +input_format: key_value
+            +output_format: xml
             +requirements:
               +mandatory: [field]
             +children: 
               field: *field
 
           ListCollections:
-            +mode: S+K+V
-            +scope: 
-              verb: 'ListCollections'
+            +http_method: GET
+            +path: '/dds/services/ddsws1-1?verb={ListCollections}{0}'
+            +input_format: key_value
+            +output_format: xml
             +this: *listcollections
 
           ListGradeRanges:
-            +mode: S+K+V
-            +scope: 
-              verb: 'ListGradeRanges'
+            +http_method: GET
+            +path: '/dds/services/ddsws1-1?verb={ListGradeRanges}{0}'
+            +input_format: key_value
+            +output_format: xml
             +this: *listgraderanges
 
           ListSubjects:
-            +mode: S+K+V
-            +scope: 
-              verb: 'ListSubjects'
+            +http_method: GET
+            +path: '/dds/services/ddsws1-1?verb={ListSubjects}{0}'
+            +input_format: key_value
+            +output_format: xml
             +this: *listsubjects
 
           ListResourceTypes:
-            +mode: S+K+V
-            +scope: 
-              verb: 'ListResourceTypes'
+            +http_method: GET
+            +path: '/dds/services/ddsws1-1?verb={ListResourceTypes}{0}'
+            +input_format: key_value
+            +output_format: xml
             +this: *listresourcetypes
 
           ListContentStandards:
-            +mode: S+K+V
-            +scope: 
-              verb: 'ListContentStandards'
+            +http_method: GET
+            +path: '/dds/services/ddsws1-1?verb={ListContentStandards}{0}'
+            +input_format: key_value
+            +output_format: xml
             +this: *listcontentstandards
 
           ListXmlFormats:
-            +mode: S+K+V
-            +scope: 
-              verb: 'ListXmlFormats'
+            +http_method: GET
+            +path: '/dds/services/ddsws1-1?verb={ListXmlFormats}{0}'
+            +input_format: key_value
+            +output_format: xml
             +this: *listxmlformats
             +children:
               id: *id
 
           UrlCheck:
-            +mode: S+K+V
-            +scope: 
-              verb: 'UrlCheck'
+            +http_method: GET
+            +path: '/dds/services/ddsws1-1?verb=UrlCheck&{0}'
+            +input_format: key_value
+            +output_format: xml
             +requirements:
               +mandatory: [url]
             +children:
               url: *std-url
 
           ServiceInfo:
-             +mode: S+K+V
-             +scope: 
-               verb: 'ServiceInfo'
-             +this: *serviceinfo
+            +http_method: GET
+            +path: '/dds/services/ddsws1-1?verb={ServiceInfo}{0}'
+            +input_format: key_value
+            +output_format: xml
+            +this: *serviceinfo
 
