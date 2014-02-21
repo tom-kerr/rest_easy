@@ -91,7 +91,57 @@ class InitNode(object):
             return
         obj = self._get_new_node_(parent=self, name=keyword, data_dict=data)
         setattr(self, keyword, obj)
-            
+        
+    def _new_method_(keyword, data=None):
+        pattrs = Aspects(data)
+        return InitNode._get_method_(keyword, pattrs)
+
+    def _get_method_(keyword, pattrs):
+        def function(self, value):
+            if (value is None and
+                (( not isinstance(pattrs._expected_value_, tuple) and
+                  pattrs._expected_value_ is not type(None)) or
+                  ( isinstance(pattrs._expected_value_, tuple) and
+                    type(None) not in pattrs._expected_value_))):
+                return getattr(function, '_value_')
+            else:
+                value = self._validate_input_(keyword, value, pattrs._expected_value_)
+
+            setattr(function, '_value_', value)
+
+            self._set_scope_()
+            if keyword != 'multikey':
+                state = self._get_state_(keyword, function)
+                if self._parent_._is_root_:
+                    make_global = True
+                    r_method = None
+                else:
+                    make_global = False
+                    r_method = self._add_active_resource_method_()
+                    self._add_query_struct_entry_(r_method)
+                self._add_to_query_tree_(r_method, keyword, keyword,
+                                         function, {keyword: state},
+                                         None, make_global)
+
+        function.__name__ = 'parameter.Property'
+        function.__doc__ = pattrs.__doc__
+        #function._parent_ = self
+        function._name_ = keyword
+        function._prefix_ = pattrs._prefix_
+        function._syntax_ = pattrs._syntax_
+        function._scope_ = pattrs._scope_
+        function._requirements_ = pattrs._requirements_
+        function._mode_ = pattrs._mode_
+        function._value_ = None
+        function._key_ = pattrs._key_
+        function._expected_value_ = pattrs._expected_value_
+        setattr(function, 'help', types.MethodType(Node.help, function))
+        return function
+
+    def _get_instance_(kw):
+        _class = type(kw, (object,), {})
+        return _class()    
+        
     def _create_multikey_function_(self):
         def function(args):
             if not isinstance(args, list):
@@ -159,60 +209,10 @@ class CreateNode(type):
             Node._func_list_.append(prop_instance) 
             InitNode._set_attr_from_(this, data_dict, ('+mode', '+syntax'))                    
         elif Property in bases:
-            func = CreateNode._create_method_(keyword, data_dict)
+            func = InitNode._new_method_(keyword, data_dict)
             Node._func_list_.append(func)
         return type.__new__(cls, clsname, bases, {})
     
-    def _create_method_(keyword, data=None):
-        pattrs = Aspects(data)
-        return CreateNode._get_method_(keyword, pattrs)
-
-    def _get_method_(keyword, pattrs):
-        def function(self, value):
-            if (value is None and
-                (( not isinstance(pattrs._expected_value_, tuple) and
-                  pattrs._expected_value_ is not type(None)) or
-                  ( isinstance(pattrs._expected_value_, tuple) and
-                    type(None) not in pattrs._expected_value_))):
-                return getattr(function, '_value_')
-            else:
-                value = self._validate_input_(keyword, value, pattrs._expected_value_)
-
-            setattr(function, '_value_', value)
-
-            self._set_scope_()
-            if keyword != 'multikey':
-                state = self._get_state_(keyword, function)
-                if self._parent_._is_root_:
-                    make_global = True
-                    r_method = None
-                else:
-                    make_global = False
-                    r_method = self._add_active_resource_method_()
-                    self._add_query_struct_entry_(r_method)
-                self._add_to_query_tree_(r_method, keyword, keyword,
-                                         function, {keyword: state},
-                                         None, make_global)
-
-        function.__name__ = 'parameter.Property'
-        function.__doc__ = pattrs.__doc__
-        #function._parent_ = self
-        function._name_ = keyword
-        function._prefix_ = pattrs._prefix_
-        function._syntax_ = pattrs._syntax_
-        function._scope_ = pattrs._scope_
-        function._requirements_ = pattrs._requirements_
-        function._mode_ = pattrs._mode_
-        function._value_ = None
-        function._key_ = pattrs._key_
-        function._expected_value_ = pattrs._expected_value_
-        setattr(function, 'help', types.MethodType(Node.help, function))
-        return function
-
-    def _get_instance_(kw):
-        _class = type(kw, (object,), {})
-        return _class()
-
 
 
 class Node(QueryTree):
