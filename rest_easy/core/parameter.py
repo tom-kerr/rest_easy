@@ -26,7 +26,9 @@ from .requirements import Requirements
     
 
 class InitNode(object):
-    """
+    """ Object-building behavior
+    
+        Handles the addition of child Nodes.
     """
 
     def __init__(self, **kwargs):
@@ -191,7 +193,11 @@ class InitNode(object):
 
         
 class CreateNode(type):
-    """ Node MetaClass 
+    """ Node Metaclass 
+    
+        rest_easy objects may refer to themselves by way of the '+this'
+        field, and so at class creation we need to check for this reference
+        and create a separate Node instance for it.
     """
 
     def __new__(cls, clsname, bases, dct):
