@@ -222,7 +222,8 @@ class CreateNode(type):
 
 
 class Node(QueryTree):
-    """ """
+    """An object in wrapper tree
+    """
     _reserved_ = ('+this', '+mode', '+scope', '+prefix',
                   '+requirements', '+children', '+key',
                   '+expected_value', '+doc')
@@ -421,7 +422,8 @@ class Node(QueryTree):
 
 
 class Parameter(BaseAttributes, Aspects):
-    """ """
+    """Checks/initializes essential/internal attributes.
+    """
     _attrs_ = ('parent', 'name', 'data_dict', )
 
     def __init__(self, **kwargs):
@@ -439,7 +441,8 @@ class Parameter(BaseAttributes, Aspects):
 
 
 class Source(Parameter, Node, InitNode):
-    """Root object of a wrapper."""
+    """Root object of a wrapper.
+    """
     _attr_add_ = ('+hostname', '+protocol', '+port')
     _attr_check_ = ('+children', )
 
@@ -467,7 +470,8 @@ class Source(Parameter, Node, InitNode):
 
                     
 class API(Parameter, Node, InitNode):
-    """Collections of ResourceMethods."""
+    """Collections of ResourceMethods.
+    """
     def __init__(self, **kwargs):
         Parameter.__init__(self, **kwargs)
         InitNode.__init__(self, **kwargs)
@@ -475,7 +479,8 @@ class API(Parameter, Node, InitNode):
 
 
 class ResourceMethod(Parameter, Node, InitNode, HTTPMethods):
-    """Instantiate subobject(s), handle HTTP requests."""
+    """Exposes a REST method (GET, POST, etc) and relevant child properties. 
+    """
     _attr_add_ = ('+path', '+http_method', '+output_format', '+input_format', )
 
     def __init__(self, **kwargs):
@@ -486,7 +491,8 @@ class ResourceMethod(Parameter, Node, InitNode, HTTPMethods):
 
 
 class Property(Parameter, Node, InitNode):
-    """ """
+    """A field, where user query values are accepted/verified.
+    """
     _attr_add_ = ('+mode', )
 
     def __init__(self, **kwargs):
@@ -495,7 +501,8 @@ class Property(Parameter, Node, InitNode):
         Node.__init__(self, **kwargs)
 
     def _validate_input_(self, keyword, value, expected_value):
-        """Check input value against expected value"""
+        """Check input value against expected value
+        """
         if type(expected_value).__name__ == 'SRE_Pattern':
             if not expected_value.match( str(value) ):
                 raise TypeError('"' + keyword + '" matches pattern "'
