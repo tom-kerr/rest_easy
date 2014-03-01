@@ -25,7 +25,11 @@ from lxml import etree
 
 
 class Convert(object):
-
+    """ Handles the conversion of JSON or XML to another format.
+        
+        The options for conversion are 'json', 'xml', or 'obj', where 'obj' is a
+        DynamicAccessor (see convert.DynamicAccessor)
+    """
     def _convert_results_(self, results, output_format, return_format):
         if output_format == 'json':
             if return_format.lower() == 'xml':
