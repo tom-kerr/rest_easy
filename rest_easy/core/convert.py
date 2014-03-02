@@ -55,8 +55,47 @@ class Convert(object):
 
 
 class DynamicAccessor(object):
+    """ An object that dynamically builds convenience functions for JSON input.
 
-    def __init__(self, response):
+        To begin, simply pass json to the constructor:
+           da = DynamicAccessor(myjson)
+
+        The object returned will have a variety of methods for accessing your 
+        data and of the following flavors:
+
+        getField -> where 'field' is the key of an item one layer into a 
+                    structure to be returned*, such as: 
+                    
+                         {'field': {'deeper_field': value}}
+                    
+
+        getFieldBySubField -> where 'field' is the key of a list of dicts which
+                              can be retrieved based on the value of a 'SubField',
+                              for example:
+
+                                  {'items': [ {'id': 1, 'title': ...,
+                                              {'id': 2, 'title': ...,
+                                            ]}
+                              
+                              we can retieve an item by id (getItemsById), or by
+                              title (getItemsByTitle), or any other subfield. 
+                              All items that match the input for that subfield 
+                              will be returned*.
+
+
+        aggrField -> where 'field' is a subfield that occurs more than once among
+                     a list of dicts, and 'aggr' stands for aggregate. 
+                     Considering the previous structure, a method called 'aggrId'
+                     would return* a list of the values of every 'id' field.
+ 
+        
+      * If the field being returned contains another nested structure, another 
+        DynamicAccessor will be generated and returned for further access, 
+        otherwise, the value of that field or a list of values will be returned.
+
+    """
+
+    def __init__(self, response, constraints=None):
         self._data_ = response
         self._build_accessors_()
 
