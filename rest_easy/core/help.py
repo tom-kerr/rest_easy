@@ -33,7 +33,27 @@ from .parameter import API, ResourceMethod, Property
 
 
 class Helper(object):
+    """ Prints object information.
 
+        Examples:
+    
+            r = RestEasy()
+
+
+            r.help() -> Prints the list of available Sources
+
+            r.help('europeana') -> Prints information regarding europeana
+
+            r.help('europeana->v2->Search->query') -> Prints information 
+                                                      regarding a subobject
+
+            dpla = r.get_wrappers('dpla')
+            
+            dpla.help()
+
+            dpla('v2').searchIn.title.help()
+        
+    """
     fore = {'red': Fore.RED, 'black': Fore.BLACK,
             'green': Fore.GREEN, 'yellow': Fore.YELLOW,
             'blue': Fore.BLUE, 'white': Fore.WHITE,
