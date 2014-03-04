@@ -25,13 +25,15 @@ from .query import HTTPMethods, QueryTree
 from .requirements import Requirements
     
 
-class InitNode(object):
+class AbstractNode(BaseAttributes, Aspects):
     """ Object-building behavior
     
-        Handles the addition of child Nodes.
+        Creates internal state and handles the addition of child Nodes.
     """
+    _attrs_ = ('parent', 'name', 'data_dict', )
 
     def __init__(self, **kwargs):
+        self._init_internal_(**kwargs)
         if len(Node._func_list_) != 0:
             last_callable = Node._func_list_.pop()
             if last_callable:
@@ -41,7 +43,7 @@ class InitNode(object):
         source_data = kwargs['data_dict']
         if '+children' in source_data:
             for kw, data in source_data['+children'].items():
-                InitNode._set_attr_from_(source_data, data, ('+syntax', ))
+                AbstractNode._set_attr_from_(source_data, data, ('+syntax', ))
                 if '+http_method' in data:
                     self._is_root_ = True
                     self._init_query_structs_()
@@ -50,6 +52,21 @@ class InitNode(object):
                     self._add_api_(kw, data, self)
                 else:
                     self._add_child_(kw, data)
+
+    def _init_internal_(self, **kwargs):
+        for attr in self._attrs_:
+            if attr in kwargs:
+                setattr(self, '_'+attr+'_', kwargs[attr])
+            else:
+                setattr(self, '_'+attr+'_', None)
+        for kw in ('_attr_add_', '_attr_check_'):
+            if not hasattr(self, kw):
+                setattr(self, kw, None)
+        BaseAttributes.__init__(self, self._attr_add_,
+                                self._attr_check_, self._data_dict_)
+        Aspects.__init__(self, self._data_dict_)
+
+
                 
     def _add_api_(self, keyword, data_dict, obj=None):
         """Create and attach API objects"""
@@ -69,7 +86,7 @@ class InitNode(object):
                 dest[attr] = source[attr]
         
     def _make_this_(self, keyword, data):
-        InitNode._set_attr_from_(data['+this'], data, ('+mode', '+syntax'))
+        AbstractNode._set_attr_from_(data['+this'], data, ('+mode', '+syntax'))
         if '+syntax' not in data['+this'] and hasattr(self, '_syntax_'):
             data['+this']['+syntax'] = self._syntax_
         obj = self._get_new_node_(parent=self, name=keyword, data_dict=data)
@@ -96,7 +113,7 @@ class InitNode(object):
         
     def _new_method_(keyword, data=None):
         pattrs = Aspects(data)
-        return InitNode._get_method_(keyword, pattrs)
+        return AbstractNode._get_method_(keyword, pattrs)
 
     def _get_method_(keyword, pattrs):
         def function(self, value):
@@ -213,9 +230,9 @@ class CreateNode(type):
             prop = CreateNode('Property', (Property, ), p_dct)
             prop_instance = prop(**kwargs)
             Node._func_list_.append(prop_instance) 
-            InitNode._set_attr_from_(this, data_dict, ('+mode', '+syntax'))                    
+            AbstractNode._set_attr_from_(this, data_dict, ('+mode', '+syntax'))                    
         elif Property in bases:
-            func = InitNode._new_method_(keyword, data_dict)
+            func = AbstractNode._new_method_(keyword, data_dict)
             Node._func_list_.append(func)
         return type.__new__(cls, clsname, bases, {})
     
@@ -421,34 +438,15 @@ class Node(QueryTree):
             return False
 
 
-class Parameter(BaseAttributes, Aspects):
-    """Checks/initializes essential/internal attributes.
-    """
-    _attrs_ = ('parent', 'name', 'data_dict', )
 
-    def __init__(self, **kwargs):
-        for attr in self._attrs_:
-            if attr in kwargs:
-                setattr(self, '_'+attr+'_', kwargs[attr])
-            else:
-                setattr(self, '_'+attr+'_', None)
-        for kw in ('_attr_add_', '_attr_check_'):
-            if not hasattr(self, kw):
-                setattr(self, kw, None)
-        BaseAttributes.__init__(self, self._attr_add_,
-                                self._attr_check_, self._data_dict_)
-        Aspects.__init__(self, self._data_dict_)
-
-
-class Source(Parameter, Node, InitNode):
+class Source(AbstractNode, Node):
     """Root object of a wrapper.
     """
     _attr_add_ = ('+hostname', '+protocol', '+port')
     _attr_check_ = ('+children', )
 
     def __init__(self, **kwargs):
-        Parameter.__init__(self, **kwargs)
-        InitNode.__init__(self, **kwargs)
+        AbstractNode.__init__(self, **kwargs)
         Node.__init__(self, **kwargs)
         source_data = kwargs['data_dict']
 
@@ -469,35 +467,32 @@ class Source(Parameter, Node, InitNode):
                         return self._get_root_object_(attr_obj)
 
                     
-class API(Parameter, Node, InitNode):
+class API(AbstractNode, Node):
     """Collections of ResourceMethods.
     """
     def __init__(self, **kwargs):
-        Parameter.__init__(self, **kwargs)
-        InitNode.__init__(self, **kwargs)
+        AbstractNode.__init__(self, **kwargs)
         Node.__init__(self, **kwargs)
 
 
-class ResourceMethod(Parameter, Node, InitNode, HTTPMethods):
+class ResourceMethod(AbstractNode, Node, HTTPMethods):
     """Exposes a REST method (GET, POST, etc) and relevant child properties. 
     """
     _attr_add_ = ('+path', '+http_method', '+output_format', '+input_format', )
 
     def __init__(self, **kwargs):
-        Parameter.__init__(self, **kwargs)
-        InitNode.__init__(self, **kwargs)
+        AbstractNode.__init__(self, **kwargs)
         Node.__init__(self, **kwargs)
         HTTPMethods.__init__(self, **kwargs)
 
 
-class Property(Parameter, Node, InitNode):
+class Property(AbstractNode, Node):
     """A field, where user query values are accepted/verified.
     """
     _attr_add_ = ('+mode', )
 
     def __init__(self, **kwargs):
-        Parameter.__init__(self, **kwargs)
-        InitNode.__init__(self, **kwargs)
+        AbstractNode.__init__(self, **kwargs)
         Node.__init__(self, **kwargs)
 
     def _validate_input_(self, keyword, value, expected_value):
