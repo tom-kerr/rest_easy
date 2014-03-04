@@ -77,5 +77,6 @@ class SourceBuilder(Helper):
         dct = {'parent': parent_obj,
                'name': source,
                'data_dict': source_data}
-        new_source = CreateNode('Source', (Source, ), dct)(**dct)
-        return new_source
+        new_source = CreateNode('Source', (Source, ), dct)
+        new_source_instance = new_source(**dct)
+        return new_source_instance
