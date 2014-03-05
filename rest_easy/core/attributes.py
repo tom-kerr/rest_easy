@@ -45,7 +45,8 @@ class BaseAttributes(object):
 
 
 class Aspects(object):
-    """Retrieve and set internal parameters of source/api/method/property."""
+    """ Retrieve and set internal parameters of a Node.
+    """
     def __init__(self, data=None):
         if data is not None:
             self.__doc__ = self._get_doc_string_(data)
@@ -58,24 +59,32 @@ class Aspects(object):
             self._expected_value_ = self._get_expected_value_(data)
 
     def _get_doc_string_(self, data):
+        """ Retrieves string to be set as __doc__"""
         if '+doc' in data:
             return data['+doc']
         else:
             return None
 
     def _get_prefix_(self, data):
+        """ Retrieves string that will precede entries for this Node."""
         if '+prefix' in data:
             return data['+prefix']
         else:
             return None
 
     def _get_syntax_(self, data):
+        """ Retrieves dict with characters necessary for forming entry strings.
+        """
         syntax = {}
         if '+syntax' in data:
             syntax = data['+syntax']
         return self._set_default_syntax_(syntax)
 
     def _set_default_syntax_(self, syntax):
+        """ Sets the minimum character set for forming an entry string, namely 
+            'bind' for binding a key to a value, and 'chain', for chaining 
+            additional entries. 
+        """
         if '+bind' not in syntax:
             syntax['+bind'] = '='
         if '+chain' not in syntax:
@@ -89,12 +98,14 @@ class Aspects(object):
             return None
 
     def _get_key_(self, data):
+        """ Retrieves the string to act as 'key' in a key/value pair."""
         if '+key' in data:
             return data['+key']
         else:
             return None
 
     def _get_expected_value_(self, data):
+        """ Retrieves the string that describes valid input for the field."""
         if '+expected_value' in data:
             return self._parse_type_(data['+expected_value'])
         else:
@@ -147,6 +158,21 @@ class Aspects(object):
             return None
 
     def _parse_mode_(self, data):
+        """ Returns an object that describes the relationship between prefix, 
+            key, value, and syntax. Example values are:
+
+            V      -> value,
+            MV     -> value1 + value2 ...,
+            K+V    -> key + value,
+            MK+MV  -> key1 + value1, key2 + value2 ...
+            K+MV   -> key + value1 + value2 ...,
+            P+K+V  -> prefix + key + value,
+            P+K+MV -> prefix + key + value1 + value2 ...,
+            
+            where '+' and ',' (+bind and +chain) are determined by the contents 
+            of +syntax.
+
+        """
         if data is None:
             return 'K+V'
         elif '+mode' in data:
