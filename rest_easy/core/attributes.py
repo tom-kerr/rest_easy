@@ -150,6 +150,9 @@ class Aspects(object):
         return False
 
     def _get_requirements_(self, data):
+        """ Returns an object that describes the field requirements for a Node
+            involved in a query.
+        """
         if '+requirements' in data:
             requirements = Requirements()
             requirements.add_requirements(data['+requirements'])
