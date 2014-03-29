@@ -67,12 +67,12 @@ class SourceBuilder(Helper):
         if source in self.source_objects:
             return self.source_objects[source]
         source_data = self._get_source_(source)
-        source_obj = SourceBuilder._parse_data_(self, source, source_data)
+        source_obj = SourceBuilder._build_source_(self, source, source_data)
         self.source_objects[source] = source_obj
         return source_obj
 
     @staticmethod
-    def _parse_data_(parent_obj, source, source_data):
+    def _build_source_(parent_obj, source, source_data):
         """Create and return a Source instance."""
         dct = {'parent': parent_obj,
                'name': source,
