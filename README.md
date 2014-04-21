@@ -271,3 +271,13 @@ Dependencies
 - xmltodict
 - dicttoxml
 - colorama
+
+
+TODO
+----
+documentation
+add more sources
+finish openlibrary source
+re-write parser
+re-write help
+
