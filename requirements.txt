@@ -1,5 +1,5 @@
 lxml
 PyYAML
 xmltodict
-dict2xml
+dicttoxml
 colorama
