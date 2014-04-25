@@ -43,9 +43,10 @@ class RESTfulAsyncTemplate(object):
     def collect_results(self):
         pass
 
-    def __call__(self, return_format='', lazy=True,
-                 pretty_print=False, reset=True,
-                 pid=None, queue=None, timeout=30):
+    def __call__(self, return_format='', lazy=True, 
+                 deferred=False, pretty_print=False, 
+                 reset=True, pid=None, queue=None, 
+                 timeout=30):
         self.return_format = return_format
         self.pretty_print = pretty_print
         self.reset = reset
@@ -56,7 +57,7 @@ class RESTfulAsyncTemplate(object):
         for message in r:
             results.append(self.parent._convert_results_(message, 
                                                          self.parent._output_format_,
-                                                         self.return_format, lazy))
+                                                         self.return_format, lazy, deferred))
         self.proc_count = 0
         self.finished = 0
         if queue:

@@ -31,13 +31,13 @@ class Convert(object):
         DynamicAccessor (see convert.DynamicAccessor)
     """
     def _convert_results_(self, results, output_format, 
-                          return_format, lazy=False):
+                          return_format, lazy=False, deferred=False):
         if output_format == 'json':
             if return_format.lower() == 'xml':
                 results = dicttoxml(json.loads(results, encoding='utf-8'))
             elif return_format.lower() == 'obj':
                 jsonresults = json.loads(results, encoding='utf-8')
-                results = DynamicAccessor(jsonresults, lazy)
+                results = DynamicAccessor(jsonresults, lazy, deferred)
             else:
                 results = json.loads(results, encoding='utf-8')
         elif output_format == 'xml':
@@ -47,7 +47,7 @@ class Convert(object):
             elif return_format.lower() == 'obj':
                 jsonresults = json.loads(json.dumps(xmltodict.parse(results)),
                                          encoding='utf-8')
-                results = DynamicAccessor(jsonresults, lazy)
+                results = DynamicAccessor(jsonresults, lazy, deferred)
         elif output_format == 'javascript':
             if return_format.lower() in ('json', 'xml', 'obj'):
                 print ('Cannot Convert \'JavaScript\' response to \'' +
@@ -109,7 +109,6 @@ class DynamicAccessor(object):
     def __getattribute__(self, name):
         if object.__getattribute__(self, '_deferred_') and \
                 not object.__getattribute__(self, '_built_'):
-            print("deferred..building now")
             object.__getattribute__(self, '_build_accessors_')()
         return object.__getattribute__(self, name)        
 
