@@ -30,12 +30,14 @@ class Convert(object):
         The options for conversion are 'json', 'xml', or 'obj', where 'obj' is a
         DynamicAccessor (see convert.DynamicAccessor)
     """
-    def _convert_results_(self, results, output_format, return_format):
+    def _convert_results_(self, results, output_format, 
+                          return_format, lazy=False):
         if output_format == 'json':
             if return_format.lower() == 'xml':
                 results = dicttoxml(json.loads(results, encoding='utf-8'))
             elif return_format.lower() == 'obj':
-                results = DynamicAccessor(json.loads(results, encoding='utf-8'))
+                jsonresults = json.loads(results, encoding='utf-8')
+                results = DynamicAccessor(jsonresults, lazy)
             else:
                 results = json.loads(results, encoding='utf-8')
         elif output_format == 'xml':
@@ -45,7 +47,7 @@ class Convert(object):
             elif return_format.lower() == 'obj':
                 jsonresults = json.loads(json.dumps(xmltodict.parse(results)),
                                          encoding='utf-8')
-                results = DynamicAccessor(jsonresults)
+                results = DynamicAccessor(jsonresults, lazy)
         elif output_format == 'javascript':
             if return_format.lower() in ('json', 'xml', 'obj'):
                 print ('Cannot Convert \'JavaScript\' response to \'' +
@@ -95,11 +97,24 @@ class DynamicAccessor(object):
 
     """
 
-    def __init__(self, response, constraints=None):
+    def __init__(self, response, lazy=False, deferred=False):
+        self._lazy_ = lazy
+        self._deferred_ = deferred
         self._data_ = response
-        self._build_accessors_()
+        if not deferred:
+            self._build_accessors_()
+        else:
+            self._built_ = False            
+
+    def __getattribute__(self, name):
+        if object.__getattribute__(self, '_deferred_') and \
+                not object.__getattribute__(self, '_built_'):
+            print("deferred..building now")
+            object.__getattribute__(self, '_build_accessors_')()
+        return object.__getattribute__(self, name)        
 
     def _build_accessors_(self):
+        self._built_ = True
         _data = self._data_
         if isinstance(self._data_, list):
             parent = False
@@ -162,7 +177,12 @@ class DynamicAccessor(object):
         l = []
         if not self._is_flat_(lst):
             for item in lst:
-                l.append(DynamicAccessor(item))
+                if self._lazy_:
+                    deferred = True
+                else:
+                    deferred = False
+                l.append(DynamicAccessor(item, lazy=self._lazy_, 
+                                         deferred=deferred))
         else:
             for item in lst:
                 if isinstance(item, dict):
@@ -176,7 +196,12 @@ class DynamicAccessor(object):
             for v in dct.values():
                 return v
         else:
-            return DynamicAccessor(dct)
+            if self._lazy_:
+                deferred = True
+            else:
+                deferred = False
+            return DynamicAccessor(dct, lazy=self._lazy_, 
+                                   deferred=deferred)
 
     def _add_child_get_func_(self, data):
         if isinstance(data, list):
@@ -263,7 +288,12 @@ class DynamicAccessor(object):
             if raw:
                 return matches
             else:
-                return DynamicAccessor(matches)
+                if self._lazy_:
+                    deferred = True
+                else:
+                    deferred = False
+                return DynamicAccessor(matches, lazy=self._lazy_, 
+                                       deferred=deferred)
         return function
 
     def _match_str_(self, string, value):

@@ -43,7 +43,7 @@ class RESTfulAsyncTemplate(object):
     def collect_results(self):
         pass
 
-    def __call__(self, return_format='',
+    def __call__(self, return_format='', lazy=True,
                  pretty_print=False, reset=True,
                  pid=None, queue=None, timeout=30):
         self.return_format = return_format
@@ -51,7 +51,12 @@ class RESTfulAsyncTemplate(object):
         self.reset = reset
         self.timeout = timeout
         self.proc_spawn_loop()
-        results =  self.collect_results(timeout)
+        r = self.collect_results(timeout)
+        results = []
+        for message in r:
+            results.append(self.parent._convert_results_(message, 
+                                                         self.parent._output_format_,
+                                                         self.return_format, lazy))
         self.proc_count = 0
         self.finished = 0
         if queue:
@@ -94,10 +99,6 @@ class AsyncQueryTrees(RESTfulAsyncTemplate):
                 status = header.split('\r\n', 1)[0]
                 if not 'OK' in status:
                     message = Exception(status)
-                else:
-                    message = self.parent._convert_results_(message, \
-                                        self.parent._output_format_,
-                                        self.return_format)
                 results[num] = message
         if self.pretty_print:
             pprint.pprint(message)
