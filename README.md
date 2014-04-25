@@ -275,9 +275,9 @@ Dependencies
 
 TODO
 ----
-documentation
-add more sources
-finish openlibrary source
-re-write parser
-re-write help
+- documentation
+- add more sources
+- finish openlibrary source
+- re-write parser
+- re-write help
 
