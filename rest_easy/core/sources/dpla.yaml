@@ -29,7 +29,7 @@ import dpla.def
         +http_method: GET
         +path: '/v2/items/{0}?{apiKey}'
         +input_format: key_value                
-        +output_format: json
+        +output_format: application/json
         +children:      
           fetch:
             +mode: MV
@@ -54,7 +54,7 @@ import dpla.def
         +http_method: GET
         +path: '/v2/items?{0}'
         +input_format: key_value
-        +output_format: json
+        +output_format: application/json
         +children:                             
           keywordSearch: 
             +doc: |
@@ -212,7 +212,7 @@ import dpla.def
         +http_method: GET
         +path: '/v2/collections?{0}'
         +input_format: key_value
-        +output_format: json          
+        +output_format: application/json
         +children:
           keywordSearch: 
             +doc: |

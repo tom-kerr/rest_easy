@@ -24,7 +24,7 @@ import nytimes.def
             +http_method: GET
             +path: '/svc/search/v2/articlesearch{responseFormat}?{0}'
             +input_format: key_value
-            +output_format: json
+            +output_format: application/json
             +requirements:
               +mandatory: [apiKey, responseFormat]
             +children:
@@ -179,7 +179,7 @@ import nytimes.def
             +http_method: GET
             +path: '/svc/books/v2/lists/{date/}{listName}{responseFormat}?{0}'
             +input_format: key_value
-            +output_format: json
+            +output_format: application/json
             +requirements:
               +mandatory: [listName, responseFormat]
             +children:

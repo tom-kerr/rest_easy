@@ -24,7 +24,7 @@ import washpost.def
              +http_method: GET
              +path: '/trove/v1/resources?{0}'
              +input_format: key_value
-             +output_format: json
+             +output_format: application/json
              +requirements: 
                +mandatory: [variant]
              +children:        

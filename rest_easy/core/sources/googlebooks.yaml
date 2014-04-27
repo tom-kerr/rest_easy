@@ -20,7 +20,7 @@ import googlebooks.def
         +http_method: GET
         +path: '/books/v1/volumes?{0}'
         +input_format: key_value
-        +output_format: json
+        +output_format: application/json
         +children: 
           query: 
             +mode: K+MV+A

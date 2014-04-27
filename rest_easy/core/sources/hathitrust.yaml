@@ -21,7 +21,7 @@ import hathitrust.def
     +http_method: GET
     +path: '/api/volumes/brief/{0}.json?{callback}'
     +input_format: key_value
-    +output_format: json
+    +output_format: application/json
     +children: 
       id: 
         +syntax:
@@ -39,7 +39,7 @@ import hathitrust.def
     +http_method: GET
     +path: '/api/volumes/brief/json/{0}&{callback}'
     +input_format: key_value
-    +output_format: json
+    +output_format: application/json
     +children: 
       id: 
         +mode: MK+MV
@@ -59,7 +59,7 @@ import hathitrust.def
     +http_method: GET
     +path: '/api/volumes/full/{0}.json?{callback}'
     +input_format: key_value
-    +output_format: json
+    +output_format: application/json
     +children: 
       id: 
         +syntax:
@@ -77,7 +77,7 @@ import hathitrust.def
     +http_method: GET
     +path: '/api/volumes/full/json/{0}&{callback}'
     +input_format: key_value
-    +output_format: json
+    +output_format: application/json
     +children: 
       id: 
         +mode: MK+MV

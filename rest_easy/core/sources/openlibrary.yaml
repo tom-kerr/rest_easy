@@ -19,7 +19,7 @@ import openlibrary.def
     +http_method: GET
     +path: '/query.json?query={0}'
     +input_format: json
-    +output_format: json
+    +output_format: application/json
     +children:         
       author:
         +mode: S+K+V
@@ -160,7 +160,7 @@ import openlibrary.def
     +http_method: GET
     +path: '/search.json?{0}'
     +input_format: key_value
-    +output_format: json
+    +output_format: application/json
     +children: 
       search: 
         +children: 
@@ -205,7 +205,7 @@ import openlibrary.def
     +http_method: GET
     +path: '/api/volumes/brief/{0}.json?{callback}'
     +input_format: key_value
-    +output_format: json
+    +output_format: application/json
     +children: 
       id: 
         +syntax:
@@ -219,7 +219,7 @@ import openlibrary.def
     +http_method: GET
     +path: '/api/volumes/brief/json/{0}&{callback}'
     +input_format: key_value
-    +output_format: json
+    +output_format: application/json
     +children: 
       id: 
         +mode: MK+MV
@@ -235,7 +235,7 @@ import openlibrary.def
     +http_method: GET
     +path: '/api/volumes/full/{0}.json?{callback}'
     +input_format: key_value
-    +output_format: json
+    +output_format: application/json
     +children: 
       id: 
         +syntax:
@@ -249,7 +249,7 @@ import openlibrary.def
     +http_method: GET
     +path: '/api/volumes/full/json/{0}&{callback}'
     +input_format: key_value
-    +output_format: json
+    +output_format: application/json
     +children: 
       id: 
         +mode: MK+MV

@@ -40,7 +40,7 @@ import dlese.def
             +http_method: GET
             +path: '/dds/services/ddsws1-1?verb=Search&{0}'
             +input_format: key_value
-            +output_format: xml
+            +output_format: text/xml
             +requirements:
               +mandatory: 
                 [startingOffset,
@@ -83,7 +83,7 @@ import dlese.def
             +http_method: GET
             +path: '/dds/services/ddsws1-1?verb=UserSearch&{0}'
             +input_format: key_value
-            +output_format: xml
+            +output_format: text/xml
             +requirements:
               +mandatory: [s,n]
               +all_or_none:
@@ -114,7 +114,7 @@ import dlese.def
             +http_method: GET
             +path: '/dds/services/ddsws1-1?verb=GetRecord&{0}'
             +input_format: key_value
-            +output_format: xml
+            +output_format: text/xml
             +requirements:
               +mandatory: [id]
             +children:
@@ -127,14 +127,14 @@ import dlese.def
             +http_method: GET
             +path: '/dds/services/ddsws1-1?verb={ListFields}{0}'
             +input_format: key_value
-            +output_format: xml
+            +output_format: text/xml
             +this: *listfields
 
           ListTerms:
             +http_method: GET
             +path: '/dds/services/ddsws1-1?verb=ListTerms&{0}'
             +input_format: key_value
-            +output_format: xml
+            +output_format: text/xml
             +requirements:
               +mandatory: [field]
             +children: 
@@ -144,42 +144,42 @@ import dlese.def
             +http_method: GET
             +path: '/dds/services/ddsws1-1?verb={ListCollections}{0}'
             +input_format: key_value
-            +output_format: xml
+            +output_format: text/xml
             +this: *listcollections
 
           ListGradeRanges:
             +http_method: GET
             +path: '/dds/services/ddsws1-1?verb={ListGradeRanges}{0}'
             +input_format: key_value
-            +output_format: xml
+            +output_format: text/xml
             +this: *listgraderanges
 
           ListSubjects:
             +http_method: GET
             +path: '/dds/services/ddsws1-1?verb={ListSubjects}{0}'
             +input_format: key_value
-            +output_format: xml
+            +output_format: text/xml
             +this: *listsubjects
 
           ListResourceTypes:
             +http_method: GET
             +path: '/dds/services/ddsws1-1?verb={ListResourceTypes}{0}'
             +input_format: key_value
-            +output_format: xml
+            +output_format: text/xml
             +this: *listresourcetypes
 
           ListContentStandards:
             +http_method: GET
             +path: '/dds/services/ddsws1-1?verb={ListContentStandards}{0}'
             +input_format: key_value
-            +output_format: xml
+            +output_format: text/xml
             +this: *listcontentstandards
 
           ListXmlFormats:
             +http_method: GET
             +path: '/dds/services/ddsws1-1?verb={ListXmlFormats}{0}'
             +input_format: key_value
-            +output_format: xml
+            +output_format: text/xml
             +this: *listxmlformats
             +children:
               id: *id
@@ -188,7 +188,7 @@ import dlese.def
             +http_method: GET
             +path: '/dds/services/ddsws1-1?verb=UrlCheck&{0}'
             +input_format: key_value
-            +output_format: xml
+            +output_format: text/xml
             +requirements:
               +mandatory: [url]
             +children:
@@ -198,6 +198,6 @@ import dlese.def
             +http_method: GET
             +path: '/dds/services/ddsws1-1?verb={ServiceInfo}{0}'
             +input_format: key_value
-            +output_format: xml
+            +output_format: text/xml
             +this: *serviceinfo
 

@@ -50,7 +50,7 @@ import europeana.def
         +http_method: GET
         +path: '/api/v2/search.json?{0}'
         +input_format: key_value
-        +output_format: json
+        +output_format: application/json
         +requirements: 
           +mandatory: [query]
         +children:    
@@ -78,7 +78,7 @@ import europeana.def
         +http_method: GET
         +path: '/api/v2/record{recordId}.json?{0}'
         +input_format: key_value
-        +output_format: json
+        +output_format: application/json
         +requirements: 
           +mandatory: [recordId]
         +children:    
@@ -90,7 +90,7 @@ import europeana.def
         +http_method: GET
         +path: '/api/v2/suggestions.json?{0}'
         +input_format: key_value
-        +output_format: json
+        +output_format: application/json
         +requirements: 
           +mandatory: [query]
         +children:    
@@ -102,7 +102,7 @@ import europeana.def
         +http_method: GET
         +path: '/api/v2/opensearch.rss?{0}'
         +input_format: key_value
-        +output_format: xml
+        +output_format: text/xml
         +requirements: 
           +mandatory: [searchTerms]
         +children:    
