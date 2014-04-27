@@ -218,6 +218,7 @@ class CreateNode(type):
     def __new__(cls, clsname, bases, dct):
         keyword = dct['name']
         data_dict = dct['data_dict']
+        clsdct = {}
         if '+this' in data_dict:
             this = data_dict['+this']
             p_dct = {'name': keyword, 
@@ -232,7 +233,10 @@ class CreateNode(type):
         elif Property in bases:
             func = AbstractNode._new_method_(keyword, data_dict)
             Node._func_list_.append(func)
-        return type.__new__(cls, clsname, bases, {})
+        if '+http_method' in data_dict:
+            if data_dict['+http_method'] == 'GET':
+                clsdct['set_return_format'] = set_return_format
+        return type.__new__(cls, clsname, bases, clsdct)
     
 
 
@@ -483,6 +487,11 @@ class ResourceMethod(AbstractNode, Node, HTTPMethods):
         AbstractNode.__init__(self, **kwargs)
         Node.__init__(self, **kwargs)
         HTTPMethods.__init__(self, **kwargs)
+
+
+def set_return_format(self, fmt):
+    self._return_format_ = fmt
+
 
 
 class Property(AbstractNode, Node):

@@ -48,10 +48,15 @@ class RESTfulAsyncTemplate(object):
                  deferred=False, pretty_print=False, 
                  reset=True, pid=None, queue=None, 
                  timeout=30):
+        if hasattr(self.parent, '_return_format_'):
+            self.return_format = self.parent._return_format_
+        else:
+            self.return_format = return_format
+        self.pretty_print = pretty_print
         self.reset = reset
         self.timeout = timeout
         self.proc_spawn_loop()
-        results = self.collect_results(return_format, lazy, deferred, pretty_print)
+        results = self.collect_results(lazy, deferred)
         self.proc_count = 0
         self.finished = 0
         if queue:
@@ -73,8 +78,7 @@ class AsyncQueryTrees(RESTfulAsyncTemplate):
             self.threads[num] = Process(target=sock, name=num)
             self.threads[num].start()
 
-    def collect_results(self, return_format, lazy=False, 
-                        deferred=False, pretty_print=False):
+    def collect_results(self, lazy=False, deferred=False):
         results = [None] * self.proc_count
         slept = 0
         while self.finished < self.proc_count:
@@ -93,11 +97,11 @@ class AsyncQueryTrees(RESTfulAsyncTemplate):
                 if message and not isinstance(message, 
                                               (Exception, BaseException)):
                     message = self.parent._convert_results_(message, mime,
-                                                            return_format, 
+                                                            self.return_format, 
                                                             lazy, deferred)
                 results[num] = message                
 
-        if pretty_print:
+        if self.pretty_print:
             pprint.pprint(message)
         if self.reset:
             self.parent.reset_query()
@@ -127,7 +131,7 @@ class AsyncResourceMethods(RESTfulAsyncTemplate):
                                 (src_name, m_name), self.queue))
                 self.threads[src_name][m_name].start()
 
-    def collect_results(self, **kwargs):
+    def collect_results(self, *args, **kwargs):
         results = {}
         slept = 0
         while self.finished < self.proc_count:
@@ -235,13 +239,13 @@ class GET_Socket(SocketTemplate):
                         location = location.split('://')[1]
                         host, path = location.split('/')[0], \
                             '/'+'/'.join(location.split('/')[1:])
-                        sock = GET_Socket(host, self.protocol, self.port, 
+                        gsock = GET_Socket(host, self.protocol, self.port, 
                                           path, self.accepted_formats,
                                           self.pid, self.queue, self.timeout)
-                        sock.connect()
-                        sock.send()
-                        message, mime = sock.recv()
-                        sock.close()
+                        gsock.connect()
+                        gsock.send()
+                        message, mime = gsock.recv()
+                        gsock.sock.close()
         return message, mime
 
     def parse_header(self, header):
