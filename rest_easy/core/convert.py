@@ -32,7 +32,9 @@ class Convert(object):
     """
     def _convert_results_(self, results, output_format, 
                           return_format, lazy=False, deferred=False):
-        if output_format == 'json':
+        if not return_format:
+            return results
+        if output_format == 'application/json':
             if return_format.lower() == 'xml':
                 results = dicttoxml(json.loads(results, encoding='utf-8'))
             elif return_format.lower() == 'obj':
@@ -40,7 +42,7 @@ class Convert(object):
                 results = DynamicAccessor(jsonresults, lazy, deferred)
             else:
                 results = json.loads(results, encoding='utf-8')
-        elif output_format == 'xml':
+        elif output_format == 'text/xml':
             if return_format.lower() == 'json':
                 results = json.loads(json.dumps(xmltodict.parse(results)),
                                      encoding='utf-8')
@@ -52,7 +54,6 @@ class Convert(object):
             if return_format.lower() in ('json', 'xml', 'obj'):
                 print ('Cannot Convert \'JavaScript\' response to \'' +
                        return_format.lower() +'\'...returning \'JavaScript\'')
-            pass
         return results
 
 

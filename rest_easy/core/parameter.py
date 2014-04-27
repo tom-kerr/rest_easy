@@ -65,8 +65,6 @@ class AbstractNode(BaseAttributes, Aspects):
         BaseAttributes.__init__(self, self._attr_add_,
                                 self._attr_check_, self._data_dict_)
         Aspects.__init__(self, self._data_dict_)
-
-
                 
     def _add_api_(self, keyword, data_dict, obj=None):
         """Create and attach API objects"""
@@ -478,7 +476,8 @@ class API(AbstractNode, Node):
 class ResourceMethod(AbstractNode, Node, HTTPMethods):
     """Exposes a REST method (GET, POST, etc) and relevant child properties. 
     """
-    _attr_add_ = ('+path', '+http_method', '+output_format', '+input_format', )
+    _attr_add_ = ('+path', '+http_method', '+input_format', )
+    _attr_check_ = ('+output_format',)
 
     def __init__(self, **kwargs):
         AbstractNode.__init__(self, **kwargs)

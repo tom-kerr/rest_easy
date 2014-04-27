@@ -43,21 +43,14 @@ class RESTfulAsyncTemplate(object):
     def collect_results(self):
         pass
 
-    def __call__(self, return_format='', lazy=True, 
+    def __call__(self, return_format=None, lazy=False, 
                  deferred=False, pretty_print=False, 
                  reset=True, pid=None, queue=None, 
                  timeout=30):
-        self.return_format = return_format
-        self.pretty_print = pretty_print
         self.reset = reset
         self.timeout = timeout
         self.proc_spawn_loop()
-        r = self.collect_results(timeout)
-        results = []
-        for message in r:
-            results.append(self.parent._convert_results_(message, 
-                                                         self.parent._output_format_,
-                                                         self.return_format, lazy, deferred))
+        results = self.collect_results(return_format, lazy, deferred, pretty_print)
         self.proc_count = 0
         self.finished = 0
         if queue:
@@ -77,11 +70,12 @@ class AsyncQueryTrees(RESTfulAsyncTemplate):
             self.threads[num] = Process(target=sock, name=num)
             self.threads[num].start()
 
-    def collect_results(self, timeout):
+    def collect_results(self, return_format, lazy=False, 
+                        deferred=False, pretty_print=False):
         results = [None] * self.proc_count
         slept = 0
         while self.finished < self.proc_count:
-            if slept > timeout:
+            if slept > self.timeout:
                 break
             try:
                 item = self.queue.get_nowait()
@@ -97,11 +91,23 @@ class AsyncQueryTrees(RESTfulAsyncTemplate):
                 message = ''
             else:
                 header, message = response.split('\r\n\r\n', 1)
+                mime = re.search('Content-Type:.+;', header)
+                if not mime:
+                    raise ValueError('Header missing Content-Type')
+                else:
+                    mime = mime.group(0).split(':')[1].lstrip(' ').rstrip(';')
+                if mime not in self.parent._output_format_:
+                    raise ValueError('Server response is of unexpected Content-Type.\n'+
+                                     'expecting: '+str(self.parent._output_format_)+
+                                     '\ngot: '+str(mime))
                 status = header.split('\r\n', 1)[0]
                 if not 'OK' in status:
-                    message = Exception(status)
-                results[num] = message
-        if self.pretty_print:
+                    raise Exception(status)
+
+                results[num] = self.parent._convert_results_(message, mime,
+                                                             return_format, 
+                                                             lazy, deferred)
+        if pretty_print:
             pprint.pprint(message)
         if self.reset:
             self.parent.reset_query()
@@ -131,11 +137,11 @@ class AsyncResourceMethods(RESTfulAsyncTemplate):
                                 (src_name, m_name), self.queue))
                 self.threads[src_name][m_name].start()
 
-    def collect_results(self, timeout):
+    def collect_results(self, **kwargs):
         results = {}
         slept = 0
         while self.finished < self.proc_count:
-            if slept > timeout:
+            if slept > self.timeout:
                 break
             try:
                 item = self.queue.get_nowait()

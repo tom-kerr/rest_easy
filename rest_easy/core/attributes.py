@@ -57,6 +57,7 @@ class Aspects(object):
             self._mode_ = self._parse_mode_(data)
             self._key_ = self._get_key_(data)
             self._expected_value_ = self._get_expected_value_(data)
+            self._output_format_ = self._get_output_format_(data)
 
     def _get_doc_string_(self, data):
         """ Retrieves string to be set as __doc__"""
@@ -185,3 +186,20 @@ class Aspects(object):
         mode_flags = mode_string.split('+')
         return type('mode', (), {'string': mode_string,
                                  'flags': mode_flags})()
+
+    def _get_output_format_(self, data):
+        if '+output_format' in data:
+            of = []
+            d = data['+output_format']
+            if not isinstance(d, list):
+                of.append(d)
+            elif isinstance(d, list):
+                for i in d:
+                    if not isinstance(i, list):
+                        of.append(i)
+                    elif isinstance(i, list):
+                        for k in i:
+                            of.append(k)
+            return of
+        else:
+            return None
