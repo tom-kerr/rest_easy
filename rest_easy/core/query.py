@@ -67,7 +67,9 @@ class AsyncQueryTrees(RESTfulAsyncTemplate):
         self.proc_count = len(qtrees)
         for num, tree in enumerate(qtrees):
             host, protocol, port, path = self.parent._get_query_components_(tree)
-            sock = GET_Socket(host, protocol, port, path, num, self.queue, self.timeout)
+            sock = GET_Socket(host, protocol, port, path, 
+                              self.parent._output_format_,
+                              num, self.queue, self.timeout)
             self.threads[num] = Process(target=sock, name=num)
             self.threads[num].start()
 
@@ -87,27 +89,14 @@ class AsyncQueryTrees(RESTfulAsyncTemplate):
             else:
                 num, response = item
                 self.finished += 1
-            response = response.decode('utf-8')
-            if not response:
-                message = ''
-            else:
-                header, message = response.split('\r\n\r\n', 1)
-                mime = re.search('Content-Type:.+;', header)
-                if not mime:
-                    raise ValueError('Header missing Content-Type')
-                else:
-                    mime = mime.group(0).split(':')[1].lstrip(' ').rstrip(';')
-                if mime not in self.parent._output_format_:
-                    raise ValueError('Server response is of unexpected Content-Type.\n'+
-                                     'expecting: '+str(self.parent._output_format_)+
-                                     '\ngot: '+str(mime))
-                status = header.split('\r\n', 1)[0]
-                if not 'OK' in status:
-                    raise Exception(status)
+                message, mime = response
+                if message and not isinstance(message, 
+                                              (Exception, BaseException)):
+                    message = self.parent._convert_results_(message, mime,
+                                                            return_format, 
+                                                            lazy, deferred)
+                results[num] = message                
 
-                results[num] = self.parent._convert_results_(message, mime,
-                                                             return_format, 
-                                                             lazy, deferred)
         if pretty_print:
             pprint.pprint(message)
         if self.reset:
@@ -133,7 +122,7 @@ class AsyncResourceMethods(RESTfulAsyncTemplate):
                     continue
                 self.threads[src_name][m_name] = \
                   Process(target=target, name=m_name,
-                          args=(self.return_format,
+                          args=(self.return_format, False, False,
                                 self.pretty_print, self.reset,
                                 (src_name, m_name), self.queue))
                 self.threads[src_name][m_name].start()
@@ -161,8 +150,12 @@ class AsyncResourceMethods(RESTfulAsyncTemplate):
         return results
 
 
+class Redirect(Exception):
+    pass
+
+
 class SocketTemplate(object):
-    def __init__(self, host, protocol, port, path,
+    def __init__(self, host, protocol, port, path, accepted_formats,
                  pid=None, queue=None, timeout=30):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if protocol == 'https':
@@ -171,6 +164,7 @@ class SocketTemplate(object):
         self.protocol = protocol
         self.port = port
         self.path = path
+        self.accepted_formats = accepted_formats
         self.pid = pid
         self.queue = queue
         self.timeout = timeout
@@ -219,7 +213,55 @@ class GET_Socket(SocketTemplate):
             else:
                 break
         self.sock.close()
-        return response
+        return self.handle_response(response)
+
+    def handle_response(self, response):
+        response = response.decode('utf-8')
+        if not response:
+            message = ''
+            mime = None
+        else:
+            message = None
+            while not message:
+                try:
+                    header, message = response.split('\r\n\r\n', 1)
+                    mime = self.parse_header(header)            
+                except (ValueError, IOError) as e:
+                    return e
+                except Redirect as e:
+                    match = re.search('Location:.+', str(e))
+                    if match:
+                        location = match.group(0).split(' ')[1]
+                        location = location.split('://')[1]
+                        host, path = location.split('/')[0], \
+                            '/'+'/'.join(location.split('/')[1:])
+                        sock = GET_Socket(host, self.protocol, self.port, 
+                                          path, self.accepted_formats,
+                                          self.pid, self.queue, self.timeout)
+                        sock.connect()
+                        sock.send()
+                        message, mime = sock.recv()
+                        sock.close()
+        return message, mime
+
+    def parse_header(self, header):
+        mime = re.search('Content-Type:.+', header)
+        if not mime:
+            raise ValueError('Header missing Content-Type')
+        else:
+            mime = mime.group(0).split(':')[1]
+            mime = mime.split(';')[0].lstrip(' ').rstrip(' ').rstrip('\r')
+            if mime not in self.accepted_formats:
+                raise ValueError('Server response is of unexpected Content-Type.\n'+
+                                 'expecting: '+str(self.accepted_formats)+
+                                 '\ngot: '+str(mime))            
+            status = header.split('\r\n', 1)[0].split(' ')
+            proto, code, msg = status[0], status[1], ' '.join(status[2:])
+            if code.startswith('3'):
+                raise Redirect(header)
+            if code.startswith('4') or code.startswith('5'):
+                raise IOError(' '.join(proto, code, msg))
+        return mime
 
 
 class HTTPMethods(Convert):
