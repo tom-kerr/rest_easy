@@ -95,6 +95,11 @@ class DynamicAccessor(object):
       * If the field being returned contains another nested structure, another 
         DynamicAccessor will be generated and returned for further access, 
         otherwise, the value of that field or a list of values will be returned.
+        
+        One can defer the construction of nested DynamicAccessors by passing
+        lazy=True to the parent's contructor, and even defer the parent's 
+        construction by passing it deferred=True. Construction of these objects 
+        will take place when one tries to access them.
 
     """
 
