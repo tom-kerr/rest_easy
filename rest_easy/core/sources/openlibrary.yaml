@@ -179,7 +179,7 @@ import openlibrary.def
 
   Books:
     +http_method: GET
-    +path: '/api/books?{0}&{format}{callback}{jscmd}'
+    +path: '/api/books?{0}{format}{callback}{jscmd}'
     +input_format: key_value
     +output_format: javascript
     +children: 
