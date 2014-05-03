@@ -23,10 +23,10 @@ from multiprocessing import Process, Queue
 from queue import Empty
 import socket
 import ssl
-
-from .parser import Parser
-from .convert import Convert
 import types
+
+from .composer import Composer
+from .convert import Convert
 
 
 class RESTfulAsyncTemplate(object):
@@ -276,11 +276,11 @@ class HTTPMethods(Convert):
                 setattr(self, http_method, AsyncQueryTrees(self, http_method))
 
     def _get_query_components_(self, tree):
-        parser = Parser(self)        
+        composer = Composer(self)        
         host = self._super_getattr_('_hostname_')
         protocol = self._super_getattr_('_protocol_')
         port = self._super_getattr_('_port_')
-        path = parser._parse_(tree)
+        path = composer.compose(tree)
         return (host, protocol, port, path)
 
     def get_query_string(self, treenum=None, reset=False):

@@ -184,8 +184,8 @@ class AbstractNode(BaseAttributes, Aspects):
                              '+key': f._key_,
                              '+expected_value': f._expected_value_}
                     pattr = Aspects(fdata)
-                    f = self._get_method_('multikey', key, pattr)
-                    f(value)
+                    f = AbstractNode._get_method_('multikey', pattr)
+                    f(self, value)
                     func_list.append(f)
                 else:
                     raise LookupError('no such attribute, "'+ key +'".')

@@ -1,0 +1,11 @@
+import stddef
+import stdregex
+import mimetype
+
+identifier: &identifier
+  +key: Null
+  +expected_value: *stdregex-ia
+
+file: &file
+  +key: Null
+  +expected_value: str

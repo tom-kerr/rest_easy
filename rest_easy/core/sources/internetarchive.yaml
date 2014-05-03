@@ -1,0 +1,63 @@
+import internetarchive.def
+
++doc: |
+  The Internet Archive is a 501(c)(3) non-profit that was founded to build an 
+  Internet library. Its purposes include offering permanent access for 
+  researchers, historians, scholars, people with disabilities, and the general 
+  public to historical collections that exist in digital format.
+
+  Founded in 1996 and located in San Francisco, the Archive has been receiving 
+  data donations from Alexa Internet and others. In late 1999, the organization 
+  started to grow to include more well-rounded collections. Now the 
+  Internet Archive includes: texts, audio, moving images, and software as well 
+  as archived web pages in our collections, and provides specialized services 
+  for adaptive reading and information access for the blind and other persons 
+  with disabilities. 
+
++hostname: 'archive.org'
++protocol: https
++port: 443
+
++children:
+  identifier: 
+    <<: *identifier
+    +mode: V
+
+  Download:
+    +http_method: GET
+    +path: '/download/{identifier}/{0}'
+    +input_format: key_value
+    +output_format: 
+      [*application,
+      *audio,
+      *image, 
+      *message,
+      *model,
+      *multipart,
+      *text,
+      *video]
+    +this: 
+      +mode: V
+      +key: Null
+      +expected_value: str
+
+  MetadataRead:
+    +http_method: GET
+    +path: '/metadata/{identifier}{/element}?{start}{count}'
+    +input_format: key_value
+    +output_format: application/json
+    +this: 
+      +mode: K
+      +key: ''
+      +expected_value: Null
+    +children:
+      element:
+        +mode: V
+        +key: ''
+        +expected_value: str
+      start:
+        +key: 'start'
+        +expected_value: '[0-9]+'
+      count:
+        +key: 'count'
+        +expected_value: '[0-9]+'
