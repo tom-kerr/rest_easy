@@ -37,57 +37,48 @@ class Requirements(object):
                     else:
                         self.required[k].append( set(v) )
 
-class EnforceRequirements(object):
-
-    def __init__(self, requirements, submitted):
-        self._requirements_ = requirements.required
-        self._submitted_ = submitted.required
-
-    def __call__(self):
-        if self._requirements_:
-            self._check_requirements_()
-
-    def _check_requirements_(self):
-        self._check_mandatory_()
-        self._check_all_or_none_()
-        self._check_at_least_one_()
-        self._check_either_or_()
-        self._check_mutually_exclusive_()
-
-    def _check_mandatory_(self):
-        for num, req_set in enumerate(self._requirements_['+mandatory']):
-            if req_set.intersection(self._submitted_['+mandatory'][num]):
-                missing = list(self._submitted_['+mandatory'][num])
+    def enforce_requirements(self, submitted):
+        if self.required:
+            self._check_mandatory_(submitted)
+            self._check_all_or_none_(submitted)
+            self._check_at_least_one_(submitted)
+            self._check_either_or_(submitted)
+            self._check_mutually_exclusive_(submitted)
+                    
+    def _check_mandatory_(self, submitted):
+        for num, req_set in enumerate(self.required['+mandatory']):
+            if req_set.intersection(submitted['+mandatory'][num]):
+                missing = list(submitted['+mandatory'][num])
                 raise Exception('missing "mandatory" fields ' +
                                 str(missing))
 
-    def _check_all_or_none_(self):
-        for num, req_set in enumerate(self._requirements_['+all_or_none']):
-            diff = req_set.difference(self._submitted_['+all_or_none'][num])
+    def _check_all_or_none_(self, submitted):
+        for num, req_set in enumerate(self.required['+all_or_none']):
+            diff = req_set.difference(submitted['+all_or_none'][num])
             if diff and len(diff) != len(req_set):
-                missing = list(self._submitted_['+all_or_none'][num])
+                missing = list(submitted['+all_or_none'][num])
                 raise Exception('missing "all_or_none" fields ' +
                                 str(missing))
 
-    def _check_at_least_one_(self):
-        for num, req_set in enumerate(self._requirements_['+at_least_one']):
-            diff = req_set.difference(self._submitted_['+at_least_one'][num])
+    def _check_at_least_one_(self, submitted):
+        for num, req_set in enumerate(self.required['+at_least_one']):
+            diff = req_set.difference(submitted['+at_least_one'][num])
             if len(diff) < 1:
-                missing = list(self._submitted_['+at_least_one'][num])
+                missing = list(submitted['+at_least_one'][num])
                 raise Exception('missing "at_least_one" fields ' +
                                 str(missing))
 
-    def _check_either_or_(self):
-        for num, req_set in enumerate(self._requirements_['+either_or']):
-            diff = req_set.difference(self._submitted_['+either_or'][num])
-            if len(self._submitted_['+either_or'][num]) != len(req_set)-1:
+    def _check_either_or_(self, submitted):
+        for num, req_set in enumerate(self.required['+either_or']):
+            diff = req_set.difference(submitted['+either_or'][num])
+            if len(submitted['+either_or'][num]) != len(req_set)-1:
                 raise Exception('invalid number of "either_or" fields given: ' +
                                 str( list(diff)) + ' of ' + str( list(req_set) ) )
 
-    def _check_mutually_exclusive_(self):
-        for num, req_set in enumerate(self._requirements_['+mutually_exclusive']):
-            diff = req_set.difference(self._submitted_['+mutually_exclusive'][num])
-            if (len(self._submitted_['+mutually_exclusive'][num])
+    def _check_mutually_exclusive_(self, submitted):
+        for num, req_set in enumerate(self.required['+mutually_exclusive']):
+            diff = req_set.difference(submitted['+mutually_exclusive'][num])
+            if (len(submitted['+mutually_exclusive'][num])
                 not in ( len(req_set)-1, len(req_set) )):
                 raise Exception('invalid number of "mutually_exclusive" fields given: ' +
                                 str( list(diff)) + ' of ' + str( list(req_set) ) )
