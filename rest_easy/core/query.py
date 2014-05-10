@@ -235,7 +235,7 @@ class RESTSocket(object):
                     header, message = response.split('\r\n\r\n', 1)
                     mime = self.parse_header(header)            
                 except (ValueError, IOError) as e:
-                    return e
+                    return e, None
                 except Redirect as e:
                     match = re.search('Location:.+', str(e))
                     if match:
