@@ -276,14 +276,20 @@ class Composer(object):
             self.submitted.add(func)
             if func._value_:
                 if self.parent._input_format_ == 'key_value':
+                    
+                    if self.parent._http_method_ == 'GET':
+                        value = quote(str(func._value_))
+                    elif self.parent._http_method_ == 'POST':
+                        value = str(func._value_)
+
                     if 'K' not in mode.flags and 'MK' not in mode.flags:
                         if 'MV' in mode.flags and chain == syntax['+multi']:
-                            string += '{}{}'.format(quote( str(func._value_) ), chain)
+                            string += '{}{}'.format(value, chain)
                         else:
-                            string += '{}'.format(quote( str(func._value_)) )
+                            string += '{}'.format(value)
                     else:
                         string += '{}{}{}{}'.format(func._key_, bind,
-                                                    quote( str(func._value_)), chain)
+                                                    value, chain)
                 elif self.parent._input_format_ == 'json':
                     if func._value_ in ( True, False, None):
                         json[func._key_] = func._value_

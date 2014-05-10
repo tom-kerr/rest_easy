@@ -72,7 +72,7 @@ class AsyncQueryTrees(RESTfulAsyncTemplate):
         self.proc_count = len(qtrees)
         for num, tree in enumerate(qtrees):
             host, protocol, port, path = self.parent._get_query_components_(tree)
-            sock = GET_Socket(host, protocol, port, path, 
+            sock = RESTSocket(self.http_method, host, protocol, port, path, 
                               self.parent._output_format_,
                               num, self.queue, self.timeout)
             self.threads[num] = Process(target=sock, name=num)
@@ -158,9 +158,19 @@ class Redirect(Exception):
     pass
 
 
-class SocketTemplate(object):
-    def __init__(self, host, protocol, port, path, accepted_formats,
+class RESTSocket(object):
+    GET_header = \
+        "GET {0} HTTP/1.0\r\nHost: {1}\r\n\r\n"
+    POST_header = \
+        "POST {0} HTTP/1.1\r\n" \
+        + "Host: {1}\r\n" \
+        + "Content-Type: application/x-www-form-urlencoded\r\n" \
+        + "Content-Length: {2}\r\n\r\n" \
+        + "{3}"
+
+    def __init__(self, method, host, protocol, port, path, accepted_formats,
                  pid=None, queue=None, timeout=30):
+        self.http_method = method
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if protocol == 'https':
             self.sock = ssl.wrap_socket(self.sock)
@@ -173,15 +183,6 @@ class SocketTemplate(object):
         self.queue = queue
         self.timeout = timeout
 
-    def connect(self):
-        pass
-
-    def recv(self):
-        pass
-
-    def send(self):
-        pass
-
     def __call__(self):
         self.connect()
         self.send()
@@ -191,15 +192,8 @@ class SocketTemplate(object):
         else:
             return response
 
-
-class GET_Socket(SocketTemplate):
     def connect(self):
         self.sock.connect((self.host, self.port))
-
-    def send(self):
-        msg = bytes("GET {0} HTTP/1.0\r\nHost: {1}\r\n\r\n".\
-          format(self.path, self.host), 'ascii')
-        self.sock.sendall(msg)
 
     def recv(self):
         response = b''
@@ -219,6 +213,16 @@ class GET_Socket(SocketTemplate):
         self.sock.close()
         return self.handle_response(response)
 
+    def send(self):
+        if self.http_method == 'GET':
+            msg = bytes(self.GET_header.format(self.path, self.host), 'ascii')
+        elif self.http_method == 'POST':
+            path, body = self.path.split('?')
+            length = len(body)
+            msg = bytes(self.POST_header.format(path, self.host, 
+                                                length, body), 'ascii')
+        self.sock.sendall(msg)
+    
     def handle_response(self, response):
         response = response.decode('utf-8')
         if not response:
@@ -239,13 +243,13 @@ class GET_Socket(SocketTemplate):
                         location = location.split('://')[1]
                         host, path = location.split('/')[0], \
                             '/'+'/'.join(location.split('/')[1:])
-                        gsock = GET_Socket(host, self.protocol, self.port, 
-                                          path, self.accepted_formats,
-                                          self.pid, self.queue, self.timeout)
-                        gsock.connect()
-                        gsock.send()
-                        message, mime = gsock.recv()
-                        gsock.sock.close()
+                        newsock = sock_method(self.http_method, host, self.protocol, 
+                                              self.port, path, self.accepted_formats,
+                                              self.pid, self.queue, self.timeout)
+                        newsock.connect()
+                        newsock.send()
+                        message, mime = newsock.recv()
+                        newsock.sock.close()
         return message, mime
 
     def parse_header(self, header):
@@ -264,14 +268,14 @@ class GET_Socket(SocketTemplate):
             if code.startswith('3'):
                 raise Redirect(header)
             if code.startswith('4') or code.startswith('5'):
-                raise IOError(' '.join(proto, code, msg))
+                raise IOError(' '.join((proto, code, msg)))
         return mime
 
 
 class HTTPMethods(Convert):
     """Request methods for querying APIs."""
     def __init__(self, *args, **kwargs):
-        for http_method in ('GET', ):
+        for http_method in ('GET', 'POST'):
             if http_method in self._http_method_:
                 setattr(self, http_method, AsyncQueryTrees(self, http_method))
 
