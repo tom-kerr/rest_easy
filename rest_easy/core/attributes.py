@@ -140,7 +140,7 @@ class Aspects(object):
         return tuple(typelist)
 
     def _check_type_(self, data_type):
-        for dtype in ( int, bool, str, float ):
+        for dtype in ( int, bool, str, float, dict ):
             if dtype.__name__ == data_type:
                  return dtype
         for dtype in ( list,  ):

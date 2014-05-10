@@ -15,6 +15,7 @@
 from __future__ import print_function
 
 import re
+import json
 import pprint
 from copy import copy, deepcopy
 from collections import OrderedDict
@@ -512,9 +513,17 @@ class Property(AbstractNode, Node):
                                 + expected_value.pattern + '", "'
                                 + str(value) + '" given.' )
         elif isinstance(expected_value, dict):
-            for k,v in expected_value.items():
-                self._validate_input_(keyword, value, v)
-                value = str(k) + str(value)
+            if expected_value:
+                for k,v in expected_value.items():
+                    self._validate_input_(keyword, value, v)
+                    value = str(k) + str(value)
+            else:
+                if isinstance(value, dict):
+                    value = json.dumps(value)
+                else:
+                    raise TypeError('"' + keyword + '" expects "'
+                                    + str(expected_value) + '", "'
+                                    + str(type(value)) + '" given.' )
         elif isinstance(expected_value, tuple):
             exceptions = set()
             match = False
