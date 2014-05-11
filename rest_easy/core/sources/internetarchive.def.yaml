@@ -10,18 +10,18 @@ file: &file
   +key: Null
   +expected_value: str
 
-element:
+element: &element
   +mode: V
   +key: ''
   +expected_value: str
 
-target: 
+target: &target
   +doc: |
     The metadata target you would like to modify.
   +key: '-target'
   +expected_value: str
 
-patch:
+patch: &patch
   +doc: |
     The patch you are submitting to the Metadata API. Patches are JSON 
     strings. They should comply to the draft Json-Patch standard:
@@ -29,13 +29,13 @@ patch:
   +key: '-patch'
   +expected_value: {}
   
-access:
+access: &access
   +doc: |
     Your IA-S3 access key.
   +key: 'access'
   +expected_value: str
   
-secret:
+secret: &secret
   +doc: |
     Your IA-S3 secret key.
   +key: 'secret'
