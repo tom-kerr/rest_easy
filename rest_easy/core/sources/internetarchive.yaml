@@ -51,16 +51,9 @@ import internetarchive.def
       +key: ''
       +expected_value: Null
     +children:
-      element:
-        +mode: V
-        +key: ''
-        +expected_value: str
-      start:
-        +key: 'start'
-        +expected_value: '[0-9]+'
-      count:
-        +key: 'count'
-        +expected_value: '[0-9]+'
+      element: *element
+      start: *std-start
+      count: *std-count
 
   MetadataWrite:
     +http_method: POST
@@ -68,25 +61,8 @@ import internetarchive.def
     +input_format: key_value
     +output_format: application/json
     +children:
-      target:
-        +doc: |
-          The metadata target you would like to modify.
-        +key: '-target'
-        +expected_value: str
-      patch:
-        +doc: |
-          The patch you are submitting to the Metadata API. Patches are JSON 
-          strings. They should comply to the draft Json-Patch standard:
-            http://tools.ietf.org/html/draft-ietf-appsawg-json-patch-02
-        +key: '-patch'
-        +expected_value: {}
-      access:
-        +doc: |
-          Your IA-S3 access key.
-        +key: 'access'
-        +expected_value: str
-      secret:
-        +doc: |
-          Your IA-S3 secret key.
-        +key: 'secret'
-        +expected_value: str
+      target: *target
+      patch: *patch
+      access: *access
+      secret: *secret
+

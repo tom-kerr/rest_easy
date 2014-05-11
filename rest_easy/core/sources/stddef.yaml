@@ -264,6 +264,14 @@ limit: &std-limit
   +key: 'limit'
   +expected_value: *stdregex-posint
 
+start: &std-start
+  +key: 'start'
+  +expected_value: '[0-9]+'
+
+count: &std-count
+  +key: 'count'
+  +expected_value: '[0-9]+'
+
 #MISC
 url: &std-url 
   +key: 'url'
