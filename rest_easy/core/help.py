@@ -29,7 +29,7 @@ colorama_init()
 
 from .parser import Parser
 from .alt import AlternateInterface
-from .parameter import API, ResourceMethod, Property
+from .parameter import Source, API, ResourceMethod, Property
 
 
 class Helper(object):
@@ -136,6 +136,7 @@ class Helper(object):
                         self._buffer_ += '\n'
 
     def _print_parameters_(self, obj):
+        sources = []
         apis = []
         methods = []
         properties = []
@@ -167,9 +168,16 @@ class Helper(object):
                     properties.append(attrname)
                 elif isinstance(attr, API):
                     apis.append(attrname)
+                elif isinstance(attr, Source):
+                    sources.append(attrname)
 
         self._buffer_ += '\n'
 
+        if sources:
+            self._buffer_ += self._color_('    sources:', fore='blue')
+            for source in sources:
+                self._buffer_ += '\n\t' + self._color_(source, fore='green')
+            self._buffer_ += '\n'
         if apis:
             self._buffer_ += self._color_('    apis:', fore='blue')
             for api in apis:
