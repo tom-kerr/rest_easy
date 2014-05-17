@@ -38,7 +38,9 @@ class SourceBuilder(Helper):
         self.source_list = []
         for sourcefile in self.sourcefile_list:
             sf = os.path.basename(sourcefile).split('.yaml')[0]
-            if not sf.endswith('.def') and sf not in ('stddef', 'stdregex'):
+            if not sf.endswith('.def') and sf not in ('stddef',
+                                                      'stdregex',
+                                                      'mimetype'):
                 self.source_list.append(sf)
 
     def _get_source_(self, source):
