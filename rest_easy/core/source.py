@@ -61,7 +61,9 @@ class SourceBuilder(Helper):
             if match:
                 y = yamler.load(source_file)
                 self.sources[namespace] = y
-                return deepcopy(y)
+                cpy = [deepcopy(i) for i in y]
+                return cpy
+                #return deepcopy(y)
         raise Exception('Invalid Source.')
 
     def get_wrappers(self, source):
@@ -69,7 +71,21 @@ class SourceBuilder(Helper):
         if source in self.source_objects:
             return self.source_objects[source]
         source_data = self._get_source_(source)
-        source_obj = SourceBuilder._build_source_(self, source, source_data)
+        for num, doc in enumerate(source_data):
+            if num == 0:
+                parent_obj = self
+                namespace = source
+            else:
+                if '+namespace' in doc:
+                    namespace = doc['+namespace']
+                else:
+                    namespace = source
+            obj = SourceBuilder._build_source_(parent_obj, namespace, doc)
+            if num == 0:
+                source_obj = obj
+                parent_obj = obj
+            elif num > 0:
+                setattr(parent_obj, namespace, obj)
         self.source_objects[source] = source_obj
         return source_obj
 

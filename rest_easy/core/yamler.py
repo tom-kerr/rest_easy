@@ -78,7 +78,7 @@ class Yamler(object):
         else:
             total.extend(_lines)
             total = StringIO(''.join(total))
-            return yaml.load(total)
+            return yaml.load_all(total)
 
     def get_lines(self, source_file):
         with open(source_file, encoding='utf-8', mode='r') as yamlfile:
