@@ -451,7 +451,6 @@ class Source(AbstractNode, Node):
     def __init__(self, **kwargs):
         AbstractNode.__init__(self, **kwargs)
         Node.__init__(self, **kwargs)
-        source_data = kwargs['data_dict']
 
     def _get_root_object_(self, obj=None):
         if not obj:
