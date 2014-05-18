@@ -98,7 +98,7 @@ class Helper(object):
     def _get_sources_(self):
         self._buffer_ += ('\n' + FmtStr.header('Source List') + '\n')
         for source in self.source_list:
-            self._buffer_ += (FmtStr.field(source) + '\n')
+            self._buffer_ += (FmtStr.field(source, 1) + '\n')
 
     def _get_essential_(self, obj):
         if hasattr(obj, '_essential_'):
