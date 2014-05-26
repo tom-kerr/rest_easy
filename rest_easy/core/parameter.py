@@ -487,11 +487,10 @@ class ResourceMethod(AbstractNode, Node, HTTPMethods):
         AbstractNode.__init__(self, **kwargs)
         Node.__init__(self, **kwargs)
         HTTPMethods.__init__(self, **kwargs)
-
-
+        
+#this method is attached to GET ResourceMethods
 def set_return_format(self, fmt):
     self._return_format_ = fmt
-
 
 
 class Property(AbstractNode, Node):
