@@ -22,6 +22,11 @@ elif major == 3:
     from io import StringIO
 
 import yaml
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader as Loader
+    
 from copy import copy
 import pprint
 
@@ -76,7 +81,7 @@ class Yamler(object):
             return total
         else:
             total = StringIO(''.join(total))
-            return yaml.load_all(total)
+            return yaml.load_all(total, Loader=Loader)
 
     def walk_imports(self, lines, total, _lines):
         imports = []
