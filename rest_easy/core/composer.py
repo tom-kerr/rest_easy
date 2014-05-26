@@ -79,9 +79,10 @@ class Composer(object):
         if strings_dict:
             path = path.format(main, **strings_dict)
         else:
-            path = path.format(main)    
-        while not re.search('[a-zA-Z0-9}]$', path):
-            path = path[:-1]
+            path = path.format(main)
+        if re.search('[a-zA-Z0-9}]', path):
+            while not re.search('[a-zA-Z0-9}]$', path):
+                path = path[:-1]
         return path
 
     def compose(self, tree):
