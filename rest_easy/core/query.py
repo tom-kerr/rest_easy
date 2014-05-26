@@ -42,7 +42,7 @@ class RESTfulAsyncTemplate(object):
                  deferred=False, pretty_print=False, 
                  reset=True, pid=None, queue=None, 
                  timeout=30):
-        self.special_headers = header_dict
+        self.custom_headers = header_dict
         if hasattr(self.parent, '_return_format_'):
             self.return_format = self.parent._return_format_
         else:
@@ -82,8 +82,8 @@ class AsyncSingleResourceMethod(RESTfulAsyncTemplate):
               self.parent._get_query_components_(tree)
             http_request = HTTPRequest(self.http_method, host,
                                        protocol, port, path, body)
-            if self.special_headers:
-                header_fields.update(self.special_headers)
+            if self.custom_headers:
+                header_fields.update(self.custom_headers)
             http_request.add_header_fields(header_fields)
             http_request.compose_request()
             self.requests.append(http_request)
