@@ -407,10 +407,15 @@ class QueryTree(object):
                     replaced = False
                     for f in state[item]['zfunctions']:
                         for n, _f in enumerate(tree[item]['zfunctions']):
-                            if (_f._name_ == f._name_ and
-                                _f._parent_ == f._parent_):
-                                tree[item]['zfunctions'][n] = f
-                                replaced = True
+                            if isinstance(_f, dict):
+                                if _f['parameter'] == f._name_:
+                                    tree[item]['zfunctions'][n] = state[item]
+                                    replaced = True
+                            else:
+                                if (_f._name_ == f._name_ and
+                                    _f._parent_ == f._parent_):
+                                    tree[item]['zfunctions'][n] = f
+                                    replaced = True
                         if not replaced:
                             tree[item]['zfunctions'].append(f)
 
