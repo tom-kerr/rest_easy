@@ -38,16 +38,11 @@ class RESTfulAsyncTemplate(object):
         self.proc_count = 0
         self.finished = 0
 
-    def proc_spawn_loop(self):
-        pass
-
-    def collect_results(self):
-        pass
-
-    def __call__(self, return_format=None, lazy=False, 
+    def __call__(self, header_dict=None, return_format=None, lazy=False, 
                  deferred=False, pretty_print=False, 
                  reset=True, pid=None, queue=None, 
                  timeout=30):
+        self.special_headers = header_dict
         if hasattr(self.parent, '_return_format_'):
             self.return_format = self.parent._return_format_
         else:
@@ -55,6 +50,7 @@ class RESTfulAsyncTemplate(object):
         self.pretty_print = pretty_print
         self.reset = reset
         self.timeout = timeout
+        self.build_requests()
         self.proc_spawn_loop()
         results = self.collect_results(lazy, deferred)
         self.proc_count = 0
@@ -64,16 +60,37 @@ class RESTfulAsyncTemplate(object):
         else:
             return results
 
-
-class AsyncQueryTrees(RESTfulAsyncTemplate):
-    """Creates a thread for each query tree."""
+    def build_requests(self):
+        pass
+        
     def proc_spawn_loop(self):
+        pass
+
+    def collect_results(self):
+        pass
+
+
+class AsyncSingleResourceMethod(RESTfulAsyncTemplate):
+    """Creates a thread for each query tree."""
+
+    def build_requests(self):
+        self.requests = []
         qtrees = self.parent._root_getattr_('_query_trees_')[self.parent._name_]
         self.proc_count = len(qtrees)
-        for num, tree in enumerate(qtrees):
-            host, protocol, port, path = self.parent._get_query_components_(tree)
-            sock = RESTSocket(self.http_method, host, protocol, port, path, 
-                              self.parent._output_format_,
+        for tree in qtrees:
+            host, protocol, port, header_fields, path, body = \
+              self.parent._get_query_components_(tree)
+            http_request = HTTPRequest(self.http_method, host,
+                                       protocol, port, path, body)
+            if self.special_headers:
+                header_fields.update(self.special_headers)
+            http_request.add_header_fields(header_fields)
+            http_request.compose_request()
+            self.requests.append(http_request)
+     
+    def proc_spawn_loop(self):
+        for num, request in enumerate(self.requests):
+            sock = RESTSocket(request, self.parent._output_format_,
                               num, self.queue, self.timeout)
             self.threads[num] = Process(target=sock, name=num)
             self.threads[num].start()
@@ -109,7 +126,7 @@ class AsyncQueryTrees(RESTfulAsyncTemplate):
         return results
 
 
-class AsyncResourceMethods(RESTfulAsyncTemplate):
+class AsyncMultiResourceMethod(RESTfulAsyncTemplate):
     """Creates a thread for each ResourceMethod, which in turn will spawn a
     thread for each of its query trees."""
     def proc_spawn_loop(self):
@@ -158,26 +175,68 @@ class Redirect(Exception):
     pass
 
 
-class RESTSocket(object):
-    GET_header = \
-        "GET {0} HTTP/1.0\r\nHost: {1}\r\n\r\n"
-    POST_header = \
-        "POST {0} HTTP/1.1\r\n" \
-        + "Host: {1}\r\n" \
-        + "Content-Type: application/x-www-form-urlencoded\r\n" \
-        + "Content-Length: {2}\r\n\r\n" \
-        + "{3}"
-
-    def __init__(self, method, host, protocol, port, path, accepted_formats,
-                 pid=None, queue=None, timeout=30):
-        self.http_method = method
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        if protocol == 'https':
-            self.sock = ssl.wrap_socket(self.sock)
+class HTTPRequest(object):
+    methods = ('GET', 'POST', 'PUT')
+    
+    def __init__(self, method, host, protocol, port, path, body):
+        if method not in self.methods:
+            raise LookupError("No such HTTP request method '" + str(method) + "'.")
+        self.message = '{method} {path} {version}\r\n{fields}\r\n\r\n'
         self.host = host
         self.protocol = protocol
         self.port = port
-        self.path = path
+        self.request = {'method': method,
+                        'path': path}        
+        if method == 'GET':
+            self.request['version'] = 'HTTP/1.0'
+        else:
+            self.request['version'] = 'HTTP/1.1'
+        self.header = {'Host': host}
+        self.body = b'\n\r'.join(body)
+        if method in ('POST'):
+            self.header['Content-Type'] = 'application/x-www-form-urlencoded'
+                    
+    def add_header_fields(self, header_dict):
+        for field, value in header_dict.items():
+            if isinstance(value, dict):
+                for k, v in value.items():
+                    f = field + k
+                    self.header[f] = v  
+            elif isinstance(value, list):
+                for val in value:
+                    if isinstance(val, dict):
+                        for k, v in val.items():
+                            f = field + k
+                            self.header[f] = v
+            elif isinstance(value, (str, int)):
+                self.header[field] = str(value)
+            else:
+                raise ValueError('Bad header value.')
+
+    def compose_request(self):
+        missing = [f for f,v in self.header.items() if not v]
+        missing.extend( [f for f,v in self.request.items() if not v] )
+        if missing:
+            raise ValueError('Missing essential header fields:' + str(missing))
+        fields = '\r\n'.join([k+': '+str(v) for k,v in self.header.items()])
+        if not self.body:
+            self.body = ''
+        self.message = bytes(self.message.format(method=self.request['method'],
+                                                 path=self.request['path'],
+                                                 version=self.request['version'],
+                                                 fields=fields), 'ascii')
+        if not isinstance(self.body, bytes):
+            self.body = bytes(self.body, 'ascii')
+        self.message = self.message + self.body
+        
+class RESTSocket(object):
+    
+    def __init__(self, http_request, accepted_formats,
+                 pid=None, queue=None, timeout=30):
+        self.http_request = http_request
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if http_request.protocol == 'https':
+            self.sock = ssl.wrap_socket(self.sock)
         self.accepted_formats = accepted_formats
         self.pid = pid
         self.queue = queue
@@ -193,7 +252,8 @@ class RESTSocket(object):
             return response
 
     def connect(self):
-        self.sock.connect((self.host, self.port))
+        self.sock.connect((self.http_request.host,
+                           self.http_request.port))
 
     def recv(self):
         response = b''
@@ -214,14 +274,7 @@ class RESTSocket(object):
         return self.handle_response(response)
 
     def send(self):
-        if self.http_method == 'GET':
-            msg = bytes(self.GET_header.format(self.path, self.host), 'ascii')
-        elif self.http_method == 'POST':
-            path, body = self.path.split('?')
-            length = len(body)
-            msg = bytes(self.POST_header.format(path, self.host, 
-                                                length, body), 'ascii')
-        self.sock.sendall(msg)
+        self.sock.sendall(self.http_request.message)
     
     def handle_response(self, response):
         response = response.decode('utf-8')
@@ -243,9 +296,11 @@ class RESTSocket(object):
                         location = location.split('://')[1]
                         host, path = location.split('/')[0], \
                             '/'+'/'.join(location.split('/')[1:])
-                        newsock = sock_method(self.http_method, host, self.protocol, 
-                                              self.port, path, self.accepted_formats,
-                                              self.pid, self.queue, self.timeout)
+                        self.http_request.host = host
+                        self.http_request.path = path
+                        self.http_request.compose_request()
+                        newsock = RESTSocket(self.http_request, self.accepted_formats,
+                                             self.pid, self.queue, self.timeout)
                         newsock.connect()
                         newsock.send()
                         message, mime = newsock.recv()
@@ -275,17 +330,18 @@ class RESTSocket(object):
 class HTTPMethods(Convert):
     """Request methods for querying APIs."""
     def __init__(self, *args, **kwargs):
-        for http_method in ('GET', 'POST'):
+        for http_method in ('GET', 'POST', 'PUT'):
             if http_method in self._http_method_:
-                setattr(self, http_method, AsyncQueryTrees(self, http_method))
-
+                setattr(self, http_method,
+                        AsyncSingleResourceMethod(self, http_method))
+    
     def _get_query_components_(self, tree):
         composer = Composer(self)        
         host = self._super_getattr_('_hostname_')
         protocol = self._super_getattr_('_protocol_')
         port = self._super_getattr_('_port_')
-        path = composer.compose(tree)
-        return (host, protocol, port, path)
+        header, path, body = composer.compose(tree)
+        return (host, protocol, port, header, path, body)
 
     def get_url(self, treenum=None, reset=False):
         if not treenum:
@@ -293,11 +349,12 @@ class HTTPMethods(Convert):
         qtrees = self._root_getattr_('_query_trees_')
         tree = qtrees[self._name_][treenum]
         #pprint.pprint(qtrees)
-        host, protocol, port, path = self._get_query_components_(tree)
-        qstring = host + ':' + str(port) + path
+        host, protocol, port, header, path, body = \
+          self._get_query_components_(tree)
+        url = host + ':' + str(port) + path
         if reset:
             self.reset_query()
-        return qstring
+        return url
 
 
 class QueryTree(object):
