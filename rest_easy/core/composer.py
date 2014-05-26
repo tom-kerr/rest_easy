@@ -27,6 +27,7 @@ import pprint
 import string
 from copy import copy, deepcopy
 from collections import OrderedDict
+import mimetypes
 
 from .requirements import Requirements
 
@@ -70,7 +71,7 @@ class Composer(object):
                     path = path.replace('{'+token+'}', '')
         return path
 
-    def get_formatted_path(self, strings_dict):        
+    def get_formatted_path(self, strings_dict):
         path = self.get_clean_path_string()
         for k,v in strings_dict.items():
             strings_dict[k] = ''.join(v)
@@ -93,13 +94,14 @@ class Composer(object):
         self.submitted = \
             self.parent._root_getattr_('_submitted_')[self.parent._name_]
         if self.parent._input_format_ == 'key_value':
-            strings = self.parse_key_value(tree)
-            path = self.get_formatted_path(strings)
+            header_dict, path_dict, body_list = self.compose_key_value(tree)
+            path = self.get_formatted_path(path_dict)
         elif self.parent._input_format_ == 'json':
-            json_string = str(json.dumps(self.parse_json(tree))).replace(' ', '')
+            header_dict, path_dict, body_list = self.compose_json(tree)
+            json_string = str(json.dumps(path_dict)).replace(' ', '')
             path = self.get_formatted_path({'0': json_string})
-        self.enforce_requirements()        
-        return path
+        self.enforce_requirements()
+        return header_dict, path, body_list
 
     def retrieve_requirements(self, item):
         if 'requirements' in item and item['requirements']:
@@ -120,10 +122,15 @@ class Composer(object):
                         rset.remove(item._name_)
         return submitted
 
-    def parse_json(self, tree, has_scope=False, has_prefix=False):
-        json = {}
+    def compose_json(self, tree, header_dict=None, json=None,
+                     body_list=None, has_scope=False, has_prefix=False):
+        if header_dict is None:
+            header_dict = {}
+        if json is None:
+            json = {}
+        if body_list is None:
+            body_list = []
         for k, item in tree.items():
-
             requirements = self.retrieve_requirements(item)
             self.requirements.add_requirements(requirements)
 
@@ -150,24 +157,35 @@ class Composer(object):
             for num, func in enumerate(item['zfunctions']):
                 fcount = len(item['zfunctions'])
                 if isinstance(func, dict):
-                    for k,v in self.parse_json({func['parameter']: func},
-                                               has_scope, has_prefix).items():
-                        json[k] = v
+                    self.compose_json({func['parameter']: func},
+                                      json, header_dict,
+                                      has_scope, has_prefix)
                 elif isinstance(func, tuple) or hasattr(func, '__call__'):
-                    j = self.parse_func(num, fcount, func, item['syntax'],
-                                        item['mode'], has_scope, has_prefix)
-                    if not isinstance(has_prefix, dict):
-                        for k,v in j.items():
-                            json[k] = v
+                    if item['mode'].string == 'header':
+                        self.add_header_string(func, header_dict)
+                    elif 'body' in item['mode'].flags:
+                        self.add_body_string(func, body_list, header_dict)
+                    else:
+                        j = self.compose_func(num, fcount, func, item['syntax'],
+                                              item['mode'], has_scope, has_prefix)
+                        if not isinstance(has_prefix, dict):
+                            for k,v in j.items():
+                                json[k] = v
                 else:
                     raise Exception('Invalid item found in ' +
                                     str(k) + '\'s zfunction list')
-        return json
+        return header_dict, json, body_list
 
-    def parse_key_value(self, tree, has_scope=False, has_prefix=False):
-        strings = {'0': []}
+    def compose_key_value(self, tree, header_dict=None, path_dict=None,
+                          body_list=None, has_scope=False, has_prefix=False):
+        if header_dict is None:
+            header_dict = {}
+        if path_dict is None:
+            path_dict = {'0': []}
+        if body_list is None:
+            body_list = []
+            
         for k, item in tree.items():
-
             item_string = ''
             requirements = self.retrieve_requirements(item)
             self.requirements.add_requirements(requirements)
@@ -185,15 +203,10 @@ class Composer(object):
             for num, func in enumerate(item['zfunctions']):
                 fcount = len(item['zfunctions'])
                 if isinstance(func, dict):
-                    for t, v in self.parse_key_value({func['parameter']: func},
-                                                     has_scope, has_prefix).items():
-                        if t != '0':
-                            if t not in strings:
-                                strings[t] = v
-                            else:
-                                strings[t].extend(v)
-                        else:
-                            item_string += ''.join(v)
+                    self.compose_key_value({func['parameter']: func},
+                                            header_dict, path_dict,
+                                            body_list,
+                                            has_scope, has_prefix)
                 elif isinstance(func, tuple) or hasattr(func, '__call__'):
                     #hack
                     if isinstance(func, tuple):
@@ -208,41 +221,74 @@ class Composer(object):
 
                     syntax = f._syntax_
 
-                    item_string += self.parse_func(num, fcount, func, syntax,
-                                                   item['mode'], has_scope,
-                                                   has_prefix)
+                    if item['mode'].string == 'header':
+                        self.add_header_string(func, header_dict)
+                    elif 'body' in item['mode'].flags:
+                        self.add_body_string(func, body_list, header_dict)
+                    else:
+                        item_string += self.compose_func(num, fcount, func, syntax,
+                                                        item['mode'], has_scope,
+                                                        has_prefix)
                     
                 else:
                     raise Exception('Invalid item found in ' + str(k) +
                                     '\'s zfunction list')
-            rm_token = None
             if item_string:
-                for tnum, token_tuple in enumerate(self.tokens):
-                    prefix, token, suffix = token_tuple
-                    if k == token:
-                        if prefix:
-                            item_string = prefix + item_string
-                        if suffix:
-                            item_string += suffix
-                        if k not in strings:
-                            strings[k] = [item_string, ]
-                        else:
-                            strings[k].append(item_string)
-                        rm_token = tnum
-                        break
-                if not rm_token and k not in strings:
-                    strings['0'].append(item_string)
-                if rm_token is not None:
-                    del self.tokens[rm_token]
-        return strings
+                self.add_item_string(k, item_string, path_dict)
+        return header_dict, path_dict, body_list
 
-    def parse_func(self, num, fcount, func, syntax, mode,
+    def add_body_string(self, func, body_list, header_dict):
+        if 'file' in func._mode_.flags:
+            filename = func._value_
+            if os.path.exists(filename):
+                value = open(filename, 'rb').read()
+                self.path = self.path + '/' + filename.split('/')[-1]
+                header_dict['Content-Type'] = mimetypes.guess_type(filename)[0]
+            else:
+                raise OSError("No such file '"+filename+"'")
+        else:
+            value = func._key_ + ': ' + func._value_
+            header_dict['Content-Type'] = 'text/plain'
+        body_list.append(value)
+        header_dict['Content-Length'] = sum([len(i) for i in body_list])
+           
+    def add_header_string(self, func, header_dict):
+        key = func._key_
+        header_string = func._value_
+        if key not in header_dict:
+            header_dict[key] = [header_string, ]
+        else:
+            header_dict[key].append(header_string)
+    
+    def add_item_string(self, key, item_string, path_dict):
+        rm_token = None
+        for tnum, token_tuple in enumerate(self.tokens):
+            prefix, token, suffix = token_tuple
+            if key == token:
+                if prefix:
+                    item_string = prefix + item_string
+                if suffix:
+                    item_string += suffix
+                if key not in path_dict:
+                    path_dict[key] = [item_string, ]
+                else:
+                    path_dict[key].append(item_string)
+                rm_token = tnum
+                break
+        if not rm_token and key not in path_dict:
+            path_dict['0'].append(item_string)
+        if rm_token is not None:
+            del self.tokens[rm_token]
+    
+    
+    def compose_func(self, num, fcount, func, syntax, mode,
                    has_scope=False, has_prefix=False):
         if self.parent._input_format_ == 'key_value':
             string = ''
             bind = syntax['+bind']
             chain = syntax['+chain']
-            if has_scope or has_prefix or 'MV' in mode.flags or 'MK' in mode.flags:
+            if has_scope or has_prefix or \
+              'MV' in mode.flags or 'MK' in mode.flags:
                 if '+args' in syntax:
                     if syntax['+args'] is None:
                         bind = ''
@@ -267,10 +313,10 @@ class Composer(object):
             for n, f in enumerate(func):
                 self.submitted.add(f)
                 if self.parent._input_format_ == 'key_value':
-                    string += self.parse_func(n, len(func), f, syntax, mode,
+                    string += self.compose_func(n, len(func), f, syntax, mode,
                                               has_scope, has_prefix)
                 elif self.parent._input_format_ == 'json':
-                    for k,v in self.parse_func(n, len(func), f, syntax, mode,
+                    for k,v in self.compose_func(n, len(func), f, syntax, mode,
                                                has_scope, has_prefix).items():
                         json[k] = str(v)
         else:
@@ -280,7 +326,7 @@ class Composer(object):
                     
                     if self.parent._http_method_ == 'GET':
                         value = quote(str(func._value_))
-                    elif self.parent._http_method_ == 'POST':
+                    else:
                         value = str(func._value_)
 
                     if 'K' not in mode.flags and 'MK' not in mode.flags:
