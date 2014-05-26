@@ -57,7 +57,7 @@ import internetarchive.def
 
   MetadataWrite:
     +http_method: POST
-    +path: '/metadata/{identifier}?{0}'
+    +path: '/metadata/{identifier}'
     +input_format: key_value
     +output_format: application/json
     +children:

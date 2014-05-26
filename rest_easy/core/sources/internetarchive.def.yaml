@@ -18,6 +18,7 @@ element: &element
 target: &target
   +doc: |
     The metadata target you would like to modify.
+  +mode: body
   +key: '-target'
   +expected_value: str
 
@@ -26,17 +27,20 @@ patch: &patch
     The patch you are submitting to the Metadata API. Patches are JSON 
     strings. They should comply to the draft Json-Patch standard:
       http://tools.ietf.org/html/draft-ietf-appsawg-json-patch-02
+  +mode: body
   +key: '-patch'
   +expected_value: {}
   
 access: &access
   +doc: |
     Your IA-S3 access key.
+  +mode: body
   +key: 'access'
   +expected_value: str
   
 secret: &secret
   +doc: |
     Your IA-S3 secret key.
+  +mode: body
   +key: 'secret'
   +expected_value: str
