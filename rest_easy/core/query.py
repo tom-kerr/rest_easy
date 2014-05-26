@@ -287,7 +287,7 @@ class HTTPMethods(Convert):
         path = composer.compose(tree)
         return (host, protocol, port, path)
 
-    def get_query_string(self, treenum=None, reset=False):
+    def get_url(self, treenum=None, reset=False):
         if not treenum:
             treenum = self._root_getattr_('_current_tree_')[self._name_]
         qtrees = self._root_getattr_('_query_trees_')

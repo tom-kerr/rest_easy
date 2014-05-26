@@ -64,7 +64,7 @@ class AlternateInterface(object):
         query_elements = Parser._parse_query_string_(query)
         return root_obj, api_obj, query_elements
 
-    def get_query_string(self, source=None, api=None, query=None, reset=False):
+    def get_url(self, source=None, api=None, query=None, reset=False):
         if not self._resource_method_:
             root_obj, api_obj, query_elements = \
               self._get_query_components_(source, api, query)
