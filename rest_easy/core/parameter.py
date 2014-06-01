@@ -116,20 +116,13 @@ class AbstractNode(BaseAttributes, Aspects):
 
     def _get_method_(keyword, pattrs):
         def function(self, value):
-            if (value is None and
-                (( not isinstance(pattrs._expected_value_, tuple) and
-                  pattrs._expected_value_ is not type(None)) or
-                  ( isinstance(pattrs._expected_value_, tuple) and
-                    type(None) not in pattrs._expected_value_))):
-                return getattr(function, '_value_')
+            if hasattr(pattrs, '_default_value_'):
+                kwargs = {'default_value': pattrs._default_value_}
             else:
-                if hasattr(pattrs, '_default_value_'):
-                    kwargs = {'default_value': pattrs._default_value_}
-                else:
-                    kwargs = {}
-                value = self._validate_input_(keyword, value,
-                                              pattrs._expected_value_,
-                                              **kwargs)
+                kwargs = {}
+            value = self._validate_input_(keyword, value,
+                                          pattrs._expected_value_,
+                                          **kwargs)
 
             setattr(function, '_value_', value)
 
