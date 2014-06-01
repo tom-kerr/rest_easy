@@ -198,27 +198,32 @@ class HTTPRequest(object):
                     
     def add_header_fields(self, header_dict):
         for field, value in header_dict.items():
-            if isinstance(value, dict):
-                for k, v in value.items():
-                    f = field + k
-                    self.header[f] = v  
-            elif isinstance(value, list):
+            if isinstance(value, list):
                 for val in value:
                     if isinstance(val, dict):
+                        num = len(val.keys())
+                        n = 1
                         for k, v in val.items():
-                            f = field + k
+                            if num > 1:
+                                ns = '%02d' % n
+                            else:
+                                ns = ''
+                            f = field + ns + '-' + k
                             self.header[f] = v
+                            n += 1
+                    else:
+                        self.header[field] = val
             elif isinstance(value, (str, int)):
                 self.header[field] = str(value)
             else:
                 raise ValueError('Bad header value.')
 
     def compose_request(self):
-        missing = [f for f,v in self.header.items() if not v]
-        missing.extend( [f for f,v in self.request.items() if not v] )
+        missing = [f for f,v in self.header.items() if v is None]
+        missing.extend( [f for f,v in self.request.items() if v is None] )
         if missing:
             raise ValueError('Missing essential header fields:' + str(missing))
-        fields = '\r\n'.join([k+': '+str(v) for k,v in self.header.items()])
+        fields = '\r\n'.join([k+':'+str(v) for k,v in self.header.items()])
         if not self.body:
             self.body = ''
         self.message = bytes(self.message.format(method=self.request['method'],
