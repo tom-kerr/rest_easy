@@ -254,11 +254,11 @@ class Composer(object):
            
     def add_header_string(self, func, header_dict):
         key = func._key_
-        header_string = func._value_
+        value = func._value_
         if key not in header_dict:
-            header_dict[key] = [header_string, ]
+            header_dict[key] = [value, ]
         else:
-            header_dict[key].append(header_string)
+            header_dict[key].append(value)
     
     def add_item_string(self, key, item_string, path_dict):
         rm_token = None
