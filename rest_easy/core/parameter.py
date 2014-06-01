@@ -123,7 +123,13 @@ class AbstractNode(BaseAttributes, Aspects):
                     type(None) not in pattrs._expected_value_))):
                 return getattr(function, '_value_')
             else:
-                value = self._validate_input_(keyword, value, pattrs._expected_value_)
+                if hasattr(pattrs, '_default_value_'):
+                    kwargs = {'default_value': pattrs._default_value_}
+                else:
+                    kwargs = {}
+                value = self._validate_input_(keyword, value,
+                                              pattrs._expected_value_,
+                                              **kwargs)
 
             setattr(function, '_value_', value)
 
@@ -152,6 +158,10 @@ class AbstractNode(BaseAttributes, Aspects):
         function._mode_ = pattrs._mode_
         function._value_ = None
         function._key_ = pattrs._key_
+        try:
+            function._default_value_ = pattrs._default_value_
+        except:
+            pass
         function._expected_value_ = pattrs._expected_value_
         setattr(function, 'help', types.MethodType(Node.help, function))
         return function
@@ -246,7 +256,7 @@ class Node(QueryTree):
     """
     _reserved_ = ('+this', '+mode', '+scope', '+prefix',
                   '+requirements', '+children', '+key',
-                  '+expected_value', '+doc')
+                  '+default_value', '+expected_value', '+doc')
     _func_list_ = []
     _call_hash_ = {}
 
@@ -502,8 +512,9 @@ class Property(AbstractNode, Node):
         AbstractNode.__init__(self, **kwargs)
         Node.__init__(self, **kwargs)
 
-    def _validate_input_(self, keyword, value, expected_value):
-        """Check input value against expected value
+    def _validate_input_(self, keyword, value, expected_value, **kwargs):
+        """Check input value against expected value and set default value
+        if necessary.
         """
         if type(expected_value).__name__ == 'SRE_Pattern':
             if not expected_value.match( str(value) ):
@@ -513,7 +524,7 @@ class Property(AbstractNode, Node):
         elif isinstance(expected_value, dict):
             if expected_value:
                 for k,v in expected_value.items():
-                    self._validate_input_(keyword, value, v)
+                    self._validate_input_(keyword, value, v, **kwargs)
                     value = str(k) + str(value)
             else:
                 if isinstance(value, dict):
@@ -550,9 +561,14 @@ class Property(AbstractNode, Node):
                 raise TypeError('"' + keyword + '" expects ' +
                                 '"' + str(expected_value) + '", ' +
                                 ', '.join(exceptions) + ' given.' )
+            else:
+                if value is None and 'default_value' in kwargs:
+                    value = kwargs['default_value']
         else:
             if not isinstance(value, expected_value):
                 raise TypeError('"' + keyword + '" expects ' +
                                 '"' + str(expected_value) + '", '
                                 + str(type(value)) + ' given.' )
+            elif value is None and 'default_value' in kwargs:
+                    value = kwargs['default_value']
         return value

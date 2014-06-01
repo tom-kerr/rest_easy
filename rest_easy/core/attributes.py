@@ -56,6 +56,10 @@ class Aspects(object):
             self._requirements_ = self._get_requirements_(data)
             self._mode_ = self._parse_mode_(data)
             self._key_ = self._get_key_(data)
+            try:
+                self._default_value_ = self._get_default_value_(data)
+            except:
+                pass
             self._expected_value_ = self._get_expected_value_(data)
             self._output_format_ = self._get_output_format_(data)
 
@@ -105,6 +109,13 @@ class Aspects(object):
         else:
             return None
 
+    def _get_default_value_(self, data):
+        """ Retrieves the default value if present"""
+        if '+default_value' in data:
+            return data['+default_value']
+        else:
+            raise NotImplemented
+        
     def _get_expected_value_(self, data):
         """ Retrieves the string that describes valid input for the field."""
         if '+expected_value' in data:
