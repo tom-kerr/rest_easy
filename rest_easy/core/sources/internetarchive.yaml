@@ -66,3 +66,48 @@ import internetarchive.def
       access: *access
       secret: *secret
 
+---
+
++namespace: 's3'
+
++hostname: 's3.us.archive.org'
++protocol: http
++port: 80
+
++children:
+  auth:
+    +mode: body
+    +prefix: 'authorization: LOW '
+    +syntax:
+      +bind: ':'
+    +children:
+      access: 
+        <<: *access
+        +mode: body
+        +key: Null
+      secret: 
+        <<: *secret
+        +mode: body
+        +key: Null
+
+  identifier: 
+    <<: *identifier
+    +mode: V
+
+  Upload:
+    +http_method: PUT
+    +path: '/{identifier}'
+    +input_format: key_value
+    +output_format: application/json
+    +this:
+      +mode: body+file
+      +key: 'file'
+      +expected_value: str
+    +children:
+      metaTag: *metatag
+      autoMake: *automake
+      eraseOld: *eraseold
+      keepOld: *keepold
+      sizeHint: *sizehint
+      priority: *priority
+      simulateError: *simulateerror

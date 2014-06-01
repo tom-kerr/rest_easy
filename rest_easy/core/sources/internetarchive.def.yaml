@@ -6,10 +6,6 @@ identifier: &identifier
   +key: Null
   +expected_value: *stdregex-ia
 
-file: &file
-  +key: Null
-  +expected_value: str
-
 element: &element
   +mode: V
   +key: ''
@@ -44,3 +40,86 @@ secret: &secret
   +mode: body
   +key: 'secret'
   +expected_value: str
+
+metaTag: &metatag
+  +doc: |
+    An http header can specify metadata the ends up in _meta.xml at make bucket
+    time.
+    
+    Add headers of form x-archive-meta-$meta_name:$meta_value
+    (or x-amz-meta-$meta_name:$meta_value)
+    
+    If you want multiple tags in _meta.xml you can put numbers in front:
+      x-amz-meta01-$meta_name:$meta_value_a
+      x-amz-meta02-$meta_name:$meta_value_b
+    
+    Meta headers are sorted prior to tag generation when placed in the xml
+    
+    Meta headers are interpreted as having utf-8 character encoding
+    
+    Because rfc822 http headers disallow _ in names, in $meta_name
+    two hyphens in a row (--) will be translated to an underscore(_).
+    
+    Some http clients do not allow the full range of utf-8 bytes to appear
+    in http headers. As a work around, one can encode a utf-8
+    meta header with uri encoding. To do this write all the header data
+    like so: uri($payload_as_uri_encoded_utf8)
+    
+    For example, to set the title of an item to include the unicode snowman:
+    x-archive-meta-title:uri(This%20is%20a%20snowman%20%E2%98%83)
+  +mode: header
+  +key: 'x-amz-meta'
+  +expected_value: dict
+
+autoMake: &automake
+  +doc: |
+    Setting this automatically makes an archive item when uploading.
+  +mode: header
+  +key: 'x-archive-auto-make-bucket'
+  +default_value: 1
+  +expected_value: Null
+
+eraseOld: &eraseold
+  +doc: |
+    This will erase the old _meta.xml and replace it with
+    a new _meta.xml generated from the x-archive-meta-* headers
+  +mode: header
+  +key: 'x-archive-ignore-preexisting-bucket'
+  +default_value: 1
+  +expected_value: Null
+
+keepOld: &keepold
+  +doc: |
+    Set this to have the archive keep old versions of the object. Saved versions 
+    will be placed in history/files/$key.~N~
+  +mode: header
+  +key: 'x-archive-keep-old-version'
+  +default_value: 1
+  +expected_value: Null
+
+sizeHint: &sizehint
+  +doc: |
+    For large items a size hint can be given to the IA content management system
+    at make bucket time (this helps if your item will be more than 10 gigabytes).
+
+    Units are in bytes.
+  +mode: header
+  +key: 'x-archive-size-hint'
+  +expected_value: '[0-9]+'
+
+priority: &priority
+  +doc: |
+    For uploads which need to be available ASAP in the content
+    management system, an interactive user's upload for example,
+    one can request interactive queue priority.
+  +mode: header
+  +key: 'x-archive-interactive-priority'
+  +default_value: 1
+  +expected_value: Null
+
+simulateError: &simulateerror
+  +doc: |
+    To simulate errors s3 supports a special 'error this request' header.
+  +mode: header
+  +key: 'x-archive-simulate-error'
+  +expected_value: '(^AccessDenied$|^AccountProblem$|^AmbiguousGrantByEmailAddress$|^BadDigest$|^BucketAlreadyExists$|^BucketAlreadyOwnedByYou$|^BucketNotEmpty$|^CredentialsNotSupported$|^CrossLocationLoggingProhibited$|^EntityTooLarge$|^EntityTooSmall$|^ExpiredToken$|^IllegalVersioningConfigurationException$|^IncompleteBody$|^IncorrectNumberOfFilesInPostRequest$|^InlineDataTooLarge$|^InternalError$|^InvalidAccessKeyId$|^InvalidAddressingHeader$|^InvalidArgument$|^InvalidBucketName$|^InvalidDigest$|^InvalidLocationConstraint$|^InvalidPart$|^InvalidPartOrder$|^InvalidPayer$|^InvalidPolicyDocument$|^InvalidRange$|^InvalidRequest$|^InvalidSOAPRequest$|^InvalidSecurity$|^InvalidStorageClass$|^InvalidTargetBucketForLogging$|^InvalidToken$|^InvalidURI$|^KeyTooLong$|^MalformedACLError$|^MalformedPOSTRequest$|^MalformedXML$|^MaxMessageLengthExceeded$|^MaxPostPreDataLengthExceededError$|^MetadataTooLarge$|^MethodNotAllowed$|^MissingAttachment$|^MissingContentLength$|^MissingRequestBodyError$|^MissingSecurityElement$|^MissingSecurityHeader$|^NoLoggingStatusForKey$|^NoSuchBucket$|^NoSuchKey$|^NoSuchUpload$|^NoSuchVersion$|^NotImplemented$|^NotSignedUp$|^NotSuchBucketPolicy$|^OperationAborted$|^PermanentRedirect$|^PreconditionFailed$|^Redirect$|^RequestIsNotMultiPartContent$|^RequestTimeTooSkewed$|^RequestTimeout$|^RequestTorrentOfBucketError$|^ServiceUnavailable$|^SignatureDoesNotMatch$|^SlowDown$|^TemporaryRedirect$|^TokenRefreshRequired$|^TooManyBuckets$|^UnexpectedContent$|^UnresolvableGrantByEmailAddress$|^UserKeyMustBeSpecified$)'
