@@ -7,7 +7,7 @@ import googlebooks.def
 
         
     Documentation:
-      https://developers.google.com/books/docs/
+      https://developers.google.com/books/docs/v1
 
 +hostname: 'www.googleapis.com'
 +protocol: https
@@ -39,7 +39,7 @@ import googlebooks.def
 
           fields: *fields
           filter: *filter
-          download: *download
+          onlyShowEpub: *onlyShowEpub
 
           pagination: 
             +requirements: 

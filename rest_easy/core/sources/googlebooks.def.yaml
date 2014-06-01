@@ -51,11 +51,26 @@ lccn: &lccn
     +bind: ':'
 
 filter: &filter
+  +doc: |
+    You can use the filter parameter to restrict the returned results by setting 
+    it the to one of the following values:
+
+    partial - Returns results where at least parts of the text are previewable.
+    full - Only returns results where all of the text is viewable.
+    free-ebooks - Only returns results that are free Google eBooks.
+    paid-ebooks - Only returns results that are Google eBooks with a price.
+    ebooks - Only returns results that are Google eBooks, paid or free. Examples 
+    of non-eBooks would be publisher content that is available in limited preview 
+    and not for sale, or magazines.
   +key: 'filter'
   +expected_value: '^(partial|full|free\-ebooks|paid\-ebooks|^ebooks)$'
             
-download: &download 
-  +key: 'download=epub'
+onlyShowEpub: &onlyShowEpub
+  +doc: |
+    Restrict the returned results to volumes that have an available download 
+    format of epub.
+  +key: 'download'
+  +default_value: 'epub'
   +expected_value: Null
 
 startIndex: &startindex
