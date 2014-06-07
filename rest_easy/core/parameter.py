@@ -86,6 +86,7 @@ class AbstractNode(BaseAttributes, Aspects):
         
     def _make_this_(self, keyword, data):
         AbstractNode._set_attr_from_(data['+this'], data, ('+mode', '+syntax'))
+        AbstractNode._set_attr_from_(data, data['+this'], ('+mode', '+syntax'))
         if '+syntax' not in data['+this'] and hasattr(self, '_syntax_'):
             data['+this']['+syntax'] = self._syntax_
         obj = self._get_new_node_(parent=self, name=keyword, data_dict=data)
