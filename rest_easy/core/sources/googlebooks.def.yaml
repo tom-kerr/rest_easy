@@ -19,36 +19,42 @@ inAuthor: &inauthor
   +expected_value: [str, Null]
   +syntax:
     +bind: ':'
+    +chain: '+'
 
 inPublisher: &inpublisher
   +key: 'inpublisher'
   +expected_value: [str, Null]
   +syntax:
     +bind: ':'
+    +chain: '+'
 
 subject: &subject
   +key: 'subject'
   +expected_value: [str, Null]
   +syntax:
     +bind: ':'
+    +chain: '+'
 
 isbn: &isbn
   +key: 'isbn'
   +expected_value: [*stdregex-isbn, Null]
   +syntax:
     +bind: ':'
+    +chain: '+'
 
 oclc: &oclc
   +key: 'oclc'
   +expected_value: [str, Null]
   +syntax:
     +bind: ':'
+    +chain: '+'
 
 lccn: &lccn
   +key: 'lccn'
   +expected_value: [*stdregex-int, Null]
   +syntax:
     +bind: ':'
+    +chain: '+'
 
 filter: &filter
   +doc: |

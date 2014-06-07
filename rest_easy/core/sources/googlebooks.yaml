@@ -7,7 +7,7 @@ import googlebooks.def
 
         
     Documentation:
-      https://developers.google.com/books/docs/v1
+      https://developers.google.com/books
 
 +hostname: 'www.googleapis.com'
 +protocol: https
@@ -18,12 +18,12 @@ import googlebooks.def
     +children:
       Volumes:
         +http_method: GET
-        +path: '/books/v1/volumes?{0}'
+        +path: '/books/v1/volumes?{query}{inTitle}{inAuthor}{inPublisher}{subject}{isbn}{oclc}{lccn}&{0}'
         +input_format: key_value
         +output_format: application/json
         +children: 
           query: 
-            +mode: K+MV+A
+            +mode: K+V
             +syntax:
               +bind: '='
               +chain: '+'
