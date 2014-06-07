@@ -158,7 +158,7 @@ class Composer(object):
                 fcount = len(item['zfunctions'])
                 if isinstance(func, dict):
                     self.compose_json({func['parameter']: func},
-                                      json, header_dict,
+                                      header_dict, json, body_list,
                                       has_scope, has_prefix)
                 elif isinstance(func, tuple) or hasattr(func, '__call__'):
                     if item['mode'].string == 'header':
