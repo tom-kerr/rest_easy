@@ -47,6 +47,8 @@ class RESTfulAsyncTemplate(object):
             self.return_format = self.parent._return_format_
         else:
             self.return_format = return_format
+        self.lazy = lazy
+        self.deferred = deferred
         self.pretty_print = pretty_print
         self.reset = reset
         self.timeout = timeout
@@ -138,21 +140,25 @@ class AsyncMultiResourceMethod(RESTfulAsyncTemplate):
             for method in active_methods:
                 m_name = method._name_
                 try:
+                    
                     target = getattr(method, self.http_method)
                 except Exception:
                     continue
+                
                 self.threads[src_name][m_name] = \
                   Process(target=target, name=m_name,
-                          args=(self.return_format, False, False,
-                                self.pretty_print, self.reset,
-                                (src_name, m_name), self.queue))
+                          args=(self.custom_headers, self.return_format,
+                                self.lazy, self.deferred, self.pretty_print,
+                                self.reset, (src_name, m_name), self.queue))
                 self.threads[src_name][m_name].start()
+            if not self.threads[src_name]:
+                del self.threads[src_name]
 
     def collect_results(self, *args, **kwargs):
         results = {}
         slept = 0
         while self.finished < self.proc_count:
-            if slept > self.timeout:
+            if slept > self.timeout or len(self.threads) == 0:
                 break
             try:
                 item = self.queue.get_nowait()
