@@ -13,7 +13,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import print_function
-
+import yaml
 import re
 import json
 import pprint
@@ -44,7 +44,7 @@ class AbstractNode(BaseAttributes, Aspects):
         source_data = kwargs['data_dict']
         if '+children' in source_data:
             for kw, data in source_data['+children'].items():
-                AbstractNode._set_attr_from_(source_data, data, ('+syntax', ))
+                #AbstractNode._set_attr_from_(source_data, data, ('+syntax', ))
                 if '+http_method' in data:
                     self._is_root_ = True
                     self._init_query_structs_()
@@ -83,13 +83,15 @@ class AbstractNode(BaseAttributes, Aspects):
         for attr in attrs:
             if attr in source and attr not in dest:
                 dest[attr] = source[attr]
-        
+                    
     def _make_this_(self, keyword, data):
-        AbstractNode._set_attr_from_(data['+this'], data, ('+mode', '+syntax'))
-        AbstractNode._set_attr_from_(data, data['+this'], ('+mode', '+syntax'))
+        AbstractNode._set_attr_from_(data['+this'], data, ('+mode', '+syntax', '+prefix'))
+        AbstractNode._set_attr_from_(data, data['+this'], ('+mode', '+syntax', '+prefix'))
         if '+syntax' not in data['+this'] and hasattr(self, '_syntax_'):
             data['+this']['+syntax'] = self._syntax_
+        #print (keyword, self._name_)
         obj = self._get_new_node_(parent=self, name=keyword, data_dict=data)
+        #print (keyword, obj._mode_.flags)
         setattr(self, keyword, obj)
             
     def _get_new_node_(self, **kwargs):
@@ -111,11 +113,11 @@ class AbstractNode(BaseAttributes, Aspects):
         obj = self._get_new_node_(parent=self, name=keyword, data_dict=data)
         setattr(self, keyword, obj)
         
-    def _new_method_(keyword, data=None):
+    def _new_method_(keyword, data=None, parent=None):
         pattrs = Aspects(data)
-        return AbstractNode._get_method_(keyword, pattrs)
+        return AbstractNode._get_method_(keyword, pattrs, parent)
 
-    def _get_method_(keyword, pattrs):
+    def _get_method_(keyword, pattrs, parent=None):
         def function(self, value):
             if hasattr(pattrs, '_default_value_'):
                 kwargs = {'default_value': pattrs._default_value_}
@@ -129,6 +131,7 @@ class AbstractNode(BaseAttributes, Aspects):
 
             self._set_scope_()
             if keyword != 'multikey':
+                function._parent_ = parent
                 state = self._get_state_(keyword, function)
                 if self._parent_._is_root_:
                     make_global = True
@@ -143,7 +146,6 @@ class AbstractNode(BaseAttributes, Aspects):
 
         function.__name__ = 'parameter.Property'
         function.__doc__ = pattrs.__doc__
-        #function._parent_ = self
         function._name_ = keyword
         function._prefix_ = pattrs._prefix_
         function._syntax_ = pattrs._syntax_
@@ -152,12 +154,15 @@ class AbstractNode(BaseAttributes, Aspects):
         function._mode_ = pattrs._mode_
         function._value_ = None
         function._key_ = pattrs._key_
+        function._main_node_ = False
         try:
             function._default_value_ = pattrs._default_value_
         except:
             pass
         function._expected_value_ = pattrs._expected_value_
         setattr(function, 'help', types.MethodType(Node.help, function))
+        setattr(function, '_get_parents_', types.MethodType(Node._get_parents_, function))
+        setattr(function, '_get_main_node_', types.MethodType(Node._get_main_node_, function))
         return function
 
     def _get_instance_(kw):
@@ -190,6 +195,7 @@ class AbstractNode(BaseAttributes, Aspects):
                              '+expected_value': f._expected_value_}
                     pattr = Aspects(fdata)
                     f = AbstractNode._get_method_('multikey', pattr)
+                    f._parent_ = self
                     f(self, value)
                     func_list.append(f)
                 else:
@@ -224,19 +230,24 @@ class CreateNode(type):
         keyword = dct['name']
         data_dict = dct['data_dict']
         clsdct = {}
+        if 'parent' in dct:
+            parent = dct['parent']
+        else:
+            parent = cls
         if '+this' in data_dict:
             this = data_dict['+this']
-            p_dct = {'name': keyword, 
+            p_dct = {'parent': parent,
+                     'name': keyword, 
                      'data_dict': this}
-            kwargs = {'parent': cls,
+            kwargs = {'parent': parent,
                       'name': keyword,
                       'data_dict': this}
             prop = CreateNode('Property', (Property, ), p_dct)
             prop_instance = prop(**kwargs)
             Node._func_list_.append(prop_instance) 
-            AbstractNode._set_attr_from_(this, data_dict, ('+mode', '+syntax'))                    
+            AbstractNode._set_attr_from_(this, data_dict, ('+mode', '+syntax'))
         elif Property in bases:
-            func = AbstractNode._new_method_(keyword, data_dict)
+            func = AbstractNode._new_method_(keyword, data_dict, parent)
             Node._func_list_.append(func)
         if '+http_method' in data_dict:
             if data_dict['+http_method'] == 'GET':
@@ -246,7 +257,7 @@ class CreateNode(type):
 
 
 class Node(QueryTree):
-    """An object in wrapper tree
+    """An object in a wrapper tree
     """
     _reserved_ = ('+this', '+mode', '+scope', '+prefix',
                   '+requirements', '+children', '+key',
@@ -258,6 +269,45 @@ class Node(QueryTree):
         self._has_scope_ = None
         if self._is_root_:
             self._init_query_structs_()
+        if isinstance(self._parent_, ResourceMethod):
+            self._main_node_ = True
+        else:
+            self._main_node_ = False
+
+    def getApiKeysFromHome(self):
+        with open(self._super_getattr_('api_key_file')) as f:
+            apikeys = y = yaml.load(f.read())
+        return apikeys
+
+    def setApiKeyFromHome(self):        
+        if not isinstance(self, (API, ResourceMethod)):
+            self._parent_.setApiKeyFromHome()
+        else:
+            apikeys = self.getApiKeysFromHome()
+            if self._name_ in apikeys:
+                self.apiKey(apikeys[str(self._name_)])
+            else:
+                raise LookupError('Could not find api key for home/.'+
+                                  str(self._name_)+'.')
+        
+    def _get_main_node_(self):
+        if isinstance(self._parent_, ResourceMethod):
+            return self
+        elif not hasattr(self._parent_, '_get_main_node_'):
+            return self
+        elif self._main_node_:
+            return self
+        else:
+            return self._parent_._get_main_node_()
+
+    def _get_parents_(self, parents=None):
+        if parents is None:
+            parents = []
+        if hasattr(self, '_parent_'):
+            parents.append(self._parent_._name_)
+            if hasattr(self._parent_, '_get_parents_'):
+                parents.extend(self._parent_._get_parents_())
+        return parents
 
     def __call__(self, k=None, v=None):
         if k and not v or not k and not v:
@@ -279,13 +329,12 @@ class Node(QueryTree):
         else:
             raise Exception('Too many arguments.')
 
-
     def _init_query_structs_(self):
         self._current_tree_ = {}
-        self._query_trees_ = {}#[{}]
+        self._query_trees_ = {}
         self._global_tree_ = {}
-        self._query_requirements_ = {}#[Requirements()]
-        self._submitted_ = {}#set()
+        self._query_requirements_ = {}
+        self._submitted_ = {}
         self._active_resource_methods_ = set()
 
     def _add_query_struct_entry_(self, r_method):
@@ -365,13 +414,14 @@ class Node(QueryTree):
         else:
             return self._parent_._raise_requirements_(requirements)
 
-    def _get_state_(self, keyword, function):        
+    def _get_state_(self, keyword, function):                
         if hasattr(self, keyword):
             subobj = getattr(self, keyword)
         else:
             subobj = self
         state = {'parameter': keyword,
-                 'zfunctions': []}
+                 'zfunctions': [],
+                 'mode_string': subobj._mode_.string}
         params = ['scope',
                   'mode',
                   'prefix',
