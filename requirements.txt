@@ -2,4 +2,3 @@ lxml
 PyYAML
 xmltodict
 dicttoxml
-colorama
