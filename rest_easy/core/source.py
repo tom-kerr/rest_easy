@@ -16,6 +16,7 @@ from __future__ import print_function
 
 import pprint
 import os
+from os.path import expanduser
 import glob
 import re
 from copy import deepcopy
@@ -23,7 +24,6 @@ from copy import deepcopy
 from .help import Helper
 from .yamler import Yamler
 from .parameter import Source, CreateNode
-
 
 class SourceBuilder(Helper):
     """Fetch source files and create Source objects"""
@@ -86,6 +86,7 @@ class SourceBuilder(Helper):
                 parent_obj = obj
             elif num > 0:
                 setattr(parent_obj, namespace, obj)
+            
         self.source_objects[source] = source_obj
         return source_obj
 
@@ -97,4 +98,7 @@ class SourceBuilder(Helper):
                'data_dict': source_data}
         new_source = CreateNode('Source', (Source, ), dct)
         new_source_instance = new_source(**dct)
+        if os.path.exists(expanduser('~') + '/.' + source):
+            setattr(new_source_instance, 'api_key_file', 
+                    expanduser('~') + '/.' + source)
         return new_source_instance
