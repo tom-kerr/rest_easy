@@ -74,7 +74,9 @@ class Composer(object):
     def get_formatted_path(self, strings_dict):
         path = self.get_clean_path_string()
         for k,v in strings_dict.items():
-            strings_dict[k] = ''.join(v)
+            strings_dict[k] = ''
+            for s in v:
+                strings_dict[k] += s
         main = strings_dict['0']
         del strings_dict['0']
         if strings_dict:
@@ -94,11 +96,13 @@ class Composer(object):
         self.submitted = \
             self.parent._root_getattr_('_submitted_')[self.parent._name_]
         if self.parent._input_format_ == 'key_value':
-            header_dict, path_dict, body_list = self.compose_key_value(tree)
-            path = self.get_formatted_path(path_dict)
+            header_dict, query_dict, body_list, strings = self.compose_key_value(tree)
+            for s in strings:
+                query_dict['0'].append(s)
+            path = self.get_formatted_path(query_dict)
         elif self.parent._input_format_ == 'json':
-            header_dict, path_dict, body_list = self.compose_json(tree)
-            json_string = str(json.dumps(path_dict)).replace(' ', '')
+            header_dict, query_dict, body_list = self.compose_json(tree)
+            json_string = str(json.dumps(query_dict)).replace(' ', '')
             path = self.get_formatted_path({'0': json_string})
         self.enforce_requirements()
         return header_dict, path, body_list
@@ -123,14 +127,14 @@ class Composer(object):
         return submitted
 
     def compose_json(self, tree, header_dict=None, json=None,
-                     body_list=None, has_scope=False, has_prefix=False):
+                     body_list=None, fcount=None, depth=-1):
         if header_dict is None:
             header_dict = {}
         if json is None:
             json = {}
         if body_list is None:
             body_list = []
-        for k, item in tree.items():
+        for key, item in tree.items():
             requirements = self.retrieve_requirements(item)
             self.requirements.add_requirements(requirements)
 
@@ -139,49 +143,85 @@ class Composer(object):
                 if isinstance(scope, dict):
                     for k,v in scope.items():
                         json[k] = v
-                        has_scope = True
                 else:
                     json[scope] = {}
-                    has_scope = json[scope]
 
             prefix = self.get_prefix_string(item)
             if prefix:
                 if isinstance(prefix, dict):
                     for k,v in prefix.items():
                         json[k] = v
-                        has_prefix = True
                 else:
                     json[prefix] = {}
-                    has_prefix = json[prefix]
-
+                    
+            if depth == -1:
+                fcount = self.get_function_count(item['zfunctions'])
+                
             for num, func in enumerate(item['zfunctions']):
                 fcount = len(item['zfunctions'])
                 if isinstance(func, dict):
-                    self.compose_json({func['parameter']: func},
-                                      header_dict, json, body_list,
-                                      has_scope, has_prefix)
+                    depth += 1
+                    h,j,b = self.compose_json({func['parameter']: func},
+                                                    header_dict, None, body_list,
+                                                    fcount, depth)
+                    if prefix and not isinstance(prefix, dict):
+                        for k,v in j.items():
+                            json[prefix][k] = v
+                    elif scope and not isinstance(scope, dict):
+                        for k,v in j.items():
+                            json[scope][k] = v
+                    else:
+                        for k,v in j.items():
+                            json[k] = v
+                    depth -= 1
                 elif isinstance(func, tuple) or hasattr(func, '__call__'):
                     if item['mode'].string == 'header':
                         self.add_header_string(func, header_dict)
                     elif 'body' in item['mode'].flags:
                         self.add_body_string(func, body_list, header_dict)
                     else:
-                        j = self.compose_func(num, fcount, func, item['syntax'],
-                                              item['mode'], has_scope, has_prefix)
-                        if not isinstance(has_prefix, dict):
-                            for k,v in j.items():
-                                json[k] = v
+                        j = self.compose_func(fcount, func)
+                        for k,v in j.items():
+                            json[k] = v
                 else:
                     raise Exception('Invalid item found in ' +
                                     str(k) + '\'s zfunction list')
         return header_dict, json, body_list
 
-    def compose_key_value(self, tree, header_dict=None, path_dict=None,
-                          body_list=None, has_scope=False, has_prefix=False):
+    def get_function_count(self, functions, fcount=None, depth=0):
+        if fcount is None:
+            fcount = {}
+        for num, f in enumerate(functions):
+            if hasattr(f, '__call__'):
+                obj = f
+                while True:
+                    if hasattr(obj, '_parent_'):
+                        if obj._parent_._name_ in fcount:
+                            fcount[obj._parent_._name_]['num'] += 1
+                            fcount[obj._parent_._name_]['funcs'].append(obj)
+                        else:
+                            fcount[obj._parent_._name_] = {}
+                            fcount[obj._parent_._name_]['num'] = 1
+                            fcount[obj._parent_._name_]['funcs'] = [obj,]
+                            fcount[obj._parent_._name_]['depth'] = depth
+                        obj = obj._parent_
+                        depth -= 1
+                    else:
+                        break                    
+            if isinstance(f, dict):
+                depth += 1
+                self.get_function_count(f['zfunctions'], fcount, depth)
+                depth -= 1                        
+        return fcount
+
+    def compose_key_value(self, tree, header_dict=None, 
+                          query_dict=None, body_list=None, 
+                          strings=None, fcounts=None, depth=-1):
+        strings = []
         if header_dict is None:
             header_dict = {}
-        if path_dict is None:
-            path_dict = {'0': []}
+        if query_dict is None:
+            query_dict = {'0': []}
         if body_list is None:
             body_list = []
             
@@ -189,54 +229,139 @@ class Composer(object):
             item_string = ''
             requirements = self.retrieve_requirements(item)
             self.requirements.add_requirements(requirements)
-
+  
             scope = self.get_scope_string(item)
-            if scope:
+            prefix = self.get_prefix_string(item)
+            if scope: 
                 item_string += scope
-                has_scope = True
+            if prefix:
+                item_string += prefix
+  
+            if item_string:
+                if not self.add_item_string(k, item_string, query_dict):
+                    strings.append(item_string)
 
-            parent_prefix = self.get_prefix_string(item)
-            if parent_prefix:
-                item_string += parent_prefix
-                has_prefix = True
-
-            for num, func in enumerate(item['zfunctions']):
-                fcount = len(item['zfunctions'])
+            if depth == -1:
+                fcounts = self.get_function_count(item['zfunctions'])                
+                
+            for func in item['zfunctions']:
                 if isinstance(func, dict):
-                    self.compose_key_value({func['parameter']: func},
-                                            header_dict, path_dict,
-                                            body_list,
-                                            has_scope, has_prefix)
-                elif isinstance(func, tuple) or hasattr(func, '__call__'):
+                                            
+                    depth += 1                    
+                    h,q,b, strs, = self.compose_key_value({func['parameter']: func},
+                                                     header_dict, query_dict, body_list, 
+                                                     strings, fcounts, depth)
+                    depth -= 1                                              
+                    for n, s in enumerate(strs):
+                        strings.append(s)
+                    item_string = ''
+                                                    
+                elif isinstance(func, tuple) or hasattr(func, '__call__'):                    
+                    
                     #hack
                     if isinstance(func, tuple):
                         f = func[0]
+                        fcount = len(func)
                     else:
                         f = func
-                    
-                    func_prefix = self.get_prefix_string(f)
-                    if func_prefix and func_prefix != parent_prefix:
-                        item_string += func_prefix
-                        has_prefix = True
+                        main_node = f._get_main_node_()
+                        if main_node._name_ in fcounts:
+                            fcount = fcounts[main_node._name_]['num']
+                        else:
+                            #hack
+                            fcount = 1
 
                     syntax = f._syntax_
-
                     if item['mode'].string == 'header':
                         self.add_header_string(func, header_dict)
                     elif 'body' in item['mode'].flags:
                         self.add_body_string(func, body_list, header_dict)
                     else:
-                        item_string += self.compose_func(num, fcount, func, syntax,
-                                                        item['mode'], has_scope,
-                                                        has_prefix)
-                    
+                        item_string += self.compose_func(fcount, func)
+                        try:
+                            fcounts[main_node._name_]['num'] -= 1
+                        except:
+                            pass
                 else:
                     raise Exception('Invalid item found in ' + str(k) +
                                     '\'s zfunction list')
-            if item_string:
-                self.add_item_string(k, item_string, path_dict)
-        return header_dict, path_dict, body_list
+                if item_string:
+                    if not self.add_item_string(f._name_, item_string, query_dict):
+                        strings.append(item_string)
+        return header_dict, query_dict, body_list, strings
 
+    def compose_func(self, fcount, func):
+        pmode = self.get_parent_mode_list(func)
+        syntax = self.get_parent_syntax_list(func)
+        if self.parent._input_format_ == 'key_value':
+            string = ''
+            mode = pmode[0]            
+            bind = syntax['+bind']
+            chain = syntax['+chain']
+            if self.apply_multi(mode, pmode):
+                if '+args' in syntax:
+                    if syntax['+args'] is None:
+                        bind = ''
+                    else:
+                        bind = syntax['+args']
+                if '+multi' in syntax:
+                    if isinstance(func, tuple) or fcount-1 > 0:
+                        chain = syntax['+multi']
+                    else:
+                        chain = syntax['+chain']
+            else:
+                if '+args' in syntax:
+                    if syntax['+args'] is None:
+                        bind = ''
+                    else:
+                        bind = syntax['+args']
+                
+        elif self.parent._input_format_ == 'json':
+            json = {}
+
+        if isinstance(func, tuple):
+            for n, f in enumerate(func):
+                self.submitted.add(f)
+                if self.parent._input_format_ == 'key_value':
+                    string += self.compose_func(len(func), f)
+                elif self.parent._input_format_ == 'json':
+                    for k,v in self.compose_func(len(func), f).items():
+                        json[k] = str(v)
+        else:
+            self.submitted.add(func)
+            if func._value_:
+                if self.parent._input_format_ == 'key_value':
+                    
+                    if self.parent._http_method_ == 'GET':
+                        value = quote(str(func._value_))
+                    else:
+                        value = str(func._value_)
+                    
+                    if 'K' not in mode.flags and 'MK' not in mode.flags:
+                        if 'MV' in mode.flags and chain == syntax['+multi']:
+                            string += '{}{}'.format(value, chain)
+                        else:
+                            string += '{}'.format(value)
+                    else:
+                        string += '{}{}{}{}'.format(func._key_, bind,
+                                                    value, chain)
+                elif self.parent._input_format_ == 'json':
+                    if func._value_ in ( True, False, None):
+                        json[func._key_] = func._value_
+                    else:
+                        json[func._key_] = str(func._value_)
+
+            elif not func._value_ :
+                if self.parent._input_format_ == 'key_value':
+                    string += '{}{}'.format(func._key_, chain)
+                elif self.parent._input_format_ == 'json':
+                    json[func._key_] = func._value_
+        
+        if self.parent._input_format_ == 'key_value':
+            return string
+        elif self.parent._input_format_ == 'json':
+            return json
+                
     def add_body_string(self, func, body_list, header_dict):
         if 'file' in func._mode_.flags:
             filename = func._value_
@@ -260,99 +385,77 @@ class Composer(object):
         else:
             header_dict[key].append(value)
     
-    def add_item_string(self, key, item_string, path_dict):
+    def add_item_string(self, key, item_string, query_dict):
         rm_token = None
         for tnum, token_tuple in enumerate(self.tokens):
             prefix, token, suffix = token_tuple
             if key == token:
-                if prefix:
+                if prefix is not None:
                     item_string = prefix + item_string
-                if suffix:
+                if suffix is not None:
                     item_string += suffix
-                if key not in path_dict:
-                    path_dict[key] = [item_string, ]
+                if key not in query_dict:
+                    query_dict[key] = [item_string, ]
                 else:
-                    path_dict[key].append(item_string)
+                    query_dict[key].append(item_string)
                 rm_token = tnum
                 break
-        if not rm_token and key not in path_dict:
-            path_dict['0'].append(item_string)
         if rm_token is not None:
             del self.tokens[rm_token]
-    
-    
-    def compose_func(self, num, fcount, func, syntax, mode,
-                   has_scope=False, has_prefix=False):
-        if self.parent._input_format_ == 'key_value':
-            string = ''
-            bind = syntax['+bind']
-            chain = syntax['+chain']
-            if has_scope or has_prefix or \
-              'MV' in mode.flags or 'MK' in mode.flags:
-                if '+args' in syntax:
-                    if syntax['+args'] is None:
-                        bind = ''
-                    else:
-                        bind = syntax['+args']
-                if '+multi' in syntax:
-                    if isinstance(func, tuple):
-                        chain = syntax['+multi']
-                        #syntax = {'+bind': bind, '+chain': chain}
-                    elif num != fcount-1:
-                        chain = syntax['+multi']
-
-        elif self.parent._input_format_ == 'json':
-            if isinstance(has_scope, dict):
-                json = has_scope
-            elif isinstance(has_prefix, dict):
-                json = has_prefix
-            else:
-                json = {}
-
-        if isinstance(func, tuple):
-            for n, f in enumerate(func):
-                self.submitted.add(f)
-                if self.parent._input_format_ == 'key_value':
-                    string += self.compose_func(n, len(func), f, syntax, mode,
-                                              has_scope, has_prefix)
-                elif self.parent._input_format_ == 'json':
-                    for k,v in self.compose_func(n, len(func), f, syntax, mode,
-                                               has_scope, has_prefix).items():
-                        json[k] = str(v)
+            return True
         else:
-            self.submitted.add(func)
-            if func._value_:
-                if self.parent._input_format_ == 'key_value':
-                    
-                    if self.parent._http_method_ == 'GET':
-                        value = quote(str(func._value_))
-                    else:
-                        value = str(func._value_)
+            return False
+        
+    def get_parent_mode_list(self, func, modes=None):
+        if hasattr(func, '__iter__'):
+            func = func[0]
+        if not modes:
+            modes = [func._mode_]
+        if func._parent_._is_root_:
+            modes.append(func._parent_._mode_)
+            return modes
+        else:
+            modes.append(func._parent_._mode_)
+            return self.get_parent_mode_list(func._parent_, modes)
+    
+    def get_parent_syntax_list(self, func, syntax=None):
+        if hasattr(func, '__iter__'):
+            func = func[0]
+        if not syntax:
+            syntax = func._syntax_
+        if hasattr(func, '__iter__'):
+            func = func[0]
+        syntax = self.inherit_parent_syntax(syntax, func._parent_._syntax_)
+        if func._parent_._is_root_:
+            return syntax
+        else:
+            return self.get_parent_syntax_list(func._parent_, syntax)
 
-                    if 'K' not in mode.flags and 'MK' not in mode.flags:
-                        if 'MV' in mode.flags and chain == syntax['+multi']:
-                            string += '{}{}'.format(value, chain)
-                        else:
-                            string += '{}'.format(value)
-                    else:
-                        string += '{}{}{}{}'.format(func._key_, bind,
-                                                    value, chain)
-                elif self.parent._input_format_ == 'json':
-                    if func._value_ in ( True, False, None):
-                        json[func._key_] = func._value_
-                    else:
-                        json[func._key_] = str(func._value_)
+    def inherit_parent_syntax(self, syntax, parent_syntax):
+        for c in ('+bind', '+chain', '+multi', '+args'):
+            if c not in syntax and c in parent_syntax:
+                syntax[c] = parent_syntax[c]
+            elif c in syntax and c in parent_syntax:
+                if c == '+chain' and parent_syntax[c] != '&':
+                    syntax[c] = parent_syntax[c]
+                elif c == '+bind' and parent_syntax[c] != '=':
+                    syntax[c] = parent_syntax[c]
+                elif c in ('+multi', '+args'):
+                    syntax[c] = parent_syntax[c]
+        return syntax
 
-            elif not func._value_ and not has_scope:
-                if self.parent._input_format_ == 'key_value':
-                    string += '{}{}'.format(func._key_, chain)
-                elif self.parent._input_format_ == 'json':
-                    json[func._key_] = func._value_
-
-        if self.parent._input_format_ == 'key_value':
-            return string
-        elif self.parent._input_format_ == 'json':
-            return json
+    def apply_multi(self, mode, pmode):
+        if 'V' == mode.string:
+            return False
+        else:
+            for f in ('MV', 'MK'):
+                if f in mode.flags:
+                    return True
+            for mode in pmode:
+                for f in ('MV', 'MK'):
+                    if f in mode.flags:
+                        return True
+        return False
 
     def get_prefix_string(self, item):
         prefix = None
