@@ -42,6 +42,8 @@ class Parser(object):
             return query
         if isinstance(query, str):
             strings = re.split('(?<!\\\\):', query)
+        elif isinstance(query, list):
+            strings = query
         new_elements = []
         for num, element in enumerate(strings):
             element = re.sub('\\\\:', ':', element)
