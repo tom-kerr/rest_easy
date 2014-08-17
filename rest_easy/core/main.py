@@ -24,6 +24,7 @@ class RestEasy(SourceBuilder, AlternateInterface):
 
     def __init__(self):
         self.source_dir = os.path.abspath(os.path.dirname(__file__))+'/sources'
+        self._name_ = 'RestEasy'
         super(RestEasy, self).__init__()
         for http_method in ('GET', 'POST', 'PUT'):
             setattr(self, http_method, AsyncMultiResourceMethod(self, http_method))
