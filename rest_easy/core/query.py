@@ -366,6 +366,24 @@ class HTTPMethods(Convert):
             self.reset_query()
         return url
 
+    def get_request_strings(self, treenum=None,reset=False):
+        if not treenum:
+            treenum = self._root_getattr_('_current_tree_')[self._name_]
+        qtrees = self._root_getattr_('_query_trees_')
+        tree = qtrees[self._name_][treenum]
+        host, protocol, port, header, path, body = \
+          self._get_query_components_(tree)
+        if reset:
+            self.reset_query()
+        return 'HOST: ' + str(host) + \
+            '\nPROTOCOL: ' + str(protocol) + \
+            '\nPORT: ' + str(port) + \
+            '\nHEADER: ' + str(header) + \
+            '\nPATH: ' + str(path) + \
+            '\nBODY: ' + str(body)
+        
+            
+
 
 class QueryTree(object):
 
@@ -396,7 +414,7 @@ class QueryTree(object):
                 ctree = self._current_tree_[r_method]
                 tree = self._query_trees_[r_method]
                 self._create_entry_(copy(rset), tree[ctree],
-                                           state, parent_kw)
+                                    state, parent_kw)
                 if self._global_tree_:
                     for k, v in self._global_tree_.items():
                         for t in tree:
