@@ -41,7 +41,7 @@ class RESTfulAsyncTemplate(object):
     def __call__(self, header_dict=None, return_format=None, lazy=False, 
                  deferred=False, pretty_print=False, 
                  reset=True, pid=None, queue=None, 
-                 timeout=30):
+                 timeout=15):
         self.custom_headers = header_dict
         if hasattr(self.parent, '_return_format_'):
             self.return_format = self.parent._return_format_
@@ -93,7 +93,7 @@ class AsyncSingleResourceMethod(RESTfulAsyncTemplate):
     def proc_spawn_loop(self):
         for num, request in enumerate(self.requests):
             sock = RESTSocket(request, self.parent._output_format_,
-                              num, self.queue, self.timeout)
+                              num, self.queue)
             self.threads[num] = Process(target=sock, name=num)
             self.threads[num].start()
 
@@ -243,9 +243,10 @@ class HTTPRequest(object):
 class RESTSocket(object):
     
     def __init__(self, http_request, accepted_formats,
-                 pid=None, queue=None, timeout=30):
+                 pid=None, queue=None, timeout=5):
         self.http_request = http_request
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.settimeout(timeout)
         if http_request.protocol == 'https':
             self.sock = ssl.wrap_socket(self.sock)
         self.accepted_formats = accepted_formats
@@ -268,18 +269,16 @@ class RESTSocket(object):
 
     def recv(self):
         response = b''
-        slept = 0
         while True:
-            if slept > self.timeout:
-                response = None
+            try:
+                data = self.sock.recv(1024)
+            except socket.timeout:
                 break
-            data = self.sock.recv(1024)
             if data:
                 response += data
-            elif not data and not response and slept <= self.timeout:
-                slept += 1
+            if not data and not response:
                 sleep(1)
-            else:
+            elif not data and response:
                 break
         self.sock.close()
         return self.handle_response(response)
