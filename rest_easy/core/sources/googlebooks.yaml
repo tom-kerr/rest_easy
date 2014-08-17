@@ -18,15 +18,14 @@ import googlebooks.def
     +children:
       Volumes:
         +http_method: GET
-        +path: '/books/v1/volumes?{query}{inTitle}{inAuthor}{inPublisher}{subject}{isbn}{oclc}{lccn}&{0}'
+        +path: '/books/v1/volumes?{query}{inTitle}{inAuthor}{inPublisher}{subject}{isbn}{oclc}{lccn}{0}'
         +input_format: key_value
         +output_format: application/json
         +children: 
           query: 
-            +mode: K+V
             +syntax:
               +bind: '='
-              +chain: '+'
+              +multi: '+'
             +this: *q
             +children:            
               inTitle: *intitle

@@ -58,7 +58,6 @@ import europeana.def
           callback: *std-callback 
           profile: *profile
           qf:
-            +mode: P+K+V
             +prefix: 'qf'
             +syntax:
               +args: ':'
@@ -102,7 +101,7 @@ import europeana.def
         +http_method: GET
         +path: '/api/v2/opensearch.rss?{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +requirements: 
           +mandatory: [searchTerms]
         +children:    

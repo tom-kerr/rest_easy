@@ -279,7 +279,7 @@ spatial: &spatial
       +doc: |
         Location coordinates in latitude, longitude form.
       +key: 'sourceResource.spatial.coordinates'
-      +expected_value: '^[0-9.-]+[ ]*[:][ ]*[0-9.-]+$'
+      +expected_value: '^[0-9.-]+[ ]*:[ ]*[0-9.-]+$'
     city: &spatial-city
       +doc: |
         Location city.        

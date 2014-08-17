@@ -32,10 +32,10 @@ import nytimes.def
               query: *std-q
 
               filteredQuery:
-                +mode: P+MK+V
                 +prefix: 'fq'          
                 +syntax: 
                   +args: ':'
+                  +multi: ' AND '
                 +this: *filteredquery
                 +children:
                   body: 
@@ -102,7 +102,6 @@ import nytimes.def
               sort: *sort
 
               fl: 
-                +mode: P+MK
                 +prefix: 'fl'
                 +syntax:
                   +multi: ','
@@ -145,7 +144,6 @@ import nytimes.def
               page: *std-page
 
               facetField:
-                +mode: P+K+V
                 +prefix: 'facet_field'
                 +syntax:
                   +multi: ','

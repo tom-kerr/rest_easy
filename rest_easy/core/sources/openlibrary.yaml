@@ -22,7 +22,6 @@ import openlibrary.def
     +output_format: application/json
     +children:         
       author:
-        +mode: S+K+V
         +scope:
           type: '/type/author'
         +children:
@@ -42,7 +41,6 @@ import openlibrary.def
           links: *links
 
       about:
-        +mode: S+K+V
         +scope: 
           type: '/type/about'
         +children:
@@ -58,14 +56,12 @@ import openlibrary.def
       #    as: *as
 
       collection:
-        +mode: S+K+V
         +scope: 
           type: '/type/collection'
         +children:
           name: *name
 
       content:
-        +mode: S+K+V
         +scope: 
           type: '/type/content'
         +children:
@@ -78,7 +74,6 @@ import openlibrary.def
       #    contributor: ' '
 
       doc:
-        +mode: S+K+V
         +scope: 
           type: '/type/doc'
         +children:
@@ -86,7 +81,6 @@ import openlibrary.def
           body: *body
 
       edition:
-        +mode: S+K+V
         +scope: 
           type: '/type/edition'
         +children:
@@ -181,10 +175,9 @@ import openlibrary.def
     +http_method: GET
     +path: '/api/books?{0}{format}{callback}{jscmd}'
     +input_format: key_value
-    +output_format: javascript
+    +output_format: [javascript, text/javascript]
     +children: 
       id: 
-        +mode: P+K+MV+A
         +prefix: 'bibkeys'
         +syntax: 
           +multi: ','
@@ -222,7 +215,6 @@ import openlibrary.def
     +output_format: application/json
     +children: 
       id: 
-        +mode: MK+MV
         +syntax:
           +bind: ':'
           +chain: ';'
@@ -252,7 +244,6 @@ import openlibrary.def
     +output_format: application/json
     +children: 
       id: 
-        +mode: MK+MV
         +children: *libidslow
         +syntax:
           +bind: ':'

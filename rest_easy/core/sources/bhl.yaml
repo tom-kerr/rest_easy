@@ -35,7 +35,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=AuthorSearch&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:         
           name: *name
 
@@ -43,7 +43,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=BookSearch&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +requirements: 
           +at_least_one: [title, lname, collectionid]
         +children:
@@ -60,7 +60,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetAuthorParts&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           creatorId: *creatorid
 
@@ -68,7 +68,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetAuthorTitles&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           creatorId: *creatorid  
 
@@ -76,14 +76,14 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op={GetCollections}{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +this: *getcollections
 
       GetItemByIdentifier:
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetItemByIdentifier&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:                
           barcode: *barcode
           ia: *ia
@@ -92,7 +92,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetItemMetadata&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           itemId: *itemid
           pages: *pages
@@ -103,7 +103,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetItemPages&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +requirements:
           +mandatory: [itemId] 
         +children:
@@ -114,7 +114,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetItemParts&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           itemId: *itemid
 
@@ -122,14 +122,14 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op={GetLanguages}{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +this: *getlanguages
 
       GetPageMetadata:
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetPageMetadata&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +requirements: 
           +mandatory: [pageId]
         +children:
@@ -141,7 +141,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetPageNames&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           pageId: *pageid
 
@@ -149,7 +149,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetPageOcrText&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           pageId: *pageid
 
@@ -157,7 +157,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetPartBibTeX&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           partId: *partid
 
@@ -165,7 +165,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetPartByIdentifier&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           doi: *doi
           oclc: *oclc
@@ -181,7 +181,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetPartEndNote&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           partId: *partid
 
@@ -189,7 +189,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetPartMetadata&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           partId: *partid
 
@@ -197,7 +197,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetPartNames&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           partId: *partid
 
@@ -205,7 +205,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetSubjectParts&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           subject: *subject
 
@@ -213,7 +213,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetSubjectTitles&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           subject: *subject
 
@@ -221,7 +221,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetTitleBibTeX&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           titleId: *titleid
 
@@ -229,7 +229,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetTitleByIdentifier&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           doi: *doi
           oclc: *oclc
@@ -245,7 +245,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetTitleEndNote&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           titleId: *titleid
 
@@ -253,7 +253,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetTitleItems&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           titleId: *titleid
 
@@ -261,7 +261,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=GetTitleMetadata&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           titleId: *titleid
           items: *items
@@ -270,28 +270,28 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op={GetUnpublishedItems}{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +this: *getunpublisheditems
 
       GetUnpublishedParts:
         +http_method: GET
         +path: '/api2/httpquery.ashx?op={GetUnpublishedParts}{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +this: *getunpublishedparts
 
       GetUnpublishedTitles:
         +http_method: GET
         +path: '/api2/httpquery.ashx?op={GetUnpublishedTitles}{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +this: *getunpublishedtitles
 
       NameCount:
         +http_method: GET
         +path: '/api2/httpquery.ashx?op={NameCount}{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +this: *namecount
         +children:
           startDate: *startdate
@@ -301,7 +301,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=NameList&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           startRow: *startrow
           batchSize: *batchsize
@@ -312,7 +312,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=NameSearch&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           name: *name
 
@@ -320,7 +320,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=PartSearch&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +requirements:
           +at_least_one: [title, author]
         +children:
@@ -336,7 +336,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=SubjectSearch&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           subject: *subject
 
@@ -344,7 +344,7 @@ import bhl.def
         +http_method: GET
         +path: '/api2/httpquery.ashx?op=TitleSearchSimple&{0}'
         +input_format: key_value
-        +output_format: text/xml
+        +output_format: [application/xml, text/xml]
         +children:
           title: *title
 

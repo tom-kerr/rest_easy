@@ -29,7 +29,7 @@ import librarything.def
             +http_method: GET
             +path: '/services/rest/1.1/?method=librarything.ck.getwork&{0}'
             +input_format: key_value
-            +output_format: text/xml
+            +output_format: [application/xml, text/xml]
             +requirements:
               +at_least_one: [id, isbn, lccn, oclc, name]
             +children:
@@ -43,7 +43,7 @@ import librarything.def
             +http_method: GET
             +path: '/services/rest/1.1/?method=librarything.ck.getauthor&{0}'
             +input_format: key_value
-            +output_format: text/xml
+            +output_format: [application/xml, text/xml]
             +requirements:
               +at_least_one: [id, authorCode, name]
             +children:
@@ -55,7 +55,7 @@ import librarything.def
             +http_method: GET
             +path: '/services/rest/1.1/?method=librarything.local.getvenue&{0}'
             +input_format: key_value
-            +output_format: text/xml
+            +output_format: [application/xml, text/xml]
             +requirements:
               +mandatory: [id]
             +children:
@@ -65,7 +65,7 @@ import librarything.def
             +http_method: GET
             +path: '/services/rest/1.1/?method=librarything.local.getvenuesnear&{0}'
             +input_format: key_value
-            +output_format: text/xml
+            +output_format: [application/xml, text/xml]
             +requirements: 
               +at_least_one: [latlon, lat, lon, id , place]
             +children:
@@ -82,7 +82,7 @@ import librarything.def
             +http_method: GET
             +path: '/services/rest/1.1/?method=librarything.local.searchvenues&{0}'
             +input_format: key_value
-            +output_format: text/xml
+            +output_format: [application/xml, text/xml]
             +requirements:
               +mandatory: [q]
             +children:
@@ -97,7 +97,7 @@ import librarything.def
             +http_method: GET
             +path: '/services/rest/1.1/?method=librarything.local.geteventsnear&{0}'
             +input_format: key_value
-            +output_format: text/xml
+            +output_format: [application/xml, text/xml]
             +requirements:
               +mandatory: [timestamp]
               +at_least_one: [latlon, lat, lon, venue, place, 
@@ -118,7 +118,7 @@ import librarything.def
             +http_method: GET
             +path: '/services/rest/1.1/?method=librarything.local.searchevents&{0}'
             +input_format: key_value
-            +output_format: text/xml
+            +output_format: [application/xml, text/xml]
             +requirements:
               +mandatory: [q]
             +children:

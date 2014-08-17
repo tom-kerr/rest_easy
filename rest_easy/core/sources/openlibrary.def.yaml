@@ -186,7 +186,6 @@ pagenum: &pagenum
   +expected_value: '[0-9]+'
       
 tableOfContents: &tableofcontents
-  +mode: P+K+V 
   +prefix: 'table_of_contents'
   +children:
     class: *class

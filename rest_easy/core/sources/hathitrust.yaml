@@ -42,7 +42,6 @@ import hathitrust.def
     +output_format: application/json
     +children: 
       id: 
-        +mode: MK+MV
         +syntax:
           +bind: ':'
           +chain: ';'
@@ -80,7 +79,6 @@ import hathitrust.def
     +output_format: application/json
     +children: 
       id: 
-        +mode: MK+MV
         +syntax:
           +bind: ':'
           +chain: ';'

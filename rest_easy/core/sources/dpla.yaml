@@ -32,7 +32,6 @@ import dpla.def
         +output_format: application/json
         +children:      
           fetch:
-            +mode: MV
             +syntax: 
               +multi: ','
             +children:
@@ -95,7 +94,6 @@ import dpla.def
           fetchFields: 
             +doc: |
               Indicates specific fields to be returned.
-            +mode: P+K+MV
             +prefix: 'fields'
             +syntax:
               +multi: ','
@@ -128,7 +126,6 @@ import dpla.def
           facets:
             +doc: |
               Groups of items collected by shared field values. 
-            +mode: P+K+MV+A
             +prefix: 'facets'
             +syntax:
               +multi: ','
@@ -162,7 +159,6 @@ import dpla.def
               type: *type-novalue
             
           sortBy: 
-            +mode: P+K+V
             +prefix: 'sort_by'
             +children: 
               id: *id-novalue
@@ -229,7 +225,6 @@ import dpla.def
                 +key: 'title'
 
           fetchFields: 
-            +mode: P+K+MV
             +prefix: 'fields'
             +syntax:
               +multi: ','
@@ -243,7 +238,6 @@ import dpla.def
           #facets:
           #  +doc: |
           #    Groups of items collected by shared field values. 
-          #  +mode: P+K+MV+A
           #  +prefix: 'facets'
           #  syntax:
           #    +multi: ','
@@ -252,7 +246,6 @@ import dpla.def
           #    type: *type-novalue
             
           sortBy: 
-            +mode: P+K+V
             +prefix: 'sort_by'
             +children: 
               '@id': *-id-novalue

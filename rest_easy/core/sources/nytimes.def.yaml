@@ -7,10 +7,9 @@ api+key: &apikey
 responseformat: &responseformat
   +key: Null
   +expected_value: '(.json|.jsonp)'
-  +mode: V
 
 filtered_query: &filteredquery
-  +key: ''
+  +key: Null
   +expected_value: str
   +syntax:
     +args: Null
@@ -123,7 +122,7 @@ section_name_contains: &sectionname-contains
   +expected_value: str
 
 type_of_material: &typeofmaterial
-  +key: 'type_of_material'
+  +key: 'type_of_materials'
   +expected_value: str
 
 type_of_material_contains: &typeofmaterial-contains 
@@ -207,12 +206,10 @@ callback: &callback
   +expected_value: Null
 
 listName: &listname
-  +mode: V
   +key: Null
   +expected_value: str
 
 date: &date
-  +mode: V
   +key: Null
   +expected_value: *stdregex-yyyymmdd
 

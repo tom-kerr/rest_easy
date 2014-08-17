@@ -21,7 +21,7 @@ import internetarchive.def
 +children:
   identifier: 
     <<: *identifier
-    +mode: V
+    +key: Null
 
   Download:
     +http_method: GET
@@ -37,7 +37,6 @@ import internetarchive.def
       *text,
       *video]
     +this: 
-      +mode: V
       +key: Null
       +expected_value: str
 
@@ -47,7 +46,6 @@ import internetarchive.def
     +input_format: key_value
     +output_format: application/json
     +this: 
-      +mode: K
       +key: ''
       +expected_value: Null
     +children:
@@ -92,7 +90,7 @@ import internetarchive.def
 
   identifier: 
     <<: *identifier
-    +mode: V
+    +key: Null
 
   Upload:
     +http_method: PUT

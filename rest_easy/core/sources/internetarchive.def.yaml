@@ -7,8 +7,7 @@ identifier: &identifier
   +expected_value: *stdregex-ia
 
 element: &element
-  +mode: V
-  +key: ''
+  +key: Null
   +expected_value: str
 
 target: &target
