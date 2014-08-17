@@ -7,4 +7,4 @@ setup(name='rest_easy',
       description='A python module that dynamically creates wrappers for RESTful APIs from YAML markup.',
       packages=['rest_easy', 'rest_easy.core'],
       package_data={'rest_easy.core': ['sources/*.yaml']},
-      requires=['lxml', 'yaml', 'xmltodict', 'dicttoxml', 'colorama'])
+      requires=['lxml', 'yaml', 'xmltodict', 'dicttoxml'])
