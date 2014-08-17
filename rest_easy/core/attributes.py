@@ -187,16 +187,40 @@ class Aspects(object):
             where '+' and ',' (+bind and +chain) are determined by the contents 
             of +syntax.
 
-        """
+        """        
+        flags = set()
         if data is None:
-            return 'K+V'
+            return type('mode', (), {'string': None,
+                                     'flags': []})()
         elif '+mode' in data:
-            mode_string = data['+mode']
+            flags = set(data['+mode'].split('+'))
         else:
-            data['+mode'] = mode_string = 'K+V'
-        mode_flags = mode_string.split('+')
-        return type('mode', (), {'string': mode_string,
-                                 'flags': mode_flags})()
+            if '+key' in data and data['+key'] is not None:
+                flags.add('K')
+            elif '+expected_value' in data and data['+expected_value'] is not None:
+                flags.add('V')
+            
+        if '+syntax' in data:
+            if '+multi' in data['+syntax']:
+                for f in ('K', 'V'):
+                    try:
+                        flags.remove(f)
+                    except:
+                        pass
+                    finally:
+                        flags.add('M'+f)
+            if '+args' in data['+syntax']:
+                flags.add('A')
+
+        if '+prefix' in data:
+            flags.add('P')
+        if '+scope' in data:
+            flags.add('S')
+            
+        string = '+'.join(flags)
+        data['+mode'] = string
+        return type('mode', (), {'string': string,
+                                 'flags': flags})()
 
     def _get_output_format_(self, data):
         if '+output_format' in data:
