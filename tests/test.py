@@ -1,175 +1,361 @@
 from __future__ import print_function
 
+import yaml
+import re
 import pprint
+import json
+from io import StringIO
 
 from rest_easy.core.main import RestEasy
 
 RestEasy = RestEasy()
 
+
 def print_function_name(func):
-    def wrapper():
+    def wrapper(**kwargs):
         print ('\n', func.__name__.upper())
-        func()
+        func(**kwargs)
     return wrapper
 
 @print_function_name
-def dlese():
+def dlese(**kwargs):
     dlese = RestEasy.get_wrappers('dlese').ddsws('v1.1')
-    dlese.Search.query('earth')
+    dlese.Search.query('magma')
     dlese.Search.startingOffset(1)
     dlese.Search.numReturned(5)
-    #dlese.Search.dateField('2013')
-    #dlese.Search.fromDate('2013')
-    print (dlese.get_query_string())
-    #results = dlese.GET(return_format='json')
+    dlese.Search.fromDate('2000')
+    dlese.Search.dateField('2013')
+    if kwargs.get('url'):
+        print (dlese.Search.get_url())
+    if kwargs.get('query'):
+        results = dlese.Search.GET()
+        if kwargs.get('print'):
+            print (results)
+    dlese.ListGradeRanges()
+    if kwargs.get('url'):
+        print (dlese.ListGradeRanges.get_url())
+    if kwargs.get('query'):
+        results = dlese.ListGradeRanges.GET()
+        if kwargs.get('print'):
+            print (results)
 
 @print_function_name
-def dpla():
+def dpla(**kwargs):
     dpla = RestEasy.get_wrappers('dpla').v2
-    dpla.apiKey('xxxx')
+    dpla.setApiKeyFromHome()        
     dpla.Items.searchIn.title('Dead Souls')
-    dpla.Items.searchIn.spatial.city('Boston')
+    dpla.Items.facets.spatial.city()
     dpla.Items.facets.spatial.coordinates('-10:70')
-    print (dpla.Items.get_query_string())
+    if kwargs.get('url'):
+        print (dpla.Items.get_url())
+    
+    dpla.Items.new_query()
 
-    dpla.new_query()
     dpla.Items.searchIn.title('Mark Twain')
-    print (dpla.Items.get_query_string())
+    if kwargs.get('url'):
+        print (dpla.Items.get_url())
 
-    #results = dpla.Items.GET()
-
-    #dpla.Collections.searchIn.title('blah')
-    #dpla.Collections.pageSize()
-    #print (dpla.Collections.get_query_string(reset=True))
+    if kwargs.get('query'):
+        results = dpla.Items.GET()
+        if kwargs.get('print'):
+            print (results)
+    
+    #pprint.pprint(results[0]._data_)
+    #for i in results:
+        #pprint.pprint(i.aggrOriginalRecords()._data_)
+        #print (dir(i.getDocsByIngestType('item')))
+        #item = i.getDocsBySourceResource({'creator': 'Schernus, Martin (Mr)'})
+        #pprint.pprint(item._data_)
+        #pprint.pprint(item.aggrSourceResources(True))
+        #print(dir(item.aggrSourceResources()))
+        #pprint.pprint(item.aggrSourceResources().getSubject())
+        #print (dir(item))
+        #print(item.getId())
+        #print (dir(i))
+        #pprint.pprint(i.getDocsByDataProvider('University of California', True))
+    
+    #pprint.pprint(results)
+    #print (dpla.Collections.get_url(reset=True))
 
 @print_function_name
-def europeana():
+def europeana(**kwargs):
     europeana = RestEasy.get_wrappers('europeana')
-    europeana('v2').apiKey('xxxx')
-    europeana('v2').Search.query('Mark Twain')
-    print (europeana('v2').Search.get_query_string())
-    #results = europeana('v2').Search.GET()
+    europeana('v2').setApiKeyFromHome()
+    europeana('v2').Search.query('brassica')
+    if kwargs.get('url'):
+        print (europeana('v2').Search.get_url())
+    if kwargs.get('query'):
+        results = europeana('v2').Search.GET()
+        if kwargs.get('print'):
+            print (results)
+    #for i in results:
+    #    pprint.pprint (i._data_)
+    #    print (dir(i))
+    #    pprint.pprint(i.aggrIds())
+    
+    europeana('v2').Record.recordId('/15503/90BCCA1FF521581674903BDDA2158EAE02EF3C8A')
+    if kwargs.get('url'):
+        print (europeana('v2').Record.get_url())
+    if kwargs.get('query'):
+        results = europeana('v2').Record.GET()
+        if kwargs.get('print'):
+            print (results)
 
+    europeana('v2').Suggestions.query('gogol')
+    if kwargs.get('url'):
+        print (europeana('v2').Suggestions.get_url())
+    if kwargs.get('query'):
+        results = europeana('v2').Suggestions.GET()
+        if kwargs.get('print'):
+            print (results)
+
+    europeana('v2').OpenSearch.searchTerms('gogol')
+    if kwargs.get('url'):
+        print (europeana.v2.OpenSearch.get_url())
+    if kwargs.get('query'):
+        results = europeana('v2').OpenSearch.GET(return_format='json')
+        if kwargs.get('print'):
+            print (results)
 
 @print_function_name
-def googlebooks():
+def googlebooks(**kwargs):
     googlebooks = RestEasy.get_wrappers('googlebooks').v1.Volumes
     googlebooks.query('riverboat')
     googlebooks.query.inAuthor('Twain')
+    googlebooks.query.inTitle('Huckeberry')
     googlebooks.filter('ebooks')
     googlebooks.pagination.startIndex(2)
     googlebooks.pagination.maxResults(4)
     googlebooks.fields('items')
-    print (googlebooks.get_query_string())
-    #results = googlebooks.GET()
+    googlebooks.onlyShowEpub()
+    if kwargs.get('url'):
+        print (googlebooks.get_url())
+    if kwargs.get('query'):
+        results = googlebooks.GET()
+        if kwargs.get('print'):
+            print (results)
+
+    #for i in results:
+    #    print(dir(i))
+    #    pprint.pprint(i.aggrAccessInfos())
+    #    pprint.pprint(i.aggrSelfLinks())
 
 @print_function_name
-def washpost():
+def washpost(**kwargs):
     washpost = RestEasy.get_wrappers('washpost').trove('v1')
-    washpost.apiKey('xxxx')
+    washpost.setApiKeyFromHome()
     washpost.Resources.variant('Mark Twain')
     washpost.Resources.includeVariants(1)
-    print (washpost.Resources.get_query_string())
-    #results = washpost.Resources.GET()
+    if kwargs.get('url'):
+        print (washpost.Resources.get_url())
+    if kwargs.get('query'):
+        results = washpost.Resources.GET()
+        if kwargs.get('print'):
+            print (results)
+    #print (results)
 
 @print_function_name
-def loc():
-    loc = RestEasy.get_wrappers('loc').sru('v1.1')
+def loc(**kwargs):
+    loc = RestEasy.get_wrappers('loc').sru('v1.1').SearchRetrieve
     loc.query('dc.author any "Gogol"')
     loc.maximumRecords(1)
-    print (loc.get_query_string())
-    #results = loc.GET()
+    if kwargs.get('url'):
+        print (loc.get_url())
+    if kwargs.get('query'):
+        results = loc.GET()
+        if kwargs.get('print'):
+            print (results)
 
 @print_function_name
-def nytimes():
-    nytimes = RestEasy.get_wrappers('nytimes').articles('v2')
-    nytimes.apiKey('xxxx')
-    nytimes.responseFormat('.json')
-    nytimes.filteredQuery('Terror')
-    nytimes.filteredQuery.body('blah')
-    nytimes.facetField.section_name()
-    print (nytimes.get_query_string())
-    #results = nytimes.GET()
+def nytimes(**kwargs):
+    nytimes = RestEasy.get_wrappers('nytimes').v2
+    nytimes('articles').setApiKeyFromHome()
+    nytimes('articles').Search.responseFormat('.json')
+    #nytimes('articles').Search.filteredQuery('Terror')
+    nytimes('articles').Search.filteredQuery.body.search('Terror')
+    nytimes('articles').Search.filteredQuery.headline.search('Terror')
+    #nytimes('articles').Search.callback()
+    if kwargs.get('url'):
+        print (nytimes('articles').Search.get_url())
+    if kwargs.get('query'):
+        results = nytimes('articles').Search.GET()
+        if kwargs.get('print'):
+            print (results)
+    
+    #pprint.pprint(dir(results[0].getResponse()))
+    #print(dir(results[0].getResponse().getDocs()[0]))
+
+    nytimes('bestsellers').setApiKeyFromHome()
+    nytimes('bestsellers').Lists.responseFormat('.json')
+    nytimes('bestsellers').Lists.listName('e-book-fiction')
+    nytimes('bestsellers').Lists.date('1900-10-01')
+    if kwargs.get('url'):
+        print (nytimes('bestsellers').Lists.get_url())
+    if kwargs.get('query'):
+        results = nytimes('bestsellers').Lists.GET()
+        if kwargs.get('print'):
+            print (results)
 
 @print_function_name
-def bhl():
+def bhl(**kwargs):
     bhl = RestEasy.get_wrappers('bhl').v2
-    bhl.apiKey('xxxx')
-    bhl.bookSearch.title('Japanese Journal of Infectious Diseases')
-    print (bhl.get_query_string())
-    #results = bhl.GET()
+    bhl.setApiKeyFromHome()
+    bhl.AuthorSearch.name('Bob')
+    if kwargs.get('url'):
+        print (bhl.AuthorSearch.get_url())
+
+    bhl.GetCollections()
+    if kwargs.get('url'):
+        print (bhl.GetCollections.get_url())
+
+    bhl.NameCount()
+    if kwargs.get('url'):
+        print (bhl.NameCount.get_url())
+
+    bhl.BookSearch.title('Japanese Journal of Infectious Diseases')
+    if kwargs.get('url'):
+        print (bhl.BookSearch.get_url())
+
+    if kwargs.get('query'):
+        results = RestEasy.GET()
+        if kwargs.get('print'):
+            print (results)
 
 @print_function_name
-def openlibrary():
+def internetarchive(**kwargs):
+    ia = RestEasy.get_wrappers('internetarchive')
+    ia.identifier('testfilepost')
+    ia.Download('ongrowthform00thom_files.xml')
+    ia.Download.set_return_format('json')
+    print (ia.Download.get_request_strings())
+    #f = ia.Download.GET()
+    #print(type(f))
+    ia.MetadataRead.element('metadata')
+    ia.MetadataRead.count(3)
+    ia.MetadataRead.start(1)
+    print(ia.MetadataRead.get_url())
+    #print(ia.MetadataRead.GET())
+
+    ia.MetadataWrite.target('metadata')
+    ia.MetadataWrite.patch({'replace': '/doom', 
+                            'value': 'test'})
+    keys = ia.MetadataWrite.getApiKeysFromHome()
+    access, secret = keys['access'], keys['secret']
+    ia.MetadataWrite.access(access)
+    ia.MetadataWrite.secret(secret)
+    if kwargs.get('url'):
+        print (ia.MetadataWrite.get_request_strings())
+        print(ia.MetadataWrite.get_url())
+    #if kwargs.get('query'):
+    #    print(ia.MetadataWrite.POST())
+
+@print_function_name
+def openlibrary(**kwargs):
     openlib = RestEasy.get_wrappers('openlibrary')
-    openlib.Query.edition.tableOfContents.pagenum("10")
-    print (openlib.Query.get_query_string(reset=True))
+    openlib.Query.edition.tableOfContents.pagenum(9)
+    openlib.Query.edition.title()
+    openlib.Query.return_all()
+    if kwargs.get('url'):
+        print (openlib.Query.get_url())
+    if kwargs.get('query'):
+        results = openlib.Query.GET()
+        if kwargs.get('print'):
+            print (results)
+    
     #results = openlib.Query.GET()
+    #pprint.pprint (results)
+
+    #for i in results:
+        #pprint.pprint (i._data_)
+        #pprint.pprint(i.getByCreated('2013-12-10T22:00:30.722924'))
+        #pprint.pprint(i.getByTitle('A Book of Scripts', True))
+
+        #pprint.pprint(dir(i.aggrDescriptions()[0]))
+        #pprint.pprint(i.getSubjects())
+        #item = i.getByTitle('A Book of Scripts')
+        #pprint.pprint(item.getWorks())
+        #pprint.pprint(dir(item))
+        #print(dir(item.getWorksByKey('/works/OL9275492W')))
+        #pprint.pprint(i.getSubjects())
+        #pprint.pprint(i.aggrTitles())
+        #print (dir(i.getByTitle('A Book of Scripts')))
+
+        #pprint.pprint(toc[0].getTitles())
+        #     pprint.pprint(i.getByTableOfContents({'title':'Authors Preface'}))
+        #pprint.pprint(i.getByAuthors('/authors/OL337830A'))
+
+        #pprint.pprint(i.getByKey('/books/OL9048506M'))
+        #for a in dir(i):
+        #    if a.startswith('get'):
+        #        print ('----', a)
+        #        pprint.pprint( getattr(i, a)() )
+        #pprint.pprint(i.getIsbn10s())
+        #pprint.pprint(dir(i.getIdentifiers()[0]))
+        #print(dir(i))
+    
 
     openlib.MultiVolumesBrief.id.multikey([('oclc', '0030110408'),
                                            ('oclc', 424023),
                                            ('isbn', 3434343)])
-    print (openlib.MultiVolumesBrief.get_query_string(reset=True))
+    if kwargs.get('url'):
+        print (openlib.MultiVolumesBrief.get_url())
+    if kwargs.get('query'):
+        results =  (openlib.MultiVolumesBrief.GET())
+        if kwargs.get('print'):
+            print (results)
+
+    #openlib.new_query()
 
     openlib.Books.id.ISBN(123456789)
     openlib.Books.callback('blah')
-    print (openlib.Books.get_query_string(reset=True))
-
+    if kwargs.get('url'):
+        print (openlib.Books.get_url())
+    if kwargs.get('query'):
+        results = openlib.Books.GET()
+        if kwargs.get('print'):
+            print (results)
 
 @print_function_name
-def librarything():
+def librarything(**kwargs):
     librarything = RestEasy.get_wrappers('librarything').webservices('v1.1')
-    librarything.apiKey('xxxx')
-    librarything.getAuthor.name('Mark Twain')
-    print (librarything.get_query_string())
-    #results = librarything.GET()
+    librarything.setApiKeyFromHome()
+    librarything.GetAuthor.name('Mark Twain')
+    if kwargs.get('url'):
+        print (librarything.GetAuthor.get_url())
+    if kwargs.get('query'):
+        results = librarything.GetAuthor.GET()
+        if kwargs.get('print'):
+            print (results)
+    #print (results)
+    #pprint.pprint(results[0].getResponse(True))
+    #print(dir(results[0].getResponse().getLtml().getItem()))
 
 @print_function_name
-def hathitrust():
+def hathitrust(**kwargs):
     hathitrust = RestEasy.get_wrappers('hathitrust')
-
     hathitrust.VolumesBrief.id.isbn(1234567890)
-    hathitrust.VolumesBrief.callback('shite')
-    print (hathitrust.VolumesBrief.get_query_string(reset=True))
-    #results = hathitrust.VolumesBrief.GET()
+    if kwargs.get('url'):
+        print (hathitrust.VolumesBrief.get_url())
+    if kwargs.get('query'):
+        results = hathitrust.VolumesBrief.GET()
+        if kwargs.get('print'):
+            print (results)
 
-    hathitrust.MultiVolumesBrief.id.isbn(1234567890)
-    hathitrust.MultiVolumesBrief.callback('blah')
-    print(hathitrust.MultiVolumesBrief.get_query_string(reset=True))
-    #results = hathitrust.MultiVolumesBrief.GET()
+    #hathitrust.MultiVolumesBrief.id.isbn(1234567890)
+    hathitrust.MultiVolumesBrief.id.multikey([('isbn','1234567890'), 
+                                              (('isbn','0987654321'))])
+    if kwargs.get('url'):
+        print(hathitrust.MultiVolumesBrief.get_url())
+    if kwargs.get('query'):
+        results = hathitrust.MultiVolumesBrief.GET()
+        if kwargs.get('print'):
+            print (results)
 
 @print_function_name
-def inline():
-    print (RestEasy.get_query_string('dpla', 'v2',
-                                     'apiKey->xxxx:Items->searchIn->title->Dead Souls',
-                                     reset=True))
-    
-    print (RestEasy.get_query_string('dpla', 'v2', {'apiKey': 'xxxx',
-                                                    'Items': {'searchIn':
-                                                              {'title': 'Dead Souls'}}},
-                                     reset=True))
-
-    print (RestEasy.get_query_string('washpost', 'trove',
-                                     'v1->apiKey->xxxx:v1->Resources->variant->Mark Twain:'+
-                                     'v1->Resources->includeVariants->1',
-                                     reset=True))
-
-
-    #print RestEasy.get_query_string('europeana', 'v2', 'apiKey->432434:Search->query->blah')
-
-    #RestEasy.get_query_string('europeana', 'v2', {'apiKey' : '432434',
-    #                                             'Search': {'query': 'blah'}})
-    #print RestEasy.get_query_string('washpost', ('Trove', 'v1'),
-    #                           ['apiKey->3434343',
-    #                             'Resources->variant->Mark Twain',
-    #                             'Resources->includeVariants->1'])
-
-    #print r.get_query_string('europeanav2', 'search', ['essential->wskey->232t4t',
-    #                                                   'essential->query->Mark Twain',
-    #                                                   'qf->TYPE->IMAGE'])
-
-    #print RestEasy.get_query_string('openlibrary', 'Read', ['MultiVolumesBrief->id->isbn->76722',
-    #                                                        'MultiVolumesBrief->id->isbn->7777777'])
+def inline(**kwargs):
+    print (RestEasy.get_url('openlibrary->MultiVolumesBrief->id->isbn->76722|7777777:Sdsd'))
+    print (RestEasy.get_url('dpla->v2->Items->searchIn->title->blah:dpla->v2->apiKey->xxx'))
+                             
 
 sources = [dlese,
            dpla,
@@ -181,22 +367,69 @@ sources = [dlese,
            bhl,
            openlibrary,
            librarything,
-           hathitrust,
+           hathitrust, 
+           internetarchive,
            inline]
 
-def test(sources):
+
+def test(sources, **kwargs):
     for source in sources:
-        if source is not dlese:
-            continue
-        #try:
-        source()
-
-test(sources)
+        #if source is not internetarchive:
+        #    continue
+        source(**kwargs)
 
 
+import sys
+if __name__ == '__main__':
+    args = sys.argv[1:] if sys.argv else ''
+    kwargs = {}
+    for a in ('url', 'query', 'print'):
+        if [arg for arg in args if re.search('^-'+a+'$', arg)]:
+            kwargs[a] = True
+        else:
+            kwargs[a] = False
+    test(sources, **kwargs)
+
+
+
+"""
+results = RestEasy.GET(return_format='json')
+pprint.pprint(results.keys())
+print ([type(r) for r in results.values()])
+for s, item in results.items():
+    for m, v in item.items():
+        print (s, m, type(v))
+"""
 """
 ol = RestEasy.get_wrappers('openlibrary')
 ol.Query.edition.genres('horror')
 
-print (ol.Query.get_query_string(reset=True))
+print (ol.Query.get_url(reset=True))
 """
+
+
+
+"""
+from rest_easy.core.convert import DynamicAccessor
+
+with open('dplaoutput.txt', 'r') as f:
+    data = json.load(f)
+
+    #pprint.pprint(data)
+
+ro = DynamicAccessor(data)
+
+print (dir(ro))
+pprint.pprint (ro.getDocs()[0]._data_)
+
+"""
+#print (dir(ro.getDocs(True)[))
+#pprint.pprint (ro.getDocsById('5adc45637647173f6ef0d9a25fd69d2b'))
+#ro.getDocsByArobaseId()
+#ro.getDocsBy_Id()
+#ro.getDocsByTitle()
+
+#pprint.pprint(k)
+
+
+
