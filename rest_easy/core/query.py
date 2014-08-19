@@ -375,12 +375,12 @@ class HTTPMethods(Convert):
           self._get_query_components_(tree)
         if reset:
             self.reset_query()
-        return 'HOST: ' + str(host) + \
-            '\nPROTOCOL: ' + str(protocol) + \
-            '\nPORT: ' + str(port) + \
-            '\nHEADER: ' + str(header) + \
-            '\nPATH: ' + str(path) + \
-            '\nBODY: ' + str(body)
+        return '\nHost: ' + str(host) + \
+            '\nProtocol: ' + str(protocol) + \
+            '\nPort: ' + str(port) + \
+            '\nHeader: ' + str(header) + \
+            '\nPath: ' + str(path) + \
+            '\nBody: ' + str(body) + '\n'
         
             
 
