@@ -102,11 +102,11 @@ class AlternateInterface(object):
         self._resource_method_ = None
         return url
 
-    def new_query(self, source, api, query):
+    def new_query(self, query):
         if self._resource_method_:
             self._resource_method_ = None
-        root_obj, api_obj, query_elements = \
-          self._get_query_components_(source, api, query)
+        source, api, root_obj, api_obj, query_elements = \
+          self._get_query_components_(query)
         self._submit_elements_(source, api, root_obj, api_obj, query_elements)
         if not self._resource_method_:
             raise Exception('Insufficient arguments -- '+
