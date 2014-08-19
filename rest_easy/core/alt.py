@@ -60,6 +60,8 @@ class AlternateInterface(object):
     def _get_query_components_(self, query):
         query_elements = []
         queries = (Parser._parse_query_string_(query))
+        if not isinstance(queries, list):
+            queries = [queries,]
         source_obj = api_object = None
         elem = queries
         for q in queries:
