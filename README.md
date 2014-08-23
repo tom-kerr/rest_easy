@@ -317,7 +317,25 @@ DynamicAccessors
                                    .... 
 >>> dir(results[0])
 
-['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_add_child_get_func_', '_add_get_func_', '_add_getby_func_', '_append_get_func_', '_build_accessors_', '_built_', '_data_', '_deferred_', '_format_attr_name_', '_format_dict_', '_format_list_', '_get_formatted_data_', '_get_match_func_', '_is_flat_', '_lazy_', '_make_plural_', '_match_dict_', '_match_list_', '_match_str_', 'aggrAdmins', 'aggrAggregatedCHOs', 'aggrArobaseContexts', 'aggrArobaseIds', 'aggrArobaseTypes', 'aggrDataProviders', 'aggrIds', 'aggrIngestDates', 'aggrIngestTypes', 'aggrIngestionSequences', 'aggrIsShownAts', 'aggrObjects', 'aggrOriginalRecords', 'aggrProviders', 'aggrScores', 'aggrSourceResources', 'aggr_Ids', 'aggr_Revs', 'getCount', 'getDocs', 'getDocsByAdmin', 'getDocsByAggregatedCHO', 'getDocsByArobaseContext', 'getDocsByArobaseId', 'getDocsByArobaseType', 'getDocsByDataProvider', 'getDocsById', 'getDocsByIngestDate', 'getDocsByIngestType', 'getDocsByIngestionSequence', 'getDocsByIsShownAt', 'getDocsByObject', 'getDocsByOriginalRecord', 'getDocsByProvider', 'getDocsByScore', 'getDocsBySourceResource', 'getDocsBy_Id', 'getDocsBy_Rev', 'getFacets', 'getLimit', 'getStart']
+['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', 
+'__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', 
+'__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', 
+'__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', 
+'__subclasshook__', '__weakref__', '_add_child_get_func_', '_add_get_func_', 
+'_add_getby_func_', '_append_get_func_', '_build_accessors_', '_built_', 
+'_data_', '_deferred_', '_format_attr_name_', '_format_dict_', '_format_list_',
+'_get_formatted_data_', '_get_match_func_', '_is_flat_', '_lazy_', 
+'_make_plural_', '_match_dict_', '_match_list_', '_match_str_', 'aggrAdmins', 
+'aggrAggregatedCHOs', 'aggrArobaseContexts','aggrIngestionSequences', 
+'aggrIsShownAts', 'aggrObjects', 'aggrOriginalRecords', 'aggrProviders', 
+'aggrScores','aggrSourceResources', 'aggr_Ids', 'aggr_Revs', 'getCount', 
+'getDocs', 'getDocsByAdmin', 'getDocsByAggregatedCHO','getDocsByArobaseContext', 
+'getDocsByArobaseId', 'getDocsByArobaseType', 'getDocsByDataProvider', 
+'getDocsById','getDocsByIngestDate', 'getDocsByIngestType', 
+'getDocsByIngestionSequence', 'getDocsByIsShownAt', 'getDocsByObject',
+'getDocsByOriginalRecord', 'getDocsByProvider', 'getDocsByScore', 
+'getDocsBySourceResource', 'getDocsBy_Id', 'getDocsBy_Rev','getFacets', 
+'getLimit', 'getStart']
 
 >>> print(results[0].aggrIds())
 
@@ -354,11 +372,16 @@ aggrField -> where 'field' is a subfield that occurs more than once among a list
 * If the field being returned contains another nested structure, another DynamicAccessor will be generated and returned for further access, otherwise, the value of that field or a list of values will be returned. One can defer the construction of nested DynamicAccessors by passing lazy=True to the parent's contructor, and even defer the parent's construction by passing it deferred=True. Construction of these objects will take place when one tries to access them.
 
 
+------
 Installation
+------
 
 - python3  -> "pip3 install rest_easy/ -r rest_easy/requirements.txt" or run "python3 rest_easy/setup.py install" and install the dependencies yourself.
 
+------
 Dependencies
+------
+
 - lxml
 - PyYAML
 - xmltodict
