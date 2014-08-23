@@ -90,14 +90,14 @@ class AlternateInterface(object):
         return source_obj._name_, api_obj._name_, \
             root_obj, api_obj, query_elements
 
-    def get_url(self, query, reset=False):
-        if not self._resource_method_:
+    def get_url(self, query=None, reset=False):
+        if not query and not self._resource_method_:
+            raise Exception('Insufficient arguments -- '+
+                            'you must supply a Resource Method.')        
+        elif not self._resource_method_:
             source, api, root_obj, api_obj, query_elements = \
-              self._get_query_components_(query)
-            self._submit_elements_(source, api, root_obj, api_obj, query_elements)
-            if not self._resource_method_:
-                raise Exception('Insufficient arguments -- '+
-                                'you must supply a Resource Method.')        
+                self._get_query_components_(query)
+            self._submit_elements_(source, api, root_obj, api_obj, query_elements)        
         url = self._resource_method_.get_url(reset=reset)
         self._resource_method_ = None
         return url

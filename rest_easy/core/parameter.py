@@ -366,6 +366,7 @@ class Node(QueryTree):
             self._current_tree_ = {}
             self._query_trees_ = {}
             self._query_requirements_ = {}
+            self._return_format_ = None
             #for item in self._submitted_:
             #    item._value_ = None
             self._submitted_ = {}
